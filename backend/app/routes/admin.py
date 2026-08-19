@@ -1,3 +1,4 @@
+import uuid
 from fastapi import APIRouter, Depends, HTTPException, Body
 from sqlalchemy.orm import Session
 from datetime import datetime
@@ -342,25 +343,30 @@ def create_admin_user(payload: dict = Body(...), db: Session = Depends(get_db)):
             "createdAt": existing.created_at.isoformat() if existing.created_at else datetime.utcnow().isoformat()
         }
 
-    new_user = User(
-        name=name,
-        email=email,
-        password_hash=get_password_hash(password),
-        role=role,
-        is_active=True
-    )
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
+    try:
+        new_user = User(
+            id=str(uuid.uuid4()),
+            name=name,
+            email=email,
+            password_hash=get_password_hash(password),
+            role=role,
+            is_active=True
+        )
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
 
-    return {
-        "id": new_user.id,
-        "name": new_user.name,
-        "email": new_user.email,
-        "role": new_user.role.lower(),
-        "active": new_user.is_active,
-        "createdAt": new_user.created_at.isoformat() if new_user.created_at else datetime.utcnow().isoformat()
-    }
+        return {
+            "id": new_user.id,
+            "name": new_user.name,
+            "email": new_user.email,
+            "role": new_user.role.lower(),
+            "active": new_user.is_active,
+            "createdAt": new_user.created_at.isoformat() if new_user.created_at else datetime.utcnow().isoformat()
+        }
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Failed to create user: {str(e)}")
 
 @router.patch("/users/{id}")
 def update_admin_user(id: str, payload: dict = Body(...), db: Session = Depends(get_db)):
