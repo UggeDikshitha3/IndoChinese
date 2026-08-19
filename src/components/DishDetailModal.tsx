@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Flame, Sparkles, Heart, Clock, Utensils, CheckCircle2, AlertCircle, Share2, Plus, Minus } from 'lucide-react';
+import { X, Flame, Sparkles, Heart, Clock, Utensils, CheckCircle2, AlertCircle, Share2, Plus, Minus, ShoppingBag } from 'lucide-react';
 import { MenuItem } from '../types';
 
 interface DishDetailModalProps {
@@ -9,6 +9,7 @@ interface DishDetailModalProps {
   isFavorite: boolean;
   onToggleFavorite: (item: MenuItem) => void;
   onSelectPairingItem?: (item: MenuItem) => void;
+  onAddToCart?: (item: MenuItem, quantity: number, spiceLevel: string, instructions: string) => void;
   allItems: MenuItem[];
 }
 
@@ -19,12 +20,15 @@ export const DishDetailModal: React.FC<DishDetailModalProps> = ({
   isFavorite,
   onToggleFavorite,
   onSelectPairingItem,
+  onAddToCart,
   allItems,
 }) => {
   const [selectedSpice, setSelectedSpice] = useState<number>(item?.spiceLevel || 1);
+  const [quantity, setQuantity] = useState<number>(1);
   const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
   const [copiedLink, setCopiedLink] = useState(false);
   const [specialNote, setSpecialNote] = useState('');
+  const [addedToast, setAddedToast] = useState(false);
 
   if (!isOpen || !item) return null;
 
@@ -306,25 +310,70 @@ export const DishDetailModal: React.FC<DishDetailModalProps> = ({
         </div>
 
         {/* Footer Action */}
-        <div className="p-4 sm:p-5 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-3">
-          <button
-            onClick={() => onToggleFavorite(item)}
-            className={`px-4 py-2.5 rounded-xl text-xs font-bold border transition-all flex items-center gap-1.5 ${
-              isFavorite
-                ? 'bg-rose-50 border-rose-300 text-rose-700'
-                : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-100'
-            }`}
-          >
-            <Heart className={`w-4 h-4 ${isFavorite ? 'fill-rose-600 text-rose-600' : ''}`} />
-            <span>{isFavorite ? 'Saved to Favorites' : 'Save to Favorites'}</span>
-          </button>
+        <div className="p-4 sm:p-5 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => onToggleFavorite(item)}
+              className={`px-3 py-2 rounded-xl text-xs font-bold border transition-all flex items-center gap-1.5 ${
+                isFavorite
+                  ? 'bg-rose-50 border-rose-300 text-rose-700'
+                  : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-100'
+              }`}
+            >
+              <Heart className={`w-3.5 h-3.5 ${isFavorite ? 'fill-rose-600 text-rose-600' : ''}`} />
+              <span className="hidden sm:inline">{isFavorite ? 'Saved' : 'Save'}</span>
+            </button>
 
-          <button
-            onClick={onClose}
-            className="px-6 py-2.5 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white text-xs sm:text-sm font-bold rounded-xl shadow-md transition-all active:scale-98"
-          >
-            Done Exploring
-          </button>
+            {/* Quantity Selector */}
+            <div className="flex items-center space-x-1.5 bg-white border border-slate-300 rounded-xl p-1 shadow-2xs">
+              <button
+                type="button"
+                onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                className="w-6 h-6 flex items-center justify-center rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 text-xs font-bold"
+              >
+                <Minus className="w-3 h-3" />
+              </button>
+              <span className="text-xs font-bold text-slate-900 px-2 font-mono">{quantity}</span>
+              <button
+                type="button"
+                onClick={() => setQuantity(quantity + 1)}
+                className="w-6 h-6 flex items-center justify-center rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 text-xs font-bold"
+              >
+                <Plus className="w-3 h-3" />
+              </button>
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            {onAddToCart ? (
+              <button
+                onClick={() => {
+                  const spiceNames = ['Mild', 'Medium', 'Hot 🌶️', 'Fiery 🌶️🌶️'];
+                  const spiceStr = spiceNames[selectedSpice - 1] || 'Medium';
+                  const allNotes = [
+                    ...selectedAddons.map(a => a.replace(/_/g, ' ')),
+                    specialNote.trim()
+                  ].filter(Boolean).join(', ');
+
+                  onAddToCart(item, quantity, spiceStr, allNotes);
+                  setAddedToast(true);
+                  setTimeout(() => setAddedToast(false), 2000);
+                  setTimeout(() => onClose(), 600);
+                }}
+                className="px-5 py-2.5 bg-gradient-to-r from-red-600 via-rose-600 to-amber-600 hover:from-red-700 hover:to-amber-700 text-white text-xs sm:text-sm font-extrabold rounded-xl shadow-md transition-all flex items-center space-x-1.5 transform active:scale-98 cursor-pointer"
+              >
+                <ShoppingBag className="w-4 h-4" />
+                <span>{addedToast ? 'Added to Cart! ✓' : `Add to Cart • £${(item.price * quantity).toFixed(2)}`}</span>
+              </button>
+            ) : (
+              <button
+                onClick={onClose}
+                className="px-6 py-2.5 bg-slate-900 text-white text-xs sm:text-sm font-bold rounded-xl shadow-md"
+              >
+                Done Exploring
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>

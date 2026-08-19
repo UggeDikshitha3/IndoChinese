@@ -20,6 +20,9 @@ import { MobileBottomNav } from './components/MobileBottomNav';
 import { AdminReservationAlertBanner } from './components/AdminReservationAlertBanner';
 import { CookieConsentBanner } from './components/CookieConsentBanner';
 import { LegalModals, LegalModalType } from './components/LegalModals';
+import { OnlineOrderCartDrawer } from './components/OnlineOrderCartDrawer';
+import { OnlineOrderCheckoutModal } from './components/OnlineOrderCheckoutModal';
+import { ShoppingBag, ArrowRight } from 'lucide-react';
 
 import { BookTablePage } from './pages/BookTablePage';
 import { AdminPage } from './pages/AdminPage';
@@ -30,7 +33,9 @@ import {
   SpecialOffer,
   GalleryItem,
   Review,
-  RestaurantSettings
+  RestaurantSettings,
+  CartItem,
+  OrderType
 } from './types';
 
 import {
@@ -67,6 +72,119 @@ export default function App() {
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState<boolean>(() => {
     return Boolean(localStorage.getItem('indochinese_admin_token'));
   });
+
+  // Online Food Ordering & Cart State
+  const [cartItems, setCartItems] = useState<CartItem[]>(() => {
+    try {
+      const saved = localStorage.getItem('indochinese_cart_items');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [orderType, setOrderType] = useState<OrderType>('collection');
+  const [promoCode, setPromoCode] = useState<string>('');
+  const [appliedDiscount, setAppliedDiscount] = useState<number>(0);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+
+  // Sync Cart to LocalStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('indochinese_cart_items', JSON.stringify(cartItems));
+    } catch (e) {
+      console.warn('Could not save cart state:', e);
+    }
+  }, [cartItems]);
+
+  const handleAddToCart = (item: MenuItem, quantity: number = 1, spiceLevel: string = 'Medium', instructions: string = '') => {
+    setCartItems(prev => {
+      const existingIdx = prev.findIndex(
+        i => i.menuItem.id === item.id && (i.spiceLevel || 'Medium') === spiceLevel && (i.specialInstructions || '') === instructions
+      );
+      if (existingIdx > -1) {
+        const updated = [...prev];
+        updated[existingIdx] = {
+          ...updated[existingIdx],
+          quantity: updated[existingIdx].quantity + quantity
+        };
+        return updated;
+      }
+      return [...prev, {
+        menuItem: item,
+        quantity,
+        spiceLevel,
+        specialInstructions: instructions
+      }];
+    });
+  };
+
+  const handleUpdateQuantity = (index: number, newQty: number) => {
+    if (newQty <= 0) {
+      handleRemoveItem(index);
+      return;
+    }
+    setCartItems(prev => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], quantity: newQty };
+      return updated;
+    });
+  };
+
+  const handleRemoveItem = (index: number) => {
+    setCartItems(prev => prev.filter((_, idx) => idx !== index));
+  };
+
+  const handleClearCart = () => {
+    setCartItems([]);
+    setPromoCode('');
+    setAppliedDiscount(0);
+  };
+
+  const handleApplyPromoCode = (code: string) => {
+    const clean = code.trim().toUpperCase();
+    const subtotal = cartItems.reduce((s, itm) => s + itm.menuItem.price * itm.quantity, 0);
+
+    if (clean === 'BOMBAY10' || clean === 'WELCOME10') {
+      const disc = Math.round(subtotal * 0.10 * 100) / 100;
+      setPromoCode(clean);
+      setAppliedDiscount(disc);
+      return { success: true, message: `10% Discount applied (-£${disc.toFixed(2)})` };
+    }
+    if (clean === 'WOKFREE' || clean === 'FREEDELIVERY') {
+      setPromoCode(clean);
+      setAppliedDiscount(2.50);
+      return { success: true, message: 'Free Delivery code applied!' };
+    }
+    if (clean === 'TASTEOFINDIA' || clean === 'SAVE5') {
+      const disc = Math.min(5.00, subtotal);
+      setPromoCode(clean);
+      setAppliedDiscount(disc);
+      return { success: true, message: `£5.00 Flat Discount applied (-£${disc.toFixed(2)})` };
+    }
+    return { success: false, message: 'Invalid code. Try BOMBAY10 or SAVE5' };
+  };
+
+  const handleRemovePromoCode = () => {
+    setPromoCode('');
+    setAppliedDiscount(0);
+  };
+
+  const handleProceedToCheckout = () => {
+    setIsCartOpen(false);
+    setIsCheckoutOpen(true);
+  };
+
+  const handleOrderSuccess = (order: any) => {
+    setCartItems([]);
+    setPromoCode('');
+    setAppliedDiscount(0);
+    try {
+      localStorage.removeItem('indochinese_cart_items');
+    } catch {}
+  };
+
+  const totalCartCount = cartItems.reduce((sum, itm) => sum + itm.quantity, 0);
 
   // Check URL hash for routing
   useEffect(() => {
@@ -226,6 +344,8 @@ export default function App() {
         onOpenManageReservation={() => setIsManageModalOpen(true)}
         onOpenAdmin={handleOpenAdmin}
         isAdminLoggedIn={isAdminLoggedIn}
+        cartItemCount={totalCartCount}
+        onOpenCart={() => setIsCartOpen(true)}
       />
 
       <main className="flex-1 pb-16 sm:pb-0">
@@ -249,12 +369,15 @@ export default function App() {
         <ChefSpecials
           menuItems={menuItems}
           onBookTable={handleNavigateBookTable}
+          onAddToCart={handleAddToCart}
         />
 
         {/* Full Menu Exploration (Starters, Szechwan Woks, Hakka Noodles, Manchurian, Desi-Chinese) */}
         <MenuSection
           categories={categories}
           menuItems={menuItems}
+          onBookTable={handleNavigateBookTable}
+          onAddToCart={handleAddToCart}
         />
 
         {/* Why Choose Indo-Chinese High-Heat Wok Dining */}
@@ -344,10 +467,63 @@ export default function App() {
         onOpenPrivacyPolicy={() => setActiveLegalModal('privacy')}
       />
 
-      {/* Mobile Fixed Action Bar (CALL, DIRECTIONS, BOOK TABLE) */}
+      {/* Floating Cart Trigger Pill Button */}
+      {totalCartCount > 0 && !isCartOpen && !isCheckoutOpen && (
+        <div className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-40 animate-fadeIn">
+          <button
+            onClick={() => setIsCartOpen(true)}
+            className="flex items-center space-x-2.5 bg-gradient-to-r from-red-600 via-rose-600 to-amber-600 text-white px-4 py-3 rounded-full shadow-2xl hover:shadow-red-500/50 border-2 border-white transition-all transform active:scale-95 cursor-pointer font-bold text-xs sm:text-sm"
+          >
+            <div className="relative">
+              <ShoppingBag className="w-5 h-5" />
+              <span className="absolute -top-2 -right-2 bg-amber-400 text-slate-950 text-[10px] font-extrabold w-4 h-4 rounded-full flex items-center justify-center">
+                {totalCartCount}
+              </span>
+            </div>
+            <span>View Cart ({totalCartCount})</span>
+            <span className="bg-black/20 px-2 py-0.5 rounded-full text-amber-200 font-mono text-xs">
+              £{cartItems.reduce((s, itm) => s + itm.menuItem.price * itm.quantity, 0).toFixed(2)}
+            </span>
+          </button>
+        </div>
+      )}
+
+      {/* Online Order Cart Drawer */}
+      <OnlineOrderCartDrawer
+        isOpen={isCartOpen}
+        onClose={() => setIsCartOpen(false)}
+        cartItems={cartItems}
+        onUpdateQuantity={handleUpdateQuantity}
+        onRemoveItem={handleRemoveItem}
+        onClearCart={handleClearCart}
+        orderType={orderType}
+        onChangeOrderType={(t) => setOrderType(t)}
+        promoCode={promoCode}
+        onApplyPromoCode={handleApplyPromoCode}
+        onRemovePromoCode={handleRemovePromoCode}
+        appliedDiscount={appliedDiscount}
+        onProceedToCheckout={handleProceedToCheckout}
+        settings={settings}
+      />
+
+      {/* Online Order Checkout & Live Tracker Modal */}
+      <OnlineOrderCheckoutModal
+        isOpen={isCheckoutOpen}
+        onClose={() => setIsCheckoutOpen(false)}
+        cartItems={cartItems}
+        orderType={orderType}
+        promoCode={promoCode}
+        appliedDiscount={appliedDiscount}
+        onOrderSuccess={handleOrderSuccess}
+        settings={settings}
+      />
+
+      {/* Mobile Fixed Action Bar (CALL, MAP, ORDER, BOOK TABLE) */}
       <MobileBottomNav
         settings={settings}
         onBookTable={handleNavigateBookTable}
+        cartItemCount={totalCartCount}
+        onOpenCart={() => setIsCartOpen(true)}
       />
     </div>
   );

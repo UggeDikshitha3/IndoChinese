@@ -192,3 +192,46 @@ class Review(Base):
     dish_recommended = Column(String, nullable=True)
     verified_diner = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+class CustomerOrder(Base):
+    __tablename__ = "customer_orders"
+
+    id = Column(String, primary_key=True, default=generate_uuid, index=True)
+    order_number = Column(String, unique=True, nullable=False, index=True)
+    order_type = Column(String, default="takeaway", nullable=False) # takeaway, delivery, dine_in
+    customer_name = Column(String, nullable=False)
+    customer_email = Column(String, nullable=False)
+    customer_phone = Column(String, nullable=False, index=True)
+    delivery_address = Column(Text, nullable=True)
+    delivery_postcode = Column(String, nullable=True)
+    delivery_notes = Column(Text, nullable=True)
+    status = Column(String, default="placed", index=True) # placed, preparing, ready, out_for_delivery, delivered, completed, cancelled
+    subtotal = Column(Float, default=0.0)
+    delivery_fee = Column(Float, default=0.0)
+    discount = Column(Float, default=0.0)
+    tax = Column(Float, default=0.0)
+    total_amount = Column(Float, default=0.0)
+    promo_code = Column(String, nullable=True)
+    payment_method = Column(String, default="card") # card, apple_pay, google_pay, cash
+    payment_status = Column(String, default="paid") # paid, pending, failed
+    estimated_time = Column(String, default="25-35 mins")
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    items = relationship("CustomerOrderItem", back_populates="order", cascade="all, delete-orphan")
+
+class CustomerOrderItem(Base):
+    __tablename__ = "customer_order_items"
+
+    id = Column(String, primary_key=True, default=generate_uuid, index=True)
+    order_id = Column(String, ForeignKey("customer_orders.id"), nullable=False, index=True)
+    menu_item_id = Column(String, nullable=True)
+    item_name = Column(String, nullable=False)
+    unit_price = Column(Float, nullable=False)
+    quantity = Column(Integer, default=1)
+    total_price = Column(Float, nullable=False)
+    spice_level = Column(String, default="Medium")
+    dietary_notes = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    order = relationship("CustomerOrder", back_populates="items")

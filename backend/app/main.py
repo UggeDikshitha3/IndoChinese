@@ -44,6 +44,10 @@ app.include_router(reviews.router, prefix=settings.API_V1_STR)
 def health_check():
     return {"status": "healthy", "service": "indochinese-backend"}
 
+@app.get("/api/settings")
+def get_restaurant_settings_alias(db = Depends(restaurant.get_db)):
+    return restaurant.get_restaurant_info(db)
+
 # Static assets mount for menu pictures
 if os.path.exists("src/assets"):
     app.mount("/src/assets", StaticFiles(directory="src/assets"), name="src_assets")

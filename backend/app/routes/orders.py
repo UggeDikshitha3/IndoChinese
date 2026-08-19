@@ -1,10 +1,20 @@
 import uuid
+import random
 from datetime import datetime, date
 from typing import List, Optional, Dict, Any
 from fastapi import APIRouter, Depends, HTTPException, Body, Query
 from sqlalchemy.orm import Session
 from app.database.session import get_db, engine, Base
-from app.models.models import RestaurantTable, TableOrder, TableOrderItem, TableStatus, User, UserRole
+from app.models.models import (
+    RestaurantTable,
+    TableOrder,
+    TableOrderItem,
+    TableStatus,
+    User,
+    UserRole,
+    CustomerOrder,
+    CustomerOrderItem
+)
 
 # Ensure tables exist
 try:
@@ -48,6 +58,24 @@ def recalculate_order_totals(order: TableOrder, db: Session):
     order.total_amount = total_amount
     db.commit()
     db.refresh(order)
+
+@router.get("/tables")
+def get_all_tables_order_list(db: Session = Depends(get_db)):
+    from app.services.reservation_service import ensure_default_tables
+    ensure_default_tables(db)
+    tables = db.query(RestaurantTable).order_by(RestaurantTable.table_number.asc()).all()
+    return [
+        {
+            "id": t.id,
+            "tableNumber": t.table_number,
+            "capacity": t.capacity,
+            "area": t.area,
+            "status": t.status,
+            "assignedServer": t.assigned_server,
+            "notes": t.notes
+        }
+        for t in tables
+    ]
 
 @router.get("/tables/{table_id}")
 def get_table_order(table_id: str, db: Session = Depends(get_db)):
@@ -345,3 +373,274 @@ def get_servers_daily_performance(serverName: Optional[str] = None, db: Session 
         }
 
     return stats_list
+
+# ============================================================================
+# CUSTOMER ONLINE FOOD ORDERING & DELIVERY ENDPOINTS
+# ============================================================================
+
+@router.post("")
+@router.post("/online")
+def create_customer_online_order(payload: dict = Body(...), db: Session = Depends(get_db)):
+    try:
+        items_data = payload.get("items") or []
+        if not items_data or len(items_data) == 0:
+            raise HTTPException(status_code=400, detail="Cart is empty. Please select food items before placing an order.")
+
+        customer_name = (payload.get("customerName") or "").strip()
+        customer_email = (payload.get("customerEmail") or "").strip()
+        customer_phone = (payload.get("customerPhone") or "").strip()
+
+        if not customer_name or not customer_phone:
+            raise HTTPException(status_code=400, detail="Customer name and valid phone number are required.")
+
+        order_type = payload.get("orderType") or payload.get("type") or "takeaway"
+        delivery_address = payload.get("deliveryAddress") or ""
+        delivery_postcode = payload.get("deliveryPostcode") or ""
+        delivery_notes = payload.get("deliveryNotes") or payload.get("specialInstructions") or ""
+        promo_code = payload.get("promoCode") or ""
+
+        # Calculate or verify items total
+        subtotal = 0.0
+        parsed_items = []
+        for itm in items_data:
+            name = itm.get("name") or itm.get("itemName") or itm.get("menuItem", {}).get("name")
+            unit_price = float(itm.get("price") or itm.get("unitPrice") or itm.get("menuItem", {}).get("price") or 0.0)
+            qty = max(1, int(itm.get("quantity") or 1))
+            total_itm_price = round(unit_price * qty, 2)
+            subtotal += total_itm_price
+
+            parsed_items.append({
+                "menuItemId": itm.get("menuItemId") or itm.get("id") or itm.get("menuItem", {}).get("id"),
+                "name": name,
+                "unitPrice": unit_price,
+                "quantity": qty,
+                "totalPrice": total_itm_price,
+                "spiceLevel": itm.get("spiceLevel") or "Medium",
+                "dietaryNotes": itm.get("dietaryNotes") or itm.get("specialInstructions") or ""
+            })
+
+        subtotal = round(subtotal, 2)
+        
+        # Delivery fee
+        delivery_fee = 0.0
+        if order_type == "delivery":
+            delivery_fee = 0.0 if subtotal >= 30.0 else 2.50
+
+        # Promo code discount
+        discount = 0.0
+        if promo_code.upper() in ["BOMBAY10", "WELCOME10"]:
+            discount = round(subtotal * 0.10, 2)
+        elif promo_code.upper() in ["WOKFREE", "FREEDELIVERY"]:
+            discount = delivery_fee
+            delivery_fee = 0.0
+        elif promo_code.upper() in ["TASTEOFINDIA", "SAVE5"]:
+            discount = min(5.00, subtotal)
+
+        # UK VAT (20% included)
+        tax = round((subtotal - discount) * 0.20, 2)
+        total_amount = round(subtotal - discount + delivery_fee + tax, 2)
+
+        order_num = f"ORD-2026-{random.randint(100000, 999999)}"
+        order_id = str(uuid.uuid4())
+        payment_method = payload.get("paymentMethod") or "card"
+        payment_status = payload.get("paymentStatus") or ("paid" if payment_method in ["card", "apple_pay", "google_pay"] else "pending")
+
+        new_order = CustomerOrder(
+            id=order_id,
+            order_number=order_num,
+            order_type=order_type,
+            customer_name=customer_name,
+            customer_email=customer_email,
+            customer_phone=customer_phone,
+            delivery_address=delivery_address,
+            delivery_postcode=delivery_postcode,
+            delivery_notes=delivery_notes,
+            status="placed",
+            subtotal=subtotal,
+            delivery_fee=delivery_fee,
+            discount=discount,
+            tax=tax,
+            total_amount=total_amount,
+            promo_code=promo_code,
+            payment_method=payment_method,
+            payment_status=payment_status,
+            estimated_time="25-35 mins" if order_type == "delivery" else "15-20 mins"
+        )
+        db.add(new_order)
+
+        for pitm in parsed_items:
+            db_item = CustomerOrderItem(
+                id=str(uuid.uuid4()),
+                order_id=order_id,
+                menu_item_id=pitm["menuItemId"],
+                item_name=pitm["name"],
+                unit_price=pitm["unitPrice"],
+                quantity=pitm["quantity"],
+                total_price=pitm["totalPrice"],
+                spice_level=pitm["spiceLevel"],
+                dietary_notes=pitm["dietaryNotes"]
+            )
+            db.add(db_item)
+
+        db.commit()
+        db.refresh(new_order)
+
+        return {
+            "success": True,
+            "message": "Order placed successfully! The kitchen is preparing your dishes.",
+            "order": {
+                "id": new_order.id,
+                "orderNumber": new_order.order_number,
+                "orderType": new_order.order_type,
+                "customerName": new_order.customer_name,
+                "customerEmail": new_order.customer_email,
+                "customerPhone": new_order.customer_phone,
+                "deliveryAddress": new_order.delivery_address,
+                "deliveryPostcode": new_order.delivery_postcode,
+                "deliveryNotes": new_order.delivery_notes,
+                "status": new_order.status,
+                "subtotal": new_order.subtotal,
+                "deliveryFee": new_order.delivery_fee,
+                "discount": new_order.discount,
+                "tax": new_order.tax,
+                "totalAmount": new_order.total_amount,
+                "promoCode": new_order.promo_code,
+                "paymentMethod": new_order.payment_method,
+                "paymentStatus": new_order.payment_status,
+                "estimatedTime": new_order.estimated_time,
+                "createdAt": new_order.created_at.isoformat(),
+                "items": [
+                    {
+                        "id": it.id,
+                        "menuItemId": it.menu_item_id,
+                        "name": it.item_name,
+                        "unitPrice": it.unit_price,
+                        "quantity": it.quantity,
+                        "totalPrice": it.total_price,
+                        "spiceLevel": it.spice_level,
+                        "dietaryNotes": it.dietary_notes
+                    }
+                    for it in new_order.items
+                ]
+            }
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("")
+def get_all_customer_orders(status: Optional[str] = None, db: Session = Depends(get_db)):
+    query = db.query(CustomerOrder).order_by(CustomerOrder.created_at.desc())
+    if status and status != "all":
+        query = query.filter(CustomerOrder.status == status)
+    orders = query.all()
+
+    return [
+        {
+            "id": o.id,
+            "orderNumber": o.order_number,
+            "orderType": o.order_type,
+            "customerName": o.customer_name,
+            "customerEmail": o.customer_email,
+            "customerPhone": o.customer_phone,
+            "deliveryAddress": o.delivery_address,
+            "deliveryPostcode": o.delivery_postcode,
+            "deliveryNotes": o.delivery_notes,
+            "status": o.status,
+            "subtotal": o.subtotal,
+            "deliveryFee": o.delivery_fee,
+            "discount": o.discount,
+            "tax": o.tax,
+            "totalAmount": o.total_amount,
+            "promoCode": o.promo_code,
+            "paymentMethod": o.payment_method,
+            "paymentStatus": o.payment_status,
+            "estimatedTime": o.estimated_time,
+            "createdAt": o.created_at.isoformat() if o.created_at else None,
+            "items": [
+                {
+                    "id": it.id,
+                    "menuItemId": it.menu_item_id,
+                    "name": it.item_name,
+                    "unitPrice": it.unit_price,
+                    "quantity": it.quantity,
+                    "totalPrice": it.total_price,
+                    "spiceLevel": it.spice_level,
+                    "dietaryNotes": it.dietary_notes
+                }
+                for it in o.items
+            ]
+        }
+        for o in orders
+    ]
+
+@router.get("/online/{order_id}")
+def get_customer_online_order(order_id: str, db: Session = Depends(get_db)):
+    o = db.query(CustomerOrder).filter(
+        (CustomerOrder.id == order_id) | (CustomerOrder.order_number.ilike(order_id))
+    ).first()
+    if not o:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    return {
+        "id": o.id,
+        "orderNumber": o.order_number,
+        "orderType": o.order_type,
+        "customerName": o.customer_name,
+        "customerEmail": o.customer_email,
+        "customerPhone": o.customer_phone,
+        "deliveryAddress": o.delivery_address,
+        "deliveryPostcode": o.delivery_postcode,
+        "deliveryNotes": o.delivery_notes,
+        "status": o.status,
+        "subtotal": o.subtotal,
+        "deliveryFee": o.delivery_fee,
+        "discount": o.discount,
+        "tax": o.tax,
+        "totalAmount": o.total_amount,
+        "promoCode": o.promo_code,
+        "paymentMethod": o.payment_method,
+        "paymentStatus": o.payment_status,
+        "estimatedTime": o.estimated_time,
+        "createdAt": o.created_at.isoformat() if o.created_at else None,
+        "items": [
+            {
+                "id": it.id,
+                "menuItemId": it.menu_item_id,
+                "name": it.item_name,
+                "unitPrice": it.unit_price,
+                "quantity": it.quantity,
+                "totalPrice": it.total_price,
+                "spiceLevel": it.spice_level,
+                "dietaryNotes": it.dietary_notes
+            }
+            for it in o.items
+        ]
+    }
+
+@router.patch("/{order_id}/status")
+def update_customer_order_status(order_id: str, payload: dict = Body(...), db: Session = Depends(get_db)):
+    o = db.query(CustomerOrder).filter(
+        (CustomerOrder.id == order_id) | (CustomerOrder.order_number.ilike(order_id))
+    ).first()
+    if not o:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    new_status = payload.get("status")
+    if new_status:
+        o.status = new_status
+    if payload.get("paymentStatus"):
+        o.payment_status = payload.get("paymentStatus")
+
+    db.commit()
+    db.refresh(o)
+
+    return {
+        "success": True,
+        "orderId": o.id,
+        "orderNumber": o.order_number,
+        "status": o.status,
+        "paymentStatus": o.payment_status
+    }

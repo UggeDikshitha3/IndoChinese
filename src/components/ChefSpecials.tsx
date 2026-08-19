@@ -1,16 +1,18 @@
-import React from 'react';
-import { Sparkles, Flame, Plus, Star } from 'lucide-react';
+import React, { useState } from 'react';
+import { Sparkles, Flame, Plus, Star, ShoppingBag, Check } from 'lucide-react';
 import { MenuItem } from '../types';
 
 interface ChefSpecialsProps {
   items?: MenuItem[];
   menuItems?: MenuItem[];
   onBookTable?: () => void;
+  onAddToCart?: (item: MenuItem, quantity: number, spiceLevel?: string, instructions?: string) => void;
 }
 
-export const ChefSpecials: React.FC<ChefSpecialsProps> = ({ items, menuItems, onBookTable }) => {
+export const ChefSpecials: React.FC<ChefSpecialsProps> = ({ items, menuItems, onBookTable, onAddToCart }) => {
   const safeItems = items || menuItems || [];
   const chefItems = safeItems.filter(i => i && i.isChefSpecial).slice(0, 4);
+  const [addedId, setAddedId] = useState<string | null>(null);
 
   if (chefItems.length === 0) return null;
 
@@ -77,9 +79,37 @@ export const ChefSpecials: React.FC<ChefSpecialsProps> = ({ items, menuItems, on
                   <span className="text-base font-extrabold text-slate-900 font-serif">
                     £{item.price.toFixed(2)}
                   </span>
-                  <span className="text-xs font-semibold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200">
-                    Chef's Choice
-                  </span>
+                  {onAddToCart ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onAddToCart(item, 1, 'Medium', 'Chef special recommendation');
+                        setAddedId(item.id);
+                        setTimeout(() => setAddedId(null), 1500);
+                      }}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center space-x-1 ${
+                        addedId === item.id
+                          ? 'bg-emerald-600 text-white'
+                          : 'bg-red-600 hover:bg-red-700 text-white shadow-xs'
+                      }`}
+                    >
+                      {addedId === item.id ? (
+                        <>
+                          <Check className="w-3.5 h-3.5" />
+                          <span>Added!</span>
+                        </>
+                      ) : (
+                        <>
+                          <ShoppingBag className="w-3.5 h-3.5" />
+                          <span>Order Online</span>
+                        </>
+                      )}
+                    </button>
+                  ) : (
+                    <span className="text-xs font-semibold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200">
+                      Chef's Choice
+                    </span>
+                  )}
                 </div>
               </div>
             </div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Flame, Leaf, Sparkles, SlidersHorizontal, Info, Heart, Eye, ArrowRight, X } from 'lucide-react';
+import { Search, Flame, Leaf, Sparkles, SlidersHorizontal, Info, Heart, Eye, ArrowRight, X, Plus, ShoppingBag, Check } from 'lucide-react';
 import { MenuCategory, MenuItem } from '../types';
 import { DishDetailModal } from './DishDetailModal';
 import { CravingFinder } from './CravingFinder';
@@ -10,19 +10,22 @@ interface MenuSectionProps {
   items?: MenuItem[];
   menuItems?: MenuItem[];
   onBookTable?: () => void;
+  onAddToCart?: (item: MenuItem, quantity: number, spiceLevel?: string, instructions?: string) => void;
 }
 
 export const MenuSection: React.FC<MenuSectionProps> = ({
   categories = [],
   items,
   menuItems,
-  onBookTable
+  onBookTable,
+  onAddToCart
 }) => {
   const safeItems = (items && items.length > 0) ? items : (menuItems && menuItems.length > 0) ? menuItems : INITIAL_MENU_ITEMS;
   const safeCategories = (categories && categories.length > 0) ? categories : INITIAL_CATEGORIES;
 
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [recentAddedId, setRecentAddedId] = useState<string | null>(null);
   const [vegFilter, setVegFilter] = useState<'all' | 'veg' | 'nonveg'>('all');
   const [spicyOnly, setSpicyOnly] = useState<boolean>(false);
   const [chefSpecialsOnly, setChefSpecialsOnly] = useState<boolean>(false);
@@ -469,14 +472,50 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
                     </div>
 
                     {/* Card Footer */}
-                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-                      <span className="text-[11px] text-slate-500 font-semibold uppercase tracking-wider">
+                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                      <span className="text-[11px] text-slate-500 font-semibold uppercase tracking-wider truncate">
                         {item.category.replace('_', ' ')}
                       </span>
-                      <span className="text-[11px] font-bold text-red-600 group-hover:text-red-700 flex items-center gap-1">
-                        <span>Details & Pairings</span>
-                        <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
-                      </span>
+
+                      <div className="flex items-center space-x-1.5" onClick={(e) => e.stopPropagation()}>
+                        {onAddToCart && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              onAddToCart(item, 1, 'Medium', '');
+                              setRecentAddedId(item.id);
+                              setTimeout(() => setRecentAddedId(null), 1500);
+                            }}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center space-x-1 shadow-2xs ${
+                              recentAddedId === item.id
+                                ? 'bg-emerald-600 text-white'
+                                : 'bg-red-50 text-red-700 hover:bg-red-600 hover:text-white border border-red-200'
+                            }`}
+                            title="Add 1 to Cart"
+                          >
+                            {recentAddedId === item.id ? (
+                              <>
+                                <Check className="w-3.5 h-3.5" />
+                                <span>Added!</span>
+                              </>
+                            ) : (
+                              <>
+                                <Plus className="w-3.5 h-3.5" />
+                                <span>Add</span>
+                              </>
+                            )}
+                          </button>
+                        )}
+
+                        <button
+                          type="button"
+                          onClick={() => setActiveDish(item)}
+                          className="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                          title="Customise & details"
+                        >
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -493,6 +532,7 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
           isFavorite={activeDish ? favoriteIds.includes(activeDish.id) : false}
           onToggleFavorite={toggleFavorite}
           onSelectPairingItem={(pairingItem) => setActiveDish(pairingItem)}
+          onAddToCart={onAddToCart}
           allItems={safeItems}
         />
       </div>

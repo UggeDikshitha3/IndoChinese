@@ -10,7 +10,8 @@ import {
   Clock,
   Search,
   ChevronRight,
-  Sparkles
+  Sparkles,
+  ShoppingBag
 } from 'lucide-react';
 import { RestaurantSettings } from '../types';
 import { DEFAULT_RESTAURANT_SETTINGS } from '../config/restaurantConfig';
@@ -24,6 +25,8 @@ interface HeaderProps {
   onOpenManageReservation: () => void;
   onOpenAdmin?: () => void;
   isAdminLoggedIn?: boolean;
+  cartItemCount?: number;
+  onOpenCart?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -34,7 +37,9 @@ export const Header: React.FC<HeaderProps> = ({
   onNavigateBookTable,
   onOpenManageReservation,
   onOpenAdmin,
-  isAdminLoggedIn
+  isAdminLoggedIn,
+  cartItemCount = 0,
+  onOpenCart
 }) => {
   const currentSettings = settings || DEFAULT_RESTAURANT_SETTINGS;
   const [isScrolled, setIsScrolled] = useState(false);
@@ -174,11 +179,27 @@ export const Header: React.FC<HeaderProps> = ({
           </nav>
 
           {/* Action CTAs */}
-          <div className="hidden sm:flex items-center space-x-3">
+          <div className="hidden sm:flex items-center space-x-2.5">
+            {onOpenCart && (
+              <button
+                id="header-order-cart-button"
+                onClick={onOpenCart}
+                className="relative px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-800 bg-amber-50 hover:bg-amber-100 border border-amber-300 transition-all flex items-center space-x-1.5 shadow-2xs cursor-pointer"
+              >
+                <ShoppingBag className="w-4 h-4 text-red-600" />
+                <span>Order Online</span>
+                {cartItemCount > 0 && (
+                  <span className="w-5 h-5 rounded-full bg-red-600 text-white font-bold text-[10px] flex items-center justify-center -mr-1 animate-pulse">
+                    {cartItemCount}
+                  </span>
+                )}
+              </button>
+            )}
+
             <button
               id="header-manage-booking-button"
               onClick={onOpenManageReservation}
-              className="px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-800 bg-slate-100 hover:bg-slate-200 border border-slate-300 transition-all flex items-center space-x-1.5"
+              className="px-3 py-2.5 rounded-xl text-xs font-bold text-slate-800 bg-slate-100 hover:bg-slate-200 border border-slate-300 transition-all flex items-center space-x-1.5"
             >
               <Search className="w-3.5 h-3.5 text-slate-600" />
               <span>Manage Booking</span>
@@ -187,15 +208,30 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               id="header-book-table-button"
               onClick={onNavigateBookTable}
-              className="px-5 py-2.5 rounded-xl text-xs font-extrabold uppercase tracking-wider text-white bg-gradient-to-r from-red-600 via-rose-600 to-amber-600 hover:from-red-500 hover:to-amber-500 shadow-md transition-all flex items-center space-x-2 transform active:scale-95"
+              className="px-4.5 py-2.5 rounded-xl text-xs font-extrabold uppercase tracking-wider text-white bg-gradient-to-r from-red-600 via-rose-600 to-amber-600 hover:from-red-500 hover:to-amber-500 shadow-md transition-all flex items-center space-x-1.5 transform active:scale-95 cursor-pointer"
             >
               <Calendar className="w-4 h-4 text-amber-300" />
-              <span>BOOK A TABLE</span>
+              <span>BOOK TABLE</span>
             </button>
           </div>
 
-          {/* Mobile Hamburger Toggle */}
+          {/* Mobile Actions: Cart & Hamburger Toggle */}
           <div className="flex sm:hidden items-center space-x-2">
+            {onOpenCart && (
+              <button
+                onClick={onOpenCart}
+                className="relative p-2 rounded-xl bg-amber-50 text-slate-800 border border-amber-300"
+                aria-label="View Cart"
+              >
+                <ShoppingBag className="w-5 h-5 text-red-600" />
+                {cartItemCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-600 text-white font-bold text-[9px] flex items-center justify-center animate-pulse">
+                    {cartItemCount}
+                  </span>
+                )}
+              </button>
+            )}
+
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2 rounded-xl bg-slate-100 text-slate-700 hover:text-slate-900 border border-slate-300"
