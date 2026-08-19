@@ -21,6 +21,7 @@ def submit_contact_message(msg_in: ContactCreate, db: Session = Depends(get_db))
     return {"success": True, "message": "Thank you! Your message has been received."}
 
 @router.post("/events/inquire")
+@router.post("/events")
 def submit_event_inquiry(evt_in: EventInquiryCreate, db: Session = Depends(get_db)):
     inquiry = EventInquiry(
         name=evt_in.name.strip(),

@@ -177,7 +177,15 @@ class TableOrderItem(Base):
     quantity = Column(Integer, default=1)
     total_price = Column(Float, nullable=False)
     spice_level = Column(String, default="Medium")
-    dietary_notes = Column(String, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-
     order = relationship("TableOrder", back_populates="items")
+
+class Review(Base):
+    __tablename__ = "reviews"
+
+    id = Column(String, primary_key=True, default=generate_uuid, index=True)
+    name = Column(String, nullable=False)
+    rating = Column(Integer, default=5, nullable=False)
+    comment = Column(Text, nullable=False)
+    dish_recommended = Column(String, nullable=True)
+    verified_diner = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)

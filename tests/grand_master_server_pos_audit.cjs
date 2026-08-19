@@ -82,7 +82,7 @@ async function runComprehensiveAudit() {
     role: 'server'
   }, authHeaders);
   assert(addServerRes.status === 200, `Add Server Account (HTTP ${addServerRes.status})`);
-  const createdServer = addServerRes.data?.user;
+  const createdServer = addServerRes.data;
 
   // Verify created server can login
   const serverLoginRes = await request('POST', '/api/auth/login', {
@@ -105,7 +105,7 @@ async function runComprehensiveAudit() {
   console.log(`  Selected Test Table: ${testTable.tableNumber} (ID: ${testTable.id})`);
 
   // Seat party & assign server
-  const seatRes = await request('PATCH', `/api/tables/${testTable.id}/seat`, {
+  const seatRes = await request('PATCH', `/api/admin/tables/${testTable.id}/seat`, {
     partyName: 'Mr. Verma & Family',
     guests: 4,
     assignedServer: 'Rajesh Kumar',

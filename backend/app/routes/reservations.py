@@ -231,6 +231,7 @@ def update_reservation(id: str, updates: ReservationUpdate, db: Session = Depend
     }
 
 @router.patch("/{id}/reschedule")
+@router.post("/{id}/reschedule")
 def reschedule_reservation(id: str, payload: dict, db: Session = Depends(get_db)):
     resv = db.query(Reservation).filter((Reservation.id == id) | (Reservation.reservation_number == id)).first()
     if not resv:
