@@ -94,7 +94,15 @@ def get_menu(
     query = db.query(MenuItem)
 
     if category and category != "all":
-        query = query.filter(MenuItem.category == category)
+        cat_lower = category.strip().lower()
+        if cat_lower in ["nonveg_starters", "non_veg_starters", "chicken_starters"]:
+            query = query.filter(MenuItem.category.in_(["nonveg_starters", "chicken_starters", "prawn_specials"]))
+        elif cat_lower in ["combos", "combo_special", "chef_signatures"]:
+            query = query.filter(MenuItem.category.in_(["combos", "chef_signatures"]))
+        elif cat_lower in ["rice_noodles", "noodles", "rice"]:
+            query = query.filter(MenuItem.category.in_(["rice_noodles", "noodles", "rice"]))
+        else:
+            query = query.filter(MenuItem.category == category)
     if isVeg is not None and isVeg:
         query = query.filter(MenuItem.is_veg == True)
     if isNonVeg is not None and isNonVeg:

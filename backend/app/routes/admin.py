@@ -136,22 +136,26 @@ def get_admin_users(db: Session = Depends(get_db)):
     ]
 
 @router.patch("/reservations/{id}/status")
-def update_reservation_status(id: str, status: str = Body(..., embed=True), db: Session = Depends(get_db)):
+def update_reservation_status(id: str, payload: dict = Body(...), db: Session = Depends(get_db)):
     resv = db.query(Reservation).filter((Reservation.id == id) | (Reservation.reservation_number == id)).first()
     if not resv:
         raise HTTPException(status_code=404, detail="Reservation not found")
 
-    resv.status = status
+    new_status = payload.get("status") if isinstance(payload, dict) else str(payload)
+    if new_status:
+        resv.status = new_status
     db.commit()
     return {"success": True, "status": resv.status}
 
 @router.patch("/reservations/{id}/table")
-def assign_reservation_table(id: str, tableId: str = Body(..., embed=True), db: Session = Depends(get_db)):
+def assign_reservation_table(id: str, payload: dict = Body(...), db: Session = Depends(get_db)):
     resv = db.query(Reservation).filter((Reservation.id == id) | (Reservation.reservation_number == id)).first()
     if not resv:
         raise HTTPException(status_code=404, detail="Reservation not found")
 
-    resv.assigned_table_id = tableId
+    table_id = payload.get("tableId") or payload.get("table_id") or payload.get("tableNumber") if isinstance(payload, dict) else str(payload)
+    if table_id:
+        resv.assigned_table_id = table_id
     db.commit()
     return {"success": True, "assignedTableId": resv.assigned_table_id}
 

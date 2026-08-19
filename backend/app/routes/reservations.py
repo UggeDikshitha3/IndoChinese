@@ -114,6 +114,30 @@ def get_reservations(
         for r in reservations
     ]
 
+@router.get("/availability")
+def check_reservation_availability(
+    date: str = Query(..., description="Date in YYYY-MM-DD format"),
+    time: str = Query(..., description="Time in HH:MM format"),
+    guests: int = Query(..., ge=1, le=50, description="Party size"),
+    seatingArea: Optional[str] = Query("Main Dining Floor", description="Dining area preference"),
+    db: Session = Depends(get_db)
+):
+    from app.services.reservation_service import check_availability_and_assign_table
+    result = check_availability_and_assign_table(
+        db=db,
+        date=date,
+        time=time,
+        guests=guests,
+        seating_area=seatingArea or "Main Dining Floor"
+    )
+    return {
+        "available": result["available"],
+        "assignedTable": result.get("table_id"),
+        "tableNumber": result.get("table_number"),
+        "area": result.get("area"),
+        "message": result.get("reason", "Table available")
+    }
+
 @router.get("/lookup", response_model=List[ReservationResponse])
 def lookup_reservations(
     ref: Optional[str] = Query(None),
