@@ -4,8 +4,9 @@ from datetime import datetime
 from app.database.session import get_db
 from app.models.models import Reservation, RestaurantTable, TableStatus, ReservationStatus, ContactMessage, EventInquiry
 from app.schemas.schemas import ReservationResponse
+from app.core.deps import get_current_admin
 
-router = APIRouter(prefix="/admin", tags=["admin"])
+router = APIRouter(prefix="/admin", tags=["admin"], dependencies=[Depends(get_current_admin)])
 
 @router.get("/dashboard")
 def get_admin_dashboard_metrics(db: Session = Depends(get_db)):
