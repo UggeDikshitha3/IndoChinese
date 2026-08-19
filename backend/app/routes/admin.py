@@ -320,7 +320,8 @@ def create_admin_user(payload: dict = Body(...), db: Session = Depends(get_db)):
     name = (payload.get("name") or "").strip()
     email = (payload.get("email") or "").strip().lower()
     password = (payload.get("password") or "").strip()
-    role = (payload.get("role") or "employee").strip().upper()
+    role_str = (payload.get("role") or "staff").strip().upper()
+    role_enum = UserRole[role_str] if role_str in UserRole.__members__ else UserRole.STAFF
 
     if not name or not email or not password:
         raise HTTPException(status_code=400, detail="Name, email, and password are required.")
@@ -330,15 +331,16 @@ def create_admin_user(payload: dict = Body(...), db: Session = Depends(get_db)):
     if existing:
         existing.name = name
         existing.password_hash = get_password_hash(password)
-        existing.role = role
+        existing.role = role_enum
         existing.is_active = True
         db.commit()
         db.refresh(existing)
+        role_out = existing.role.value.lower() if hasattr(existing.role, "value") else str(existing.role).lower()
         return {
             "id": existing.id,
             "name": existing.name,
             "email": existing.email,
-            "role": existing.role.lower(),
+            "role": role_out,
             "active": existing.is_active,
             "createdAt": existing.created_at.isoformat() if existing.created_at else datetime.utcnow().isoformat()
         }
@@ -349,18 +351,19 @@ def create_admin_user(payload: dict = Body(...), db: Session = Depends(get_db)):
             name=name,
             email=email,
             password_hash=get_password_hash(password),
-            role=role,
+            role=role_enum,
             is_active=True
         )
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
 
+        role_out = new_user.role.value.lower() if hasattr(new_user.role, "value") else str(new_user.role).lower()
         return {
             "id": new_user.id,
             "name": new_user.name,
             "email": new_user.email,
-            "role": new_user.role.lower(),
+            "role": role_out,
             "active": new_user.is_active,
             "createdAt": new_user.created_at.isoformat() if new_user.created_at else datetime.utcnow().isoformat()
         }

@@ -16,10 +16,10 @@ def get_current_admin(credentials: HTTPAuthorizationCredentials = Depends(securi
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         role = payload.get("role")
-        if not role or role.upper() not in ["ADMIN", "SUPER_ADMIN", "STAFF"]:
+        if not role or role.upper() not in ["MASTER", "SUPER_ADMIN", "ADMIN", "MANAGER", "SERVER", "STAFF", "EMPLOYEE"]:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Admin privileges required"
+                detail="Admin or Staff privileges required"
             )
         return payload
     except JWTError:
