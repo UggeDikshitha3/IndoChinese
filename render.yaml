@@ -1,6 +1,24 @@
 services:
+  # ----------------------------------------------------
+  # 1. Frontend: React + Vite Static Website
+  # ----------------------------------------------------
+  - type: static
+    name: indochinese-frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        value: https://indochinese.onrender.com
+
+  # ----------------------------------------------------
+  # 2. Unified Fullstack Node Service (Alternative Option)
+  # ----------------------------------------------------
   - type: web
-    name: indochinese-restaurant
+    name: indochinese-fullstack
     runtime: node
     plan: starter
     buildCommand: npm install && npm run build
