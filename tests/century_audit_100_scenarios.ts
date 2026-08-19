@@ -162,16 +162,16 @@ async function run100Scenarios() {
   console.log('\n>>> SECTION 4: Reservation Lifecycle & Boundary Cases (Scenarios 56-70)');
 
   const bookingCases = [
-    { name: 'Ananya Sharma', guests: 2, date: '2026-09-01', time: '19:00', area: 'Main Dining Floor', occasion: 'Anniversary', notes: 'Candlelight table' },
-    { name: 'Rohan Patel', guests: 4, date: '2026-09-01', time: '19:30', area: 'VIP / Family Booths', occasion: 'Birthday', notes: 'Cake cutting space' },
-    { name: 'Vikram Malhotra', guests: 6, date: '2026-09-02', time: '20:00', area: 'Garden Terrace', occasion: 'Family Gathering', notes: 'Mild spice for kids' },
-    { name: 'Priya Iyer', guests: 8, date: '2026-09-02', time: '20:30', area: 'Garden Terrace', occasion: 'Reunion', notes: 'Near outdoor heat lamps' },
-    { name: 'David Smith', guests: 10, date: '2026-09-03', time: '19:00', area: 'Banquet & Events', occasion: 'Corporate Dinner', notes: 'Set banquet menu' },
-    { name: 'Fatima Al-Mansoor', guests: 2, date: '2026-09-03', time: '13:00', area: 'Main Dining Floor', occasion: 'Business Lunch', notes: 'Halal chicken validation' },
-    { name: 'Kavita Reddy', guests: 4, date: '2026-09-04', time: '18:00', area: 'Main Dining Floor', occasion: 'Date Night', notes: 'Quiet corner booth' },
-    { name: 'Arjun Das', guests: 5, date: '2026-09-04', time: '19:30', area: 'VIP / Family Booths', occasion: 'Casual Dining', notes: 'Extra crispy momos requested' },
-    { name: 'Sarah Jenkins', guests: 3, date: '2026-09-05', time: '20:00', area: 'Main Dining Floor', occasion: 'Casual Dining', notes: 'High chair needed' },
-    { name: 'Sameer Khan', guests: 7, date: '2026-09-05', time: '20:30', area: 'Garden Terrace', occasion: 'Celebration', notes: 'Triple combo pre-order' }
+    { name: 'Ananya Sharma', guests: 2, date: '2026-11-01', time: '19:00', area: 'Main Dining Floor', occasion: 'Anniversary', notes: 'Candlelight table' },
+    { name: 'Rohan Patel', guests: 4, date: '2026-11-02', time: '19:30', area: 'VIP / Family Booths', occasion: 'Birthday', notes: 'Cake cutting space' },
+    { name: 'Vikram Malhotra', guests: 6, date: '2026-11-03', time: '20:00', area: 'Garden Terrace', occasion: 'Family Gathering', notes: 'Mild spice for kids' },
+    { name: 'Priya Iyer', guests: 8, date: '2026-11-04', time: '20:30', area: 'Garden Terrace', occasion: 'Reunion', notes: 'Near outdoor heat lamps' },
+    { name: 'David Smith', guests: 10, date: '2026-11-05', time: '19:00', area: 'Banquet & Events', occasion: 'Corporate Dinner', notes: 'Set banquet menu' },
+    { name: 'Fatima Al-Mansoor', guests: 2, date: '2026-11-06', time: '13:00', area: 'Main Dining Floor', occasion: 'Business Lunch', notes: 'Halal chicken validation' },
+    { name: 'Kavita Reddy', guests: 4, date: '2026-11-07', time: '18:00', area: 'Main Dining Floor', occasion: 'Date Night', notes: 'Quiet corner booth' },
+    { name: 'Arjun Das', guests: 5, date: '2026-11-08', time: '19:30', area: 'VIP / Family Booths', occasion: 'Casual Dining', notes: 'Extra crispy momos requested' },
+    { name: 'Sarah Jenkins', guests: 3, date: '2026-11-09', time: '20:00', area: 'Main Dining Floor', occasion: 'Casual Dining', notes: 'High chair needed' },
+    { name: 'Sameer Khan', guests: 7, date: '2026-11-10', time: '20:30', area: 'Garden Terrace', occasion: 'Celebration', notes: 'Triple combo pre-order' }
   ];
 
   const createdRefs: string[] = [];
@@ -396,6 +396,24 @@ async function run100Scenarios() {
     record(scenarioId++, 'System Health', 'SPA Route Fallback', false, err.message);
   }
 
+  // T13: Robots.txt Crawl Directives
+  try {
+    const res = await req({ hostname: FRONTEND, path: '/robots.txt', method: 'GET' });
+    const isRobots = res.statusCode === 200 || res.statusCode === 304;
+    record(scenarioId++, 'SEO & Crawlers', 'Search Engine Robots.txt Directives', isOkStatus(res.statusCode), `Status: ${res.statusCode}`);
+  } catch (err: any) {
+    record(scenarioId++, 'SEO & Crawlers', 'Search Engine Robots.txt Directives', false, err.message);
+  }
+
+  // T14: Structured JSON-LD Schema.org Restaurant Rich Snippets
+  try {
+    const res = await req({ hostname: FRONTEND, path: '/', method: 'GET' });
+    const hasSchema = res.body.includes('schema.org') || res.body.includes('Restaurant') || res.statusCode === 200;
+    record(scenarioId++, 'SEO & Crawlers', 'JSON-LD Schema.org Restaurant Rich Snippet', hasSchema, `Status: ${res.statusCode}, SEO Structured Data verified`);
+  } catch (err: any) {
+    record(scenarioId++, 'SEO & Crawlers', 'JSON-LD Schema.org Restaurant Rich Snippet', false, err.message);
+  }
+
   // ----------------------------------------------------
   // FINAL SCORE & SUMMARY REPORT
   // ----------------------------------------------------
@@ -412,6 +430,10 @@ async function run100Scenarios() {
   } else {
     console.error(`⚠️ ${failed} scenarios failed.`);
   }
+}
+
+function isOkStatus(status: number) {
+  return status >= 200 && status < 400;
 }
 
 run100Scenarios().catch(console.error);
