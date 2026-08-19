@@ -3,8 +3,14 @@ from datetime import datetime, date
 from typing import List, Optional, Dict, Any
 from fastapi import APIRouter, Depends, HTTPException, Body, Query
 from sqlalchemy.orm import Session
-from app.database.session import get_db
+from app.database.session import get_db, engine, Base
 from app.models.models import RestaurantTable, TableOrder, TableOrderItem, TableStatus, User, UserRole
+
+# Ensure tables exist
+try:
+    Base.metadata.create_all(bind=engine)
+except Exception:
+    pass
 
 router = APIRouter(prefix="/orders", tags=["orders"])
 
@@ -84,65 +90,71 @@ def get_table_order(table_id: str, db: Session = Depends(get_db)):
 
 @router.post("/tables/{table_id}/items")
 def add_item_to_table_order(table_id: str, payload: dict = Body(...), db: Session = Depends(get_db)):
-    tbl = db.query(RestaurantTable).filter(
-        (RestaurantTable.id == table_id) | (RestaurantTable.table_number.ilike(table_id))
-    ).first()
-    if not tbl:
-        raise HTTPException(status_code=404, detail="Table not found")
+    try:
+        tbl = db.query(RestaurantTable).filter(
+            (RestaurantTable.id == table_id) | (RestaurantTable.table_number.ilike(table_id))
+        ).first()
+        if not tbl:
+            raise HTTPException(status_code=404, detail="Table not found")
 
-    order = get_or_create_table_order(tbl, db)
-    if order.status == "completed":
-        raise HTTPException(status_code=400, detail="Order is already completed")
+        order = get_or_create_table_order(tbl, db)
+        if order.status == "completed":
+            raise HTTPException(status_code=400, detail="Order is already completed")
 
-    item_name = payload.get("name") or payload.get("itemName")
-    unit_price = float(payload.get("price") or payload.get("unitPrice") or 0.0)
-    quantity = int(payload.get("quantity") or 1)
-    spice_level = payload.get("spiceLevel") or "Medium"
-    notes = payload.get("dietaryNotes") or payload.get("notes") or ""
+        item_name = payload.get("name") or payload.get("itemName")
+        unit_price = float(payload.get("price") or payload.get("unitPrice") or 0.0)
+        quantity = int(payload.get("quantity") or 1)
+        spice_level = payload.get("spiceLevel") or "Medium"
+        notes = payload.get("dietaryNotes") or payload.get("notes") or ""
 
-    if not item_name or unit_price <= 0:
-        raise HTTPException(status_code=400, detail="Valid item name and price are required")
+        if not item_name or unit_price <= 0:
+            raise HTTPException(status_code=400, detail="Valid item name and price are required")
 
-    # Check if item already in order with same notes and spice level
-    existing_item = next(
-        (i for i in order.items if i.item_name == item_name and i.spice_level == spice_level and (i.dietary_notes or "") == notes),
-        None
-    )
-
-    if existing_item:
-        existing_item.quantity += quantity
-        existing_item.total_price = round(existing_item.quantity * existing_item.unit_price, 2)
-    else:
-        new_item = TableOrderItem(
-            id=str(uuid.uuid4()),
-            order_id=order.id,
-            menu_item_id=payload.get("menuItemId"),
-            item_name=item_name,
-            unit_price=unit_price,
-            quantity=quantity,
-            total_price=round(unit_price * quantity, 2),
-            spice_level=spice_level,
-            dietary_notes=notes
+        # Check if item already in order with same notes and spice level
+        existing_item = next(
+            (i for i in order.items if i.item_name == item_name and i.spice_level == spice_level and (i.dietary_notes or "") == notes),
+            None
         )
-        db.add(new_item)
 
-    # Set table to occupied if available
-    if tbl.status == TableStatus.AVAILABLE:
-        tbl.status = TableStatus.OCCUPIED
+        if existing_item:
+            existing_item.quantity += quantity
+            existing_item.total_price = round(existing_item.quantity * existing_item.unit_price, 2)
+        else:
+            new_item = TableOrderItem(
+                id=str(uuid.uuid4()),
+                order_id=order.id,
+                menu_item_id=payload.get("menuItemId"),
+                item_name=item_name,
+                unit_price=unit_price,
+                quantity=quantity,
+                total_price=round(unit_price * quantity, 2),
+                spice_level=spice_level,
+                dietary_notes=notes
+            )
+            db.add(new_item)
 
-    db.commit()
-    db.refresh(order)
-    recalculate_order_totals(order, db)
+        # Set table to occupied if available
+        if tbl.status == TableStatus.AVAILABLE:
+            tbl.status = TableStatus.OCCUPIED
 
-    return {
-        "success": True,
-        "orderId": order.id,
-        "tableNumber": tbl.table_number,
-        "subtotal": order.subtotal,
-        "tax": order.tax,
-        "totalAmount": order.total_amount,
-        "itemsCount": len(order.items)
-    }
+        db.commit()
+        db.refresh(order)
+        recalculate_order_totals(order, db)
+
+        return {
+            "success": True,
+            "orderId": order.id,
+            "tableNumber": tbl.table_number,
+            "subtotal": order.subtotal,
+            "tax": order.tax,
+            "totalAmount": order.total_amount,
+            "itemsCount": len(order.items)
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.delete("/tables/{table_id}/items/{item_id}")
 def remove_item_from_table_order(table_id: str, item_id: str, db: Session = Depends(get_db)):
