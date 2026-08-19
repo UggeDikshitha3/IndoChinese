@@ -177,6 +177,9 @@ class TableOrderItem(Base):
     quantity = Column(Integer, default=1)
     total_price = Column(Float, nullable=False)
     spice_level = Column(String, default="Medium")
+    dietary_notes = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
     order = relationship("TableOrder", back_populates="items")
 
 class Review(Base):
