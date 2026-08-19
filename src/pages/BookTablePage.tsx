@@ -140,7 +140,7 @@ export const BookTablePage: React.FC<BookTablePageProps> = ({
 
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error || 'Failed to complete reservation. Please try another time.');
+        throw new Error(data.error || data.detail || 'Failed to complete reservation. Please try another time.');
       }
 
       setConfirmedReservation(data);

@@ -5,11 +5,13 @@ from datetime import datetime
 from app.database.session import get_db
 from app.models.models import RestaurantTable, TableStatus
 from app.schemas.schemas import TableCreate, TableUpdate, TableResponse
+from app.services.reservation_service import ensure_default_tables
 
 router = APIRouter(prefix="/tables", tags=["tables"])
 
 @router.get("", response_model=List[TableResponse])
 def get_all_tables(db: Session = Depends(get_db)):
+    ensure_default_tables(db)
     tables = db.query(RestaurantTable).order_by(RestaurantTable.table_number.asc()).all()
     return [
         {
@@ -26,6 +28,7 @@ def get_all_tables(db: Session = Depends(get_db)):
 
 @router.get("/status")
 def get_tables_live_status(db: Session = Depends(get_db)):
+    ensure_default_tables(db)
     tables = db.query(RestaurantTable).all()
     total_tables = len(tables)
     occupied = [t for t in tables if t.status in [TableStatus.OCCUPIED, TableStatus.BILL_ISSUED]]
