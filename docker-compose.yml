@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: indochinese_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: indochinese_user
+      POSTGRES_PASSWORD: indochinese_secure_password_2026
+      POSTGRES_DB: indochinese_restaurant
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U indochinese_user -d indochinese_restaurant"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: indochinese_backend
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://indochinese_user:indochinese_secure_password_2026@postgres:5432/indochinese_restaurant
+      JWT_SECRET: indochinese_jwt_secret_key_2026_super_secure
+      JWT_EXPIRE_MINUTES: 10080
+      ADMIN_PASSWORD: admin123
+      FRONTEND_URL: http://localhost:3000
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: indochinese_frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      VITE_API_URL: http://localhost:8000
+
+volumes:
+  postgres_data:

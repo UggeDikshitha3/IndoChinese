@@ -1,0 +1,8 @@
+{
+  "name": "INDO CHINESE Restaurant",
+  "description": "Where Indian Spice Meets Chinese Flavour - Premium Indo-Chinese dining, view-only digital menu, real-time table reservations, management portal, and local SEO.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

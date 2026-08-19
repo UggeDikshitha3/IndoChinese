@@ -1,0 +1,18 @@
+{
+  "entities": {
+    "users": {
+      "title": "Users",
+      "description": "User profiles, roles, and preferences",
+      "fields": {
+        "email": { "type": "string" },
+        "name": { "type": "string" },
+        "role": { "type": "string" },
+        "phone": { "type": "string" },
+        "street": { "type": "string" },
+        "city": { "type": "string" },
+        "postcode": { "type": "string" },
+        "createdAt": { "type": "timestamp" }
+      }
+    }
+  }
+}
