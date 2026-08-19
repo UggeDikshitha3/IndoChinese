@@ -1,4 +1,6 @@
 import http from 'http';
+import { spawn, ChildProcess } from 'child_process';
+import path from 'path';
 
 function makeRequest(options: http.RequestOptions, postData?: string): Promise<{ statusCode: number; headers: http.IncomingHttpHeaders; body: string; json?: any }> {
   return new Promise((resolve, reject) => {
@@ -39,13 +41,41 @@ function recordTest(category: string, testName: string, passed: boolean, details
   console.log(`${statusIcon} [${category}] ${testName}: ${details}`);
 }
 
+async function isServerRunning(host: string, port: number): Promise<boolean> {
+  try {
+    const res = await makeRequest({ hostname: host, port, path: '/api/health', method: 'GET', timeout: 1000 });
+    return res.statusCode === 200;
+  } catch {
+    return false;
+  }
+}
+
 async function runTestSuite() {
   console.log('====================================================');
   console.log('🚀 RUNNING A-Z PRE-DEPLOYMENT COMPREHENSIVE AUDIT');
   console.log('====================================================\n');
 
-  const BASE_HOST = 'localhost';
+  const BASE_HOST = '127.0.0.1';
   const BASE_PORT = 3000;
+
+  let serverProcess: ChildProcess | null = null;
+  const alreadyRunning = await isServerRunning(BASE_HOST, BASE_PORT);
+
+  if (!alreadyRunning) {
+    console.log('⚡ Starting server in background for testing...');
+    const serverScript = path.join(process.cwd(), 'dist', 'server.cjs');
+    serverProcess = spawn(process.execPath, [serverScript], {
+      stdio: 'ignore',
+      env: { ...process.env, PORT: String(BASE_PORT), NODE_ENV: 'production' }
+    });
+
+    for (let i = 0; i < 20; i++) {
+      await new Promise((r) => setTimeout(r, 400));
+      if (await isServerRunning(BASE_HOST, BASE_PORT)) {
+        break;
+      }
+    }
+  }
 
   // ----------------------------------------------------
   // TEST SUITE A: Core Server & Health Endpoints
@@ -103,6 +133,19 @@ async function runTestSuite() {
     const hasDishes = Array.isArray(items) && items.length >= 10;
     const hasDietaryFlags = items.every((i: any) => typeof i.isVeg === 'boolean' && typeof i.isSpicy === 'boolean');
     recordTest('C. Menu Engine', 'GET /api/menu (Items & Dietary Tags)', hasDishes && hasDietaryFlags, `Found ${items?.length} items with complete nutrition & spice indicators`);
+
+    // Verify sample dish image assets resolve to 200 OK
+    const sampleDish = items?.find((dish: any) => dish.image);
+    if (sampleDish?.image) {
+      const resImg = await makeRequest({
+        hostname: BASE_HOST,
+        port: BASE_PORT,
+        path: sampleDish.image,
+        method: 'GET'
+      });
+      const isImageOk = resImg.statusCode === 200 && (resImg.headers['content-type']?.includes('image') || resImg.headers['content-type']?.includes('octet-stream'));
+      recordTest('C. Menu Engine', `GET Menu Image (${sampleDish.name})`, isImageOk, `Path: ${sampleDish.image}, Status: ${resImg.statusCode}, Content-Type: ${resImg.headers['content-type']}`);
+    }
   } catch (err: any) {
     recordTest('C. Menu Engine', 'GET /api/menu', false, `Error: ${err.message}`);
   }
@@ -326,11 +369,17 @@ async function runTestSuite() {
   console.log(`📊 PRE-DEPLOYMENT TEST AUDIT REPORT: ${passedCount}/${total} PASSED`);
   console.log('====================================================\n');
 
-  if (failedCount === 0) {
-    console.log('🎉 ALL A-Z PRODUCTION READINESS TESTS PASSED (100% GREEN)! Ready for deployment.');
-  } else {
-    console.error(`⚠️ ${failedCount} tests failed. Immediate attention required.`);
+  if (serverProcess) {
+    serverProcess.kill('SIGTERM');
+  }
+
+  if (failedCount > 0) {
+    process.exit(1);
   }
 }
 
-runTestSuite().catch(console.error);
+runTestSuite().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
+

@@ -1688,35 +1688,140 @@
       "verified": true
     }
   ],
-  "reservations": [],
+  "reservations": [
+    {
+      "id": "res_1787141566111",
+      "reservationNumber": "IC-2026-910041",
+      "name": "Deployment Test Guest",
+      "email": "testguest@example.com",
+      "phone": "+447999888777",
+      "guests": 2,
+      "date": "2026-08-25",
+      "time": "19:30",
+      "seatingArea": "Main Dining Floor",
+      "occasion": "Anniversary",
+      "specialRequests": "Window table requested for QA validation",
+      "status": "confirmed",
+      "holdExpiresAt": "2026-08-25T14:15:00.000Z",
+      "createdAt": "2026-08-19T12:12:46.111Z",
+      "assignedTableId": "tbl-4",
+      "assignedTableNumber": "T-04"
+    },
+    {
+      "id": "res_1787141439068",
+      "reservationNumber": "IC-2026-176346",
+      "name": "Deployment Test Guest",
+      "email": "testguest@example.com",
+      "phone": "+447999888777",
+      "guests": 2,
+      "date": "2026-08-25",
+      "time": "19:30",
+      "seatingArea": "Main Dining Floor",
+      "occasion": "Anniversary",
+      "specialRequests": "Window table requested for QA validation",
+      "status": "confirmed",
+      "holdExpiresAt": "2026-08-25T14:15:00.000Z",
+      "createdAt": "2026-08-19T12:10:39.068Z",
+      "assignedTableId": "tbl-3",
+      "assignedTableNumber": "T-03"
+    },
+    {
+      "id": "res_1787141168792",
+      "reservationNumber": "IC-2026-879402",
+      "name": "Deployment Test Guest",
+      "email": "testguest@example.com",
+      "phone": "+447999888777",
+      "guests": 2,
+      "date": "2026-08-25",
+      "time": "19:30",
+      "seatingArea": "Main Dining Floor",
+      "occasion": "Anniversary",
+      "specialRequests": "Window table requested for QA validation",
+      "status": "confirmed",
+      "holdExpiresAt": "2026-08-25T14:15:00.000Z",
+      "createdAt": "2026-08-19T12:06:08.792Z",
+      "assignedTableId": "tbl-2",
+      "assignedTableNumber": "T-02"
+    },
+    {
+      "id": "res_1787140903687",
+      "reservationNumber": "IC-2026-929035",
+      "name": "Deployment Test Guest",
+      "email": "testguest@example.com",
+      "phone": "+447999888777",
+      "guests": 2,
+      "date": "2026-08-25",
+      "time": "19:30",
+      "seatingArea": "Main Dining Floor",
+      "occasion": "Anniversary",
+      "specialRequests": "Window table requested for QA validation",
+      "status": "confirmed",
+      "holdExpiresAt": "2026-08-25T14:15:00.000Z",
+      "createdAt": "2026-08-19T12:01:43.687Z",
+      "assignedTableId": "tbl-1",
+      "assignedTableNumber": "T-01"
+    }
+  ],
   "tables": [
     {
       "id": "tbl-1",
       "tableNumber": "T-01",
       "capacity": 2,
-      "status": "available",
-      "assignedServer": "Rohit K."
+      "status": "reserved",
+      "assignedServer": "Rohit K.",
+      "currentPartyName": "Deployment Test Guest",
+      "currentGuests": 2,
+      "currentReservationId": "res_1787140903687",
+      "reservedTime": "19:30",
+      "reservedDate": "2026-08-25",
+      "holdStartTime": "2026-08-25T14:00:00.000Z",
+      "holdExpiresAt": "2026-08-25T14:15:00.000Z",
+      "notes": "Auto-assigned for Deployment Test Guest (2 guests at 19:30) • 15m Grace Hold"
     },
     {
       "id": "tbl-2",
       "tableNumber": "T-02",
       "capacity": 2,
-      "status": "available",
-      "assignedServer": "Rohit K."
+      "status": "reserved",
+      "assignedServer": "Rohit K.",
+      "currentPartyName": "Deployment Test Guest",
+      "currentGuests": 2,
+      "currentReservationId": "res_1787141168792",
+      "reservedTime": "19:30",
+      "reservedDate": "2026-08-25",
+      "holdStartTime": "2026-08-25T14:00:00.000Z",
+      "holdExpiresAt": "2026-08-25T14:15:00.000Z",
+      "notes": "Auto-assigned for Deployment Test Guest (2 guests at 19:30) • 15m Grace Hold"
     },
     {
       "id": "tbl-3",
       "tableNumber": "T-03",
       "capacity": 2,
-      "status": "available",
-      "assignedServer": "Anita S."
+      "status": "reserved",
+      "assignedServer": "Anita S.",
+      "currentPartyName": "Deployment Test Guest",
+      "currentGuests": 2,
+      "currentReservationId": "res_1787141439068",
+      "reservedTime": "19:30",
+      "reservedDate": "2026-08-25",
+      "holdStartTime": "2026-08-25T14:00:00.000Z",
+      "holdExpiresAt": "2026-08-25T14:15:00.000Z",
+      "notes": "Auto-assigned for Deployment Test Guest (2 guests at 19:30) • 15m Grace Hold"
     },
     {
       "id": "tbl-4",
       "tableNumber": "T-04",
       "capacity": 2,
-      "status": "available",
-      "assignedServer": "Anita S."
+      "status": "reserved",
+      "assignedServer": "Anita S.",
+      "currentPartyName": "Deployment Test Guest",
+      "currentGuests": 2,
+      "currentReservationId": "res_1787141566111",
+      "reservedTime": "19:30",
+      "reservedDate": "2026-08-25",
+      "holdStartTime": "2026-08-25T14:00:00.000Z",
+      "holdExpiresAt": "2026-08-25T14:15:00.000Z",
+      "notes": "Auto-assigned for Deployment Test Guest (2 guests at 19:30) • 15m Grace Hold"
     },
     {
       "id": "tbl-5",
@@ -1832,7 +1937,48 @@
     }
   ],
   "eventInquiries": [],
-  "contactMessages": [],
+  "contactMessages": [
+    {
+      "id": "msg_1787141566132",
+      "name": "QA Test Runner",
+      "email": "qa@indochinese.com",
+      "phone": "+442085709888",
+      "subject": "Pre-deployment Verification",
+      "message": "Automated contact delivery test",
+      "createdAt": "2026-08-19T12:12:46.132Z",
+      "read": false
+    },
+    {
+      "id": "msg_1787141439081",
+      "name": "QA Test Runner",
+      "email": "qa@indochinese.com",
+      "phone": "+442085709888",
+      "subject": "Pre-deployment Verification",
+      "message": "Automated contact delivery test",
+      "createdAt": "2026-08-19T12:10:39.081Z",
+      "read": false
+    },
+    {
+      "id": "msg_1787141168833",
+      "name": "QA Test Runner",
+      "email": "qa@indochinese.com",
+      "phone": "+442085709888",
+      "subject": "Pre-deployment Verification",
+      "message": "Automated contact delivery test",
+      "createdAt": "2026-08-19T12:06:08.833Z",
+      "read": false
+    },
+    {
+      "id": "msg_1787140903754",
+      "name": "QA Test Runner",
+      "email": "qa@indochinese.com",
+      "phone": "+442085709888",
+      "subject": "Pre-deployment Verification",
+      "message": "Automated contact delivery test",
+      "createdAt": "2026-08-19T12:01:43.754Z",
+      "read": false
+    }
+  ],
   "settings": {
     "name": "INDO CHINESE",
     "tagline": "THE REAL TASTE OF BOMBAY",

@@ -1,0 +1,17 @@
+{
+  "short_name": "IndoChinese",
+  "name": "INDO CHINESE Restaurant London",
+  "description": "Authentic Bombay Indo-Chinese Cuisine & Live Table Reservation System in Hounslow, London.",
+  "icons": [
+    {
+      "src": "/src/assets/images/triple_schezwan_combo_1786516611209.jpg",
+      "type": "image/jpeg",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#020617",
+  "theme_color": "#dc2626",
+  "display": "standalone",
+  "orientation": "portrait"
+}

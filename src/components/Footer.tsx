@@ -1,5 +1,5 @@
 import React from 'react';
-import { Flame, Phone, Mail, MapPin, Clock, Instagram, Facebook, ArrowUp, ShieldCheck } from 'lucide-react';
+import { Flame, Phone, Mail, MapPin, Clock, Instagram, Facebook, ArrowUp, ShieldCheck, Award, AlertTriangle, FileText, Shield } from 'lucide-react';
 import { RestaurantSettings } from '../types';
 import { DEFAULT_RESTAURANT_SETTINGS } from '../config/restaurantConfig';
 
@@ -9,6 +9,7 @@ interface FooterProps {
   onNavigateBookTable?: () => void;
   onOpenAdmin?: () => void;
   onOpenOrderTracking?: () => void;
+  onOpenLegalModal?: (type: 'privacy' | 'terms' | 'allergens' | 'hygiene') => void;
 }
 
 export const Footer: React.FC<FooterProps> = ({
@@ -16,7 +17,7 @@ export const Footer: React.FC<FooterProps> = ({
   onNavigate,
   onNavigateBookTable,
   onOpenAdmin,
-  onOpenOrderTracking
+  onOpenLegalModal
 }) => {
   const currentSettings = settings || DEFAULT_RESTAURANT_SETTINGS;
   const scrollToTop = () => {
@@ -47,7 +48,7 @@ export const Footer: React.FC<FooterProps> = ({
         {/* Main Footer Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-12 border-b border-slate-800">
           
-          {/* Col 1: Brand & Bio */}
+          {/* Col 1: Brand & Bio & Trust Badges */}
           <div className="space-y-4">
             <div className="flex items-center space-x-2.5">
               <div className="w-9 h-9 rounded-xl bg-red-600 flex items-center justify-center shadow-md">
@@ -61,6 +62,26 @@ export const Footer: React.FC<FooterProps> = ({
             <p className="text-xs text-slate-400 leading-relaxed">
               {settings.description}
             </p>
+
+            <div className="flex flex-wrap items-center gap-2 pt-1">
+              <button
+                onClick={() => onOpenLegalModal?.('hygiene')}
+                className="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold bg-emerald-950/80 text-emerald-400 border border-emerald-800/60 hover:bg-emerald-900/80 transition-colors"
+                title="View Food Hygiene Rating"
+              >
+                <Award className="w-3 h-3 mr-1" /> FSA Rating 5
+              </button>
+              <span className="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold bg-emerald-950/80 text-emerald-400 border border-emerald-800/60">
+                <ShieldCheck className="w-3 h-3 mr-1" /> 100% Halal
+              </span>
+              <button
+                onClick={() => onOpenLegalModal?.('allergens')}
+                className="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold bg-amber-950/80 text-amber-400 border border-amber-800/60 hover:bg-amber-900/80 transition-colors"
+                title="View Allergen Advisory"
+              >
+                <AlertTriangle className="w-3 h-3 mr-1" /> Allergen Safe
+              </button>
+            </div>
 
             <div className="flex items-center space-x-3 pt-2">
               {settings.instagramUrl && (
@@ -85,16 +106,13 @@ export const Footer: React.FC<FooterProps> = ({
                   <Facebook className="w-4 h-4" />
                 </a>
               )}
-              <span className="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold bg-emerald-950/80 text-emerald-400 border border-emerald-800/60">
-                <ShieldCheck className="w-3 h-3 mr-1" /> 100% Halal
-              </span>
             </div>
           </div>
 
-          {/* Col 2: Quick Links */}
+          {/* Col 2: Quick Links & Legal */}
           <div className="space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-widest text-red-500 font-mono">
-              NAVIGATION
+              NAVIGATION & LEGAL
             </h4>
             <ul className="space-y-2 text-xs">
               <li>
@@ -131,26 +149,29 @@ export const Footer: React.FC<FooterProps> = ({
               </li>
               <li>
                 <button
-                  onClick={() => handleNavClick('gallery')}
-                  className="hover:text-white transition-colors text-slate-400"
+                  onClick={() => onOpenLegalModal?.('privacy')}
+                  className="hover:text-white transition-colors text-slate-400 flex items-center gap-1"
                 >
-                  Dish & Dining Gallery
+                  <Shield className="w-3 h-3 text-slate-500" />
+                  <span>Privacy Policy (GDPR)</span>
                 </button>
               </li>
               <li>
                 <button
-                  onClick={() => handleNavClick('reviews')}
-                  className="hover:text-white transition-colors text-slate-400"
+                  onClick={() => onOpenLegalModal?.('terms')}
+                  className="hover:text-white transition-colors text-slate-400 flex items-center gap-1"
                 >
-                  Google Customer Reviews
+                  <FileText className="w-3 h-3 text-slate-500" />
+                  <span>Terms & Reservation Policy</span>
                 </button>
               </li>
               <li>
                 <button
-                  onClick={() => handleNavClick('contact')}
-                  className="hover:text-white transition-colors text-slate-400"
+                  onClick={() => onOpenLegalModal?.('allergens')}
+                  className="hover:text-white transition-colors text-slate-400 flex items-center gap-1"
                 >
-                  Location & Contact
+                  <AlertTriangle className="w-3 h-3 text-slate-500" />
+                  <span>Allergen & Dietary Guide</span>
                 </button>
               </li>
               <li>
@@ -208,7 +229,7 @@ export const Footer: React.FC<FooterProps> = ({
             </div>
           </div>
 
-          {/* Col 4: Opening Hours */}
+          {/* Col 4: Opening Hours & Hygiene */}
           <div className="space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-widest text-red-500 font-mono">
               OPENING HOURS
@@ -218,6 +239,9 @@ export const Footer: React.FC<FooterProps> = ({
                 <span>Every Day (Mon – Sun):</span>
                 <span className="text-white font-bold text-red-400">10:30 AM – 09:30 PM</span>
               </div>
+              <p className="text-[11px] text-slate-500 pt-2">
+                Last table seating 45 minutes before closing. Walk-ins welcome based on live availability.
+              </p>
             </div>
           </div>
 
@@ -225,7 +249,7 @@ export const Footer: React.FC<FooterProps> = ({
 
         {/* Bottom copyright row */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
-          <p>© {new Date().getFullYear()} INDO CHINESE Restaurant. All rights reserved. Hounslow, London.</p>
+          <p>© {new Date().getFullYear()} INDO CHINESE Restaurant Ltd. All rights reserved. Registered in England & Wales. 124 High Street, Hounslow, London TW3 1NA.</p>
           
           <button
             onClick={scrollToTop}
@@ -240,3 +264,4 @@ export const Footer: React.FC<FooterProps> = ({
     </footer>
   );
 };
+

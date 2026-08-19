@@ -27,7 +27,7 @@ import {
 } from './src/types';
 
 const app = express();
-const PORT = 3000;
+const PORT = Number(process.env.PORT) || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'indochinese_jwt_secret_key_2026_super_secure';
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'master@indochinese.com';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'master123';
@@ -2071,7 +2071,10 @@ app.get('/sitemap.xml', (req, res) => {
 // ==========================================
 
 async function start() {
-  if (process.env.NODE_ENV !== 'production') {
+  const isProduction = process.env.NODE_ENV === 'production' || !fs.existsSync(path.join(process.cwd(), 'src'));
+  const distPath = path.join(process.cwd(), 'dist');
+
+  if (!isProduction && fs.existsSync(path.join(process.cwd(), 'src'))) {
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: 'spa',
@@ -2079,17 +2082,32 @@ async function start() {
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), 'dist');
-    app.use(express.static(distPath));
-    app.get('*', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
-    });
+    const srcAssetsPath = path.join(process.cwd(), 'src', 'assets');
+    const publicPath = path.join(process.cwd(), 'public');
+
+    if (fs.existsSync(srcAssetsPath)) {
+      app.use('/src/assets', express.static(srcAssetsPath));
+    }
+    if (fs.existsSync(publicPath)) {
+      app.use(express.static(publicPath));
+    }
+    if (fs.existsSync(distPath)) {
+      app.use(express.static(distPath));
+      app.get('*', (req, res) => {
+        res.sendFile(path.join(distPath, 'index.html'));
+      });
+    }
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`[INDO CHINESE Server] Running on http://0.0.0.0:${PORT}`);
-  });
+  if (!process.env.VERCEL) {
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`[INDO CHINESE Server] Running on http://0.0.0.0:${PORT} (NODE_ENV: ${process.env.NODE_ENV || (isProduction ? 'production' : 'development')})`);
+    });
+  }
 }
 
-start();
+if (!process.env.VERCEL) {
+  start();
+}
 
 export default app;

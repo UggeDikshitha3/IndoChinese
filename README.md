@@ -50,14 +50,20 @@ A restaurant showcase and table reservation platform with an **integrated Admin 
 
 ---
 
-## 🚀 Running Locally
+## 🚀 Running Locally & Testing
 
 ```bash
 # Install dependencies
 npm install
 
+# Run TypeScript type check
+npm run lint
+
 # Start development server
 npm run dev
+
+# Run automated end-to-end audit test suite
+npm test
 
 # Build for production
 npm run build
@@ -65,3 +71,36 @@ npm run build
 # Start production server
 npm start
 ```
+
+---
+
+## 🚢 Production Deployment Options
+
+### Option 1: Docker (Single-Container Fullstack)
+```bash
+# Build Docker image
+docker build -t indochinese-restaurant .
+
+# Run container in production
+docker run -d -p 3000:3000 --name indochinese -e NODE_ENV=production indochinese-restaurant
+```
+
+### Option 2: Render / Railway / Cloud VPS
+- **Build Command:** `npm install && npm run build`
+- **Start Command:** `npm start`
+- **Port:** Uses dynamic `PORT` environment variable automatically (defaults to `3000`).
+- **Blueprint:** Included in [`render.yaml`](render.yaml) for 1-click Render deployment.
+
+### Option 3: Vercel (Frontend & Serverless API)
+- Includes [`vercel.json`](vercel.json) configuration with rewrites for `/api` serverless handler in [`api/index.ts`](api/index.ts).
+
+### Option 4: Linux VPS with PM2
+```bash
+npm install
+npm run build
+npm install -g pm2
+pm2 start dist/server.cjs --name "indochinese-restaurant"
+pm2 save
+pm2 startup
+```
+

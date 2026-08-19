@@ -18,6 +18,8 @@ import { SeoSchema } from './components/SeoSchema';
 import { ManageReservationModal } from './components/ManageReservationModal';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { AdminReservationAlertBanner } from './components/AdminReservationAlertBanner';
+import { CookieConsentBanner } from './components/CookieConsentBanner';
+import { LegalModals, LegalModalType } from './components/LegalModals';
 
 import { BookTablePage } from './pages/BookTablePage';
 import { AdminPage } from './pages/AdminPage';
@@ -61,6 +63,7 @@ export default function App() {
 
   const [activeSection, setActiveSection] = useState('home');
   const [isManageModalOpen, setIsManageModalOpen] = useState(false);
+  const [activeLegalModal, setActiveLegalModal] = useState<LegalModalType>(null);
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState<boolean>(() => {
     return Boolean(localStorage.getItem('indochinese_admin_token'));
   });
@@ -310,6 +313,7 @@ export default function App() {
         settings={settings}
         onNavigateBookTable={handleNavigateBookTable}
         onOpenAdmin={handleOpenAdmin}
+        onOpenLegalModal={(type) => setActiveLegalModal(type)}
       />
 
       {/* Admin Real-Time Reservation Alert Banner */}
@@ -326,6 +330,18 @@ export default function App() {
         onClose={() => setIsManageModalOpen(false)}
         settings={settings}
         onBookNewTable={handleNavigateBookTable}
+      />
+
+      {/* Commercial Legal & Compliance Modals (Privacy, Terms, Allergens, Hygiene) */}
+      <LegalModals
+        activeModal={activeLegalModal}
+        onClose={() => setActiveLegalModal(null)}
+        settings={settings}
+      />
+
+      {/* Cookie Consent Notice (UK GDPR) */}
+      <CookieConsentBanner
+        onOpenPrivacyPolicy={() => setActiveLegalModal('privacy')}
       />
 
       {/* Mobile Fixed Action Bar (CALL, DIRECTIONS, BOOK TABLE) */}
