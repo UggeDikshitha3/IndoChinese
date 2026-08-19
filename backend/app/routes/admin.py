@@ -3,9 +3,10 @@ from sqlalchemy.orm import Session
 from datetime import datetime
 from typing import List, Optional, Dict, Any
 from app.database.session import get_db
-from app.models.models import Reservation, RestaurantTable, TableStatus, ReservationStatus, ContactMessage, EventInquiry
+from app.models.models import Reservation, RestaurantTable, TableStatus, ReservationStatus, ContactMessage, EventInquiry, User, UserRole
 from app.schemas.schemas import ReservationResponse
 from app.core.deps import get_current_admin
+from app.core.security import get_password_hash
 
 router = APIRouter(prefix="/admin", tags=["admin"], dependencies=[Depends(get_current_admin)])
 
@@ -268,12 +269,13 @@ def extend_table_stay(id: str, payload: dict = Body(...), db: Session = Depends(
 
 @router.get("/users")
 def get_admin_users(db: Session = Depends(get_db)):
-    return [
+    default_admins = [
         {
             "id": "usr_master_owner",
             "name": "Dikshitha Varma",
             "email": "dikshithavarma2006@gmail.com",
             "role": "master",
+            "active": True,
             "createdAt": "2026-01-01T00:00:00Z"
         },
         {
@@ -281,6 +283,7 @@ def get_admin_users(db: Session = Depends(get_db)):
             "name": "Restaurant Admin Manager",
             "email": "admin@restaurant.com",
             "role": "super_admin",
+            "active": True,
             "createdAt": "2026-01-01T00:00:00Z"
         },
         {
@@ -288,9 +291,108 @@ def get_admin_users(db: Session = Depends(get_db)):
             "name": "IndoChinese Admin",
             "email": "admin@indochinese.com",
             "role": "super_admin",
+            "active": True,
             "createdAt": "2026-01-01T00:00:00Z"
         }
     ]
+
+    db_users = db.query(User).filter(User.role != UserRole.CUSTOMER).order_by(User.created_at.desc()).all()
+    user_list = list(default_admins)
+    seen_emails = {a["email"].lower() for a in default_admins}
+
+    for u in db_users:
+        if u.email.lower() not in seen_emails:
+            user_list.append({
+                "id": u.id,
+                "name": u.name,
+                "email": u.email,
+                "role": u.role.lower(),
+                "active": u.is_active,
+                "createdAt": u.created_at.isoformat() if u.created_at else datetime.utcnow().isoformat()
+            })
+            seen_emails.add(u.email.lower())
+
+    return user_list
+
+@router.post("/users")
+def create_admin_user(payload: dict = Body(...), db: Session = Depends(get_db)):
+    name = (payload.get("name") or "").strip()
+    email = (payload.get("email") or "").strip().lower()
+    password = (payload.get("password") or "").strip()
+    role = (payload.get("role") or "employee").strip().upper()
+
+    if not name or not email or not password:
+        raise HTTPException(status_code=400, detail="Name, email, and password are required.")
+
+    # Check if user already exists
+    existing = db.query(User).filter(User.email == email).first()
+    if existing:
+        existing.name = name
+        existing.password_hash = get_password_hash(password)
+        existing.role = role
+        existing.is_active = True
+        db.commit()
+        db.refresh(existing)
+        return {
+            "id": existing.id,
+            "name": existing.name,
+            "email": existing.email,
+            "role": existing.role.lower(),
+            "active": existing.is_active,
+            "createdAt": existing.created_at.isoformat() if existing.created_at else datetime.utcnow().isoformat()
+        }
+
+    new_user = User(
+        name=name,
+        email=email,
+        password_hash=get_password_hash(password),
+        role=role,
+        is_active=True
+    )
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+
+    return {
+        "id": new_user.id,
+        "name": new_user.name,
+        "email": new_user.email,
+        "role": new_user.role.lower(),
+        "active": new_user.is_active,
+        "createdAt": new_user.created_at.isoformat() if new_user.created_at else datetime.utcnow().isoformat()
+    }
+
+@router.patch("/users/{id}")
+def update_admin_user(id: str, payload: dict = Body(...), db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.id == id).first()
+    if not user:
+        # Default seeded virtual users fallback
+        return {"id": id, "active": payload.get("active", True), "role": payload.get("role", "admin")}
+
+    if "active" in payload:
+        user.is_active = bool(payload["active"])
+    if "role" in payload:
+        user.role = str(payload["role"]).upper()
+    if "name" in payload:
+        user.name = payload["name"]
+
+    db.commit()
+    db.refresh(user)
+    return {
+        "id": user.id,
+        "name": user.name,
+        "email": user.email,
+        "role": user.role.lower(),
+        "active": user.is_active
+    }
+
+@router.delete("/users/{id}")
+def delete_admin_user(id: str, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.id == id).first()
+    if user:
+        db.delete(user)
+        db.commit()
+    return {"success": True, "message": "User removed successfully"}
 
 @router.patch("/reservations/{id}/status")
 def update_reservation_status(id: str, payload: dict = Body(...), db: Session = Depends(get_db)):
