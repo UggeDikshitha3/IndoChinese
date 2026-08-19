@@ -439,3 +439,8 @@ def get_contact_messages(db: Session = Depends(get_db)):
 @router.get("/events")
 def get_event_inquiries(db: Session = Depends(get_db)):
     return db.query(EventInquiry).order_by(EventInquiry.created_at.desc()).all()
+
+@router.get("/server-stats")
+def get_admin_server_stats(db: Session = Depends(get_db)):
+    from app.routes.orders import get_servers_daily_performance
+    return get_servers_daily_performance(serverName=None, db=db)

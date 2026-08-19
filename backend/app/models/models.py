@@ -11,6 +11,8 @@ def generate_uuid():
 class UserRole(str, enum.Enum):
     SUPER_ADMIN = "SUPER_ADMIN"
     ADMIN = "ADMIN"
+    MANAGER = "MANAGER"
+    SERVER = "SERVER"
     STAFF = "STAFF"
     CUSTOMER = "CUSTOMER"
 
@@ -140,3 +142,42 @@ class EventInquiry(Base):
     special_requests = Column(Text, nullable=True)
     status = Column(String, default="pending")
     created_at = Column(DateTime, default=datetime.utcnow)
+
+class TableOrder(Base):
+    __tablename__ = "table_orders"
+
+    id = Column(String, primary_key=True, default=generate_uuid, index=True)
+    table_id = Column(String, ForeignKey("restaurant_tables.id"), nullable=False, index=True)
+    table_number = Column(String, nullable=True, index=True)
+    server_id = Column(String, nullable=True, index=True)
+    server_name = Column(String, nullable=True)
+    party_name = Column(String, default="Guest")
+    customer_phone = Column(String, nullable=True)
+    status = Column(String, default="active", index=True) # active, bill_issued, completed, cancelled
+    subtotal = Column(Float, default=0.0)
+    tax = Column(Float, default=0.0) # 20% VAT
+    total_amount = Column(Float, default=0.0)
+    payment_status = Column(String, default="pending") # pending, paid
+    invoice_number = Column(String, nullable=True)
+    sms_sent = Column(Boolean, default=False)
+    sms_sent_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    items = relationship("TableOrderItem", back_populates="order", cascade="all, delete-orphan")
+
+class TableOrderItem(Base):
+    __tablename__ = "table_order_items"
+
+    id = Column(String, primary_key=True, default=generate_uuid, index=True)
+    order_id = Column(String, ForeignKey("table_orders.id"), nullable=False, index=True)
+    menu_item_id = Column(String, nullable=True)
+    item_name = Column(String, nullable=False)
+    unit_price = Column(Float, nullable=False)
+    quantity = Column(Integer, default=1)
+    total_price = Column(Float, nullable=False)
+    spice_level = Column(String, default="Medium")
+    dietary_notes = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    order = relationship("TableOrder", back_populates="items")

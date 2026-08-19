@@ -188,13 +188,13 @@ export interface NotificationPreferences {
   reservations?: boolean;
 }
 
-export type UserRole = 'master' | 'super_admin' | 'admin' | 'employee' | 'staff' | 'customer';
+export type UserRole = 'master' | 'super_admin' | 'admin' | 'manager' | 'server' | 'employee' | 'staff' | 'customer';
 
 export interface AdminUser {
   id: string;
   name: string;
   email: string;
-  role: 'master' | 'super_admin' | 'admin' | 'employee' | 'staff';
+  role: 'master' | 'super_admin' | 'admin' | 'manager' | 'server' | 'employee' | 'staff';
   active: boolean;
   createdAt: string;
   lastLogin?: string;
@@ -203,7 +203,7 @@ export interface AdminUser {
 export interface User {
   id: string;
   email: string;
-  role: 'master' | 'super_admin' | 'admin' | 'employee' | 'staff' | 'customer';
+  role: 'master' | 'super_admin' | 'admin' | 'manager' | 'server' | 'employee' | 'staff' | 'customer';
   name: string;
   phone?: string;
   street?: string;
@@ -217,6 +217,56 @@ export interface TableReservationAlert {
   reservation: Reservation;
   timestamp: string;
   isRead: boolean;
+}
+
+// Table Order & Live Server POS
+export interface TableOrderItem {
+  id: string;
+  orderId: string;
+  menuItemId?: string;
+  name: string;
+  unitPrice: number;
+  quantity: number;
+  totalPrice: number;
+  spiceLevel?: string;
+  dietaryNotes?: string;
+}
+
+export interface TableOrder {
+  id: string;
+  tableId: string;
+  tableNumber: string;
+  serverName: string;
+  partyName: string;
+  customerPhone?: string;
+  status: 'active' | 'bill_issued' | 'completed' | 'cancelled';
+  subtotal: number;
+  tax: number;
+  totalAmount: number;
+  paymentStatus: 'pending' | 'paid';
+  invoiceNumber?: string;
+  smsSent?: boolean;
+  smsSentAt?: string;
+  items: TableOrderItem[];
+}
+
+export interface ServerStat {
+  serverName: string;
+  activeTablesCount: number;
+  completedTablesToday: number;
+  totalTablesServedToday: number;
+  ordersTakenToday: number;
+  totalRevenueToday: number;
+  efficiencyScore: string;
+  activeTables: string[];
+}
+
+export interface SMSInvoice {
+  invoiceNumber: string;
+  recipientPhone: string;
+  totalAmount: number;
+  smsContent: string;
+  timestamp: string;
 }
 
 // Order & Cart items (for backward compatibility)
