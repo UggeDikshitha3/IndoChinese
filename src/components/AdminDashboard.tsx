@@ -26,6 +26,7 @@ import {
   EventInquiry
 } from '../types';
 import { AdminTableMonitor } from './AdminTableMonitor';
+import { getApiUrl } from '../utils/api';
 
 interface AdminDashboardProps {
   isOpen: boolean;
@@ -89,26 +90,26 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     try {
       if (activeTab === 'tables') {
         const [tableRes, resRes] = await Promise.all([
-          fetch('/api/admin/tables', { headers: { Authorization: `Bearer ${token}` } }),
-          fetch('/api/admin/reservations', { headers: { Authorization: `Bearer ${token}` } })
+          fetch(getApiUrl('/api/admin/tables'), { headers: { Authorization: `Bearer ${token}` } }),
+          fetch(getApiUrl('/api/admin/reservations'), { headers: { Authorization: `Bearer ${token}` } })
         ]);
         if (tableRes.ok) setTables(await tableRes.json());
         if (resRes.ok) setReservations(await resRes.json());
       } else if (activeTab === 'reservations') {
-        const res = await fetch('/api/admin/reservations', {
+        const res = await fetch(getApiUrl('/api/admin/reservations'), {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.ok) setReservations(await res.json());
       } else if (activeTab === 'events') {
-        const res = await fetch('/api/admin/events', {
+        const res = await fetch(getApiUrl('/api/admin/events'), {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.ok) setEvents(await res.json());
       } else if (activeTab === 'menu') {
-        const res = await fetch('/api/menu');
+        const res = await fetch(getApiUrl('/api/menu'));
         if (res.ok) setMenuItems(await res.json());
       } else if (activeTab === 'messages') {
-        const res = await fetch('/api/admin/contact', {
+        const res = await fetch(getApiUrl('/api/admin/contact'), {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.ok) setMessages(await res.json());
@@ -126,7 +127,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     setIsLoggingIn(true);
 
     try {
-      const res = await fetch('/api/auth/login', {
+      const res = await fetch(getApiUrl('/api/auth/login'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email.trim(), password: password.trim() })

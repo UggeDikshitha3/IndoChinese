@@ -4,7 +4,16 @@
 
 export function getApiUrl(path: string): string {
   const metaEnv = (import.meta as any).env;
-  const baseUrl = (metaEnv?.VITE_API_URL || '').replace(/\/$/, '');
+  let baseUrl = (metaEnv?.VITE_API_URL || '').replace(/\/$/, '');
+
+  // If running on a frontend static subdomain on render.com without explicit VITE_API_URL,
+  // automatically route API calls to the live backend API service at https://indochinese.onrender.com
+  if (!baseUrl && typeof window !== 'undefined') {
+    if (window.location.hostname.includes('onrender.com') && !window.location.hostname.startsWith('indochinese.onrender.com')) {
+      baseUrl = 'https://indochinese.onrender.com';
+    }
+  }
+
   const cleanPath = path.startsWith('/') ? path : `/${path}`;
   return baseUrl ? `${baseUrl}${cleanPath}` : cleanPath;
 }

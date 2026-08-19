@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { TableStatusSummary, Reservation } from '../types';
 import { subscribeToFirestoreReservations, calculateTableStatus } from '../lib/firebase';
+import { getApiUrl } from '../utils/api';
 import { Users, Sparkles, RefreshCw, CheckCircle2, Clock, MapPin } from 'lucide-react';
 
 interface LiveTableOccupancyCardProps {
@@ -31,7 +32,7 @@ export const LiveTableOccupancyCard: React.FC<LiveTableOccupancyCardProps> = ({
   useEffect(() => {
     const fetchStatusFromServer = async () => {
       try {
-        const res = await fetch('/api/tables/status');
+        const res = await fetch(getApiUrl('/api/tables/status'));
         if (res.ok) {
           const data = await res.json();
           setTableStatus(data);
@@ -74,7 +75,7 @@ export const LiveTableOccupancyCard: React.FC<LiveTableOccupancyCardProps> = ({
   const handleManualRefresh = async () => {
     setIsSyncing(true);
     try {
-      const res = await fetch('/api/tables/status');
+      const res = await fetch(getApiUrl('/api/tables/status'));
       if (res.ok) {
         const data = await res.json();
         setTableStatus(data);

@@ -259,7 +259,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error || 'Invalid admin credentials');
+        throw new Error(data.error || data.detail || 'Invalid admin credentials');
       }
 
       if (data.token) {
