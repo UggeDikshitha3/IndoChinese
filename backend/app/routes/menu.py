@@ -101,6 +101,8 @@ def get_menu(
             query = query.filter(MenuItem.category.in_(["combos", "chef_signatures"]))
         elif cat_lower in ["rice_noodles", "noodles", "rice"]:
             query = query.filter(MenuItem.category.in_(["rice_noodles", "noodles", "rice"]))
+        elif cat_lower in ["chips", "ours_special_chips", "special_chips"]:
+            query = query.filter(MenuItem.category.in_(["chips", "ours_special_chips"]))
         else:
             query = query.filter(MenuItem.category == category)
     if isVeg is not None and isVeg:

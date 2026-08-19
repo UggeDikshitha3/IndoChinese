@@ -153,10 +153,18 @@ def assign_reservation_table(id: str, payload: dict = Body(...), db: Session = D
     if not resv:
         raise HTTPException(status_code=404, detail="Reservation not found")
 
-    table_id = payload.get("tableId") or payload.get("table_id") or payload.get("tableNumber") if isinstance(payload, dict) else str(payload)
-    if table_id:
-        resv.assigned_table_id = table_id
+    target = payload.get("tableId") or payload.get("table_id") or payload.get("tableNumber") if isinstance(payload, dict) else str(payload)
+    if target:
+        # Check if target is a table number or UUID
+        tbl = db.query(RestaurantTable).filter(
+            (RestaurantTable.id == target) | (RestaurantTable.table_number.ilike(target))
+        ).first()
+        if tbl:
+            resv.assigned_table_id = tbl.id
+        else:
+            resv.assigned_table_id = target
     db.commit()
+    db.refresh(resv)
     return {"success": True, "assignedTableId": resv.assigned_table_id}
 
 @router.get("/contact")
