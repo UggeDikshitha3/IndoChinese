@@ -5,6 +5,37 @@ from app.database.session import get_db
 from app.models.models import MenuItem
 from app.schemas.schemas import MenuItemCreate, MenuItemUpdate, MenuItemResponse
 
+def ensure_default_menu(db: Session):
+    try:
+        if db.query(MenuItem).count() == 0:
+            default_dishes = [
+                MenuItem(name="Bombay Manchow Soup", description="Street-style dark spicy soup loaded with finely chopped vegetables and crispy fried noodles.", price=5.95, category="soups", is_veg=True, is_spicy=True, spice_level=2, is_chef_special=True, is_popular=True, image_url="/src/assets/images/bombay_manchow_soup_1786516536756.jpg", available=True),
+                MenuItem(name="Hot & Sour Soup", description="Classic fiery broth with bamboo shoots, wood ear mushrooms, tofu, and crushed white pepper.", price=5.95, category="soups", is_veg=True, is_spicy=True, spice_level=3, is_chef_special=False, is_popular=True, image_url="/src/assets/images/hot_sour_soup_1786609347778.jpg", available=True),
+                MenuItem(name="Sweet Corn Veg Soup", description="Comforting rich sweet corn broth with tender creamed corn and garden peas.", price=5.50, category="soups", is_veg=True, is_spicy=False, spice_level=0, is_chef_special=False, is_popular=False, image_url="/src/assets/images/sweet_corn_soup_1786609365927.jpg", available=True),
+                MenuItem(name="Steamed Veg Momos (6 pcs)", description="Delicate thin-skinned dumplings stuffed with spiced shredded vegetables, served with spicy red chutney.", price=6.95, category="momos", is_veg=True, is_spicy=True, spice_level=2, is_chef_special=False, is_popular=True, image_url="/src/assets/images/steamed_dumplings_momo_1786520824895.jpg", available=True),
+                MenuItem(name="Chilli Wok Momos", description="Pan-fried dumplings tossed in a smoky wok with capsicum, onions, and spicy Indo-Chinese chilli glaze.", price=7.95, category="momos", is_veg=True, is_spicy=True, spice_level=3, is_chef_special=True, is_popular=True, image_url="/src/assets/images/chilli_wok_dumplings_1786520842041.jpg", available=True),
+                MenuItem(name="Crispy Fried Momos", description="Golden-crusted crispy dumplings filled with savory seasoned filling, served with schezwan mayo.", price=7.50, category="momos", is_veg=True, is_spicy=False, spice_level=1, is_chef_special=False, is_popular=False, image_url="/src/assets/images/crispy_fried_momos_1786521404691.jpg", available=True),
+                MenuItem(name="Vegetable Spring Rolls (4 pcs)", description="Hand-rolled crispy pastry filled with spiced julienned cabbage, carrots, and glass noodles with sweet chilli dip.", price=5.50, category="veg_starters", is_veg=True, is_spicy=False, spice_level=0, is_chef_special=False, is_popular=True, image_url="/src/assets/images/veg_spring_rolls_1786542679969.jpg", available=True),
+                MenuItem(name="Vegetable Manchurian Dry", description="Golden vegetable dumplings wok-tossed with ginger, garlic, green chillies, and savory dark soy sauce.", price=7.95, category="veg_starters", is_veg=True, is_spicy=True, spice_level=2, is_chef_special=True, is_popular=True, image_url="/src/assets/images/veg_manchurian_1786542694203.jpg", available=True),
+                MenuItem(name="Chilli Paneer Dry", description="Cottage cheese cubes wok-fried with crisp bell peppers, spring onions, and spicy garlic soya sauce.", price=8.50, category="veg_starters", is_veg=True, is_spicy=True, spice_level=2, is_chef_special=True, is_popular=True, image_url="/src/assets/images/chilli_paneer_1786542725460.jpg", available=True),
+                MenuItem(name="Chilli Gobi Dry", description="Crispy cauliflower florets glazed in spicy garlic, red chillies, and fresh scallions.", price=7.50, category="veg_starters", is_veg=True, is_spicy=True, spice_level=2, is_chef_special=False, is_popular=False, image_url="/src/assets/images/chilli_gobi_1786542738688.jpg", available=True),
+                MenuItem(name="Szechwan Paneer", description="Tender paneer batons tossed in authentic homemade fiery Sichuan pepper sauce and crushed garlic.", price=8.95, category="veg_starters", is_veg=True, is_spicy=True, spice_level=3, is_chef_special=False, is_popular=False, image_url="/src/assets/images/szechwan_paneer_1786542753122.jpg", available=True),
+                MenuItem(name="Paneer 65", description="South Indian spiced crispy paneer bites tempered with curry leaves, mustard seeds, and crushed green chillies.", price=8.50, category="veg_starters", is_veg=True, is_spicy=True, spice_level=2, is_chef_special=False, is_popular=False, image_url="/src/assets/images/paneer_65_1786542764483.jpg", available=True),
+                MenuItem(name="Chicken Lollipop Sauced (5 pcs)", description="Frenched chicken winglets deep fried to perfection and tossed in signature hot garlic schezwan sauce.", price=8.95, category="chicken_starters", is_veg=False, is_spicy=True, spice_level=2, is_chef_special=True, is_popular=True, image_url="/src/assets/images/chicken_lollipop_sauced_1786516573910.jpg", available=True),
+                MenuItem(name="Chicken Lollipop Dry (5 pcs)", description="Crispy spiced frenched chicken drummettes served with homemade schezwan dipping sauce.", price=8.50, category="chicken_starters", is_veg=False, is_spicy=True, spice_level=1, is_chef_special=False, is_popular=True, image_url="/src/assets/images/chicken_lollipop_dry_1786864878519.jpg", available=True),
+                MenuItem(name="Chilli Chicken Dry", description="Tender diced chicken breast tossed with green bell peppers, red onion petals, and dark soya glaze.", price=8.95, category="chicken_starters", is_veg=False, is_spicy=True, spice_level=2, is_chef_special=True, is_popular=True, image_url="/src/assets/images/chilli_chicken_1786542793770.jpg", available=True),
+                MenuItem(name="Chicken 65", description="Classic spicy fried chicken infused with aromatic curry leaves, ginger, yogurt, and crushed Kashmiri chillies.", price=8.95, category="chicken_starters", is_veg=False, is_spicy=True, spice_level=2, is_chef_special=False, is_popular=True, image_url="/src/assets/images/chicken_65_1786542806844.jpg", available=True),
+                MenuItem(name="Chilli Prawns", description="King prawns wok-seared with peppers, scallions, fresh red chillies, and garlic soy reduction.", price=11.95, category="prawn_specials", is_veg=False, is_spicy=True, spice_level=2, is_chef_special=True, is_popular=True, image_url="/src/assets/images/chilli_prawns_1786542836086.jpg", available=True),
+                MenuItem(name="Veg Hakka Noodles", description="Traditional Kolkata Chinese wok-tossed noodles with shredded cabbage, carrots, bell peppers, and scallions.", price=7.95, category="rice_noodles", is_veg=True, is_spicy=False, spice_level=1, is_chef_special=False, is_popular=True, image_url="/src/assets/images/veg_hakka_noodles_1786864935647.jpg", available=True),
+                MenuItem(name="Chicken Fried Rice", description="Fluffy basmati rice wok-tossed with diced halal chicken breast, egg ribbons, and scallions.", price=8.95, category="rice_noodles", is_veg=False, is_spicy=False, spice_level=0, is_chef_special=False, is_popular=True, image_url="/src/assets/images/chicken_fried_rice_1786865261779.jpg", available=True),
+                MenuItem(name="Triple Schezwan Rice & Noodle Combo", description="The ultimate Indo-Chinese feast: aromatic schezwan fried rice, hakka noodles, and fiery Manchurian gravy.", price=12.95, category="chef_signatures", is_veg=False, is_spicy=True, spice_level=3, is_chef_special=True, is_popular=True, image_url="/src/assets/images/triple_schezwan_combo_1786516611209.jpg", available=True)
+            ]
+            db.add_all(default_dishes)
+            db.commit()
+    except Exception as e:
+        db.rollback()
+        print(f"Menu seeding notice: {e}")
+
 router = APIRouter(prefix="/menu", tags=["menu"])
 
 @router.get("", response_model=List[MenuItemResponse])
@@ -17,6 +48,7 @@ def get_menu(
     search: Optional[str] = Query(None),
     db: Session = Depends(get_db)
 ):
+    ensure_default_menu(db)
     query = db.query(MenuItem)
 
     if category and category != "all":
