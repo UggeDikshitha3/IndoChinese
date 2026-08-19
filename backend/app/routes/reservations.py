@@ -206,6 +206,39 @@ def update_reservation(id: str, updates: ReservationUpdate, db: Session = Depend
         "createdAt": resv.created_at
     }
 
+@router.patch("/{id}/reschedule")
+def reschedule_reservation(id: str, payload: dict, db: Session = Depends(get_db)):
+    resv = db.query(Reservation).filter((Reservation.id == id) | (Reservation.reservation_number == id)).first()
+    if not resv:
+        raise HTTPException(status_code=404, detail="Reservation not found")
+
+    new_date = payload.get("date")
+    new_time = payload.get("time")
+    if new_date: resv.date = new_date
+    if new_time: resv.time = new_time
+    resv.status = ReservationStatus.CONFIRMED
+
+    db.commit()
+    db.refresh(resv)
+    return {
+        "success": True,
+        "id": resv.id,
+        "reservationNumber": resv.reservation_number,
+        "date": resv.date,
+        "time": resv.time,
+        "status": resv.status
+    }
+
+@router.patch("/{id}/cancel")
+def cancel_reservation(id: str, db: Session = Depends(get_db)):
+    resv = db.query(Reservation).filter((Reservation.id == id) | (Reservation.reservation_number == id)).first()
+    if not resv:
+        raise HTTPException(status_code=404, detail="Reservation not found")
+
+    resv.status = ReservationStatus.CANCELLED
+    db.commit()
+    return {"success": True, "message": "Reservation cancelled successfully", "status": resv.status}
+
 @router.delete("/{id}")
 def delete_reservation(id: str, db: Session = Depends(get_db)):
     resv = db.query(Reservation).filter(
