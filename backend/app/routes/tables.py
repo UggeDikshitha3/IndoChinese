@@ -127,8 +127,8 @@ def get_table_by_id(id: str, db: Session = Depends(get_db)):
 
 @router.patch("/{id}/seat")
 def seat_table_public(id: str, payload: dict, db: Session = Depends(get_db)):
-    from app.routes.admin import seat_table
-    return seat_table(id, payload, db)
+    from app.routes.admin import seat_party_on_table
+    return seat_party_on_table(id, payload, db)
 
 @router.patch("/{id}/status")
 def update_table_status_public(id: str, payload: dict, db: Session = Depends(get_db)):
@@ -138,12 +138,12 @@ def update_table_status_public(id: str, payload: dict, db: Session = Depends(get
 @router.patch("/{id}/bill")
 def issue_table_bill_public(id: str, payload: dict = {}, db: Session = Depends(get_db)):
     from app.routes.admin import issue_table_bill
-    return issue_table_bill(id, payload, db)
+    return issue_table_bill(id, db)
 
 @router.patch("/{id}/complete")
-def complete_table_dining_public(id: str, db: Session = Depends(get_db)):
+def complete_table_dining_public(id: str, payload: dict = {}, db: Session = Depends(get_db)):
     from app.routes.admin import complete_table_dining
-    return complete_table_dining(id, db)
+    return complete_table_dining(id, payload, db)
 
 @router.delete("/{id}")
 def delete_table(id: str, db: Session = Depends(get_db)):
