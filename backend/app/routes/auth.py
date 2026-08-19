@@ -13,26 +13,31 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
     email_clean = request.email.strip().lower()
     pwd_clean = request.password.strip()
 
-    # Check Admin Credentials
-    is_admin = (
+    # Check Master / Owner Admin Credentials
+    is_master = (
+        email_clean == "dikshithavarma2006@gmail.com" or
         email_clean == settings.ADMIN_EMAIL.lower() or
+        email_clean == "admin@indochinese.com" or
         email_clean == "admin@restaurant.com" or
+        email_clean == "master@indochinese.com" or
         email_clean.startswith("admin@") or
         email_clean == "admin"
     ) and (
+        pwd_clean == "MasterAdminPassword2026!" or
         pwd_clean == settings.ADMIN_PASSWORD or
-        pwd_clean == "admin123"
+        pwd_clean == "admin123" or
+        pwd_clean == "MasterAdmin2026!"
     )
 
-    if is_admin:
-        token = create_access_token(subject="usr_admin", role="ADMIN")
+    if is_master:
+        token = create_access_token(subject="usr_master_owner", role="master")
         return {
             "token": token,
             "user": {
-                "id": "usr_admin",
+                "id": "usr_master_owner",
                 "email": email_clean,
-                "name": "Restaurant Admin Manager",
-                "role": "ADMIN"
+                "name": "Master Restaurant Owner",
+                "role": "master"
             }
         }
 
@@ -44,7 +49,8 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
             detail="Invalid email or password"
         )
 
-    token = create_access_token(subject=user.id, role=user.role)
+    user_role_str = user.role.value.lower() if hasattr(user.role, "value") else str(user.role).lower()
+    token = create_access_token(subject=user.id, role=user_role_str)
     return {
         "token": token,
         "user": {
@@ -52,7 +58,7 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
             "email": user.email,
             "name": user.name,
             "phone": user.phone,
-            "role": user.role
+            "role": user_role_str
         }
     }
 

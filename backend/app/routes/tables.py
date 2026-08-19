@@ -110,6 +110,41 @@ def update_table(id: str, table_in: TableUpdate, db: Session = Depends(get_db)):
         "notes": tbl.notes
     }
 
+@router.get("/{id}")
+def get_table_by_id(id: str, db: Session = Depends(get_db)):
+    tbl = db.query(RestaurantTable).filter((RestaurantTable.id == id) | (RestaurantTable.table_number.ilike(id))).first()
+    if not tbl:
+        raise HTTPException(status_code=404, detail="Table not found")
+    return {
+        "id": tbl.id,
+        "tableNumber": tbl.table_number,
+        "capacity": tbl.capacity,
+        "area": tbl.area,
+        "status": tbl.status,
+        "assignedServer": tbl.assigned_server,
+        "notes": tbl.notes
+    }
+
+@router.patch("/{id}/seat")
+def seat_table_public(id: str, payload: dict, db: Session = Depends(get_db)):
+    from app.routes.admin import seat_table
+    return seat_table(id, payload, db)
+
+@router.patch("/{id}/status")
+def update_table_status_public(id: str, payload: dict, db: Session = Depends(get_db)):
+    from app.routes.admin import update_table_status
+    return update_table_status(id, payload, db)
+
+@router.patch("/{id}/bill")
+def issue_table_bill_public(id: str, payload: dict = {}, db: Session = Depends(get_db)):
+    from app.routes.admin import issue_table_bill
+    return issue_table_bill(id, payload, db)
+
+@router.patch("/{id}/complete")
+def complete_table_dining_public(id: str, db: Session = Depends(get_db)):
+    from app.routes.admin import complete_table_dining
+    return complete_table_dining(id, db)
+
 @router.delete("/{id}")
 def delete_table(id: str, db: Session = Depends(get_db)):
     tbl = db.query(RestaurantTable).filter(RestaurantTable.id == id).first()
