@@ -114,6 +114,40 @@ def get_reservations(
         for r in reservations
     ]
 
+@router.get("/lookup", response_model=List[ReservationResponse])
+def lookup_reservations(
+    ref: Optional[str] = Query(None),
+    phone: Optional[str] = Query(None),
+    db: Session = Depends(get_db)
+):
+    query = db.query(Reservation)
+    if ref:
+        query = query.filter(Reservation.reservation_number.ilike(f"%{ref.strip()}%"))
+    if phone:
+        clean_phone = "".join(c for c in phone if c.isdigit())
+        query = query.filter(Reservation.phone.contains(clean_phone))
+
+    reservations = query.order_by(Reservation.created_at.desc()).all()
+    return [
+        {
+            "id": r.id,
+            "reservationNumber": r.reservation_number,
+            "name": r.name,
+            "email": r.email,
+            "phone": r.phone,
+            "guests": r.guests,
+            "date": r.date,
+            "time": r.time,
+            "seatingArea": r.seating_area,
+            "occasion": r.occasion,
+            "specialRequests": r.special_requests,
+            "status": r.status,
+            "assignedTableId": r.assigned_table_id,
+            "createdAt": r.created_at
+        }
+        for r in reservations
+    ]
+
 @router.get("/{id}", response_model=ReservationResponse)
 def get_single_reservation(id: str, db: Session = Depends(get_db)):
     resv = db.query(Reservation).filter(
