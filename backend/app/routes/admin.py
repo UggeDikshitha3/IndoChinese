@@ -109,6 +109,163 @@ def get_admin_tables(db: Session = Depends(get_db)):
         for t in tables
     ]
 
+@router.post("/tables")
+def create_admin_table(payload: dict = Body(...), db: Session = Depends(get_db)):
+    table_num = payload.get("tableNumber") or payload.get("table_number") or f"T-{db.query(RestaurantTable).count() + 1:02d}"
+    capacity = int(payload.get("capacity", 4))
+    area = payload.get("area", "Main Dining Floor")
+    server = payload.get("assignedServer") or payload.get("assigned_server") or ""
+    notes = payload.get("notes", "")
+
+    existing = db.query(RestaurantTable).filter(RestaurantTable.table_number.ilike(table_num)).first()
+    if existing:
+        existing.capacity = capacity
+        existing.area = area
+        existing.assigned_server = server
+        existing.notes = notes
+        db.commit()
+        db.refresh(existing)
+        return {
+            "id": existing.id,
+            "tableNumber": existing.table_number,
+            "capacity": existing.capacity,
+            "area": existing.area,
+            "status": existing.status,
+            "assignedServer": existing.assigned_server,
+            "notes": existing.notes
+        }
+
+    new_table = RestaurantTable(
+        table_number=table_num,
+        capacity=capacity,
+        area=area,
+        status="available",
+        assigned_server=server,
+        notes=notes
+    )
+    db.add(new_table)
+    db.commit()
+    db.refresh(new_table)
+    return {
+        "id": new_table.id,
+        "tableNumber": new_table.table_number,
+        "capacity": new_table.capacity,
+        "area": new_table.area,
+        "status": new_table.status,
+        "assignedServer": new_table.assigned_server,
+        "notes": new_table.notes
+    }
+
+@router.put("/tables/{id}")
+@router.patch("/tables/{id}")
+def update_admin_table(id: str, payload: dict = Body(...), db: Session = Depends(get_db)):
+    tbl = db.query(RestaurantTable).filter((RestaurantTable.id == id) | (RestaurantTable.table_number.ilike(id))).first()
+    if not tbl:
+        raise HTTPException(status_code=404, detail="Table not found")
+
+    if "tableNumber" in payload or "table_number" in payload:
+        tbl.table_number = payload.get("tableNumber") or payload.get("table_number")
+    if "capacity" in payload:
+        tbl.capacity = int(payload["capacity"])
+    if "area" in payload:
+        tbl.area = payload["area"]
+    if "status" in payload:
+        tbl.status = payload["status"]
+    if "assignedServer" in payload or "assigned_server" in payload:
+        tbl.assigned_server = payload.get("assignedServer") or payload.get("assigned_server")
+    if "notes" in payload:
+        tbl.notes = payload["notes"]
+
+    db.commit()
+    db.refresh(tbl)
+    return {
+        "id": tbl.id,
+        "tableNumber": tbl.table_number,
+        "capacity": tbl.capacity,
+        "area": tbl.area,
+        "status": tbl.status,
+        "assignedServer": tbl.assigned_server,
+        "notes": tbl.notes
+    }
+
+@router.delete("/tables/{id}")
+def delete_admin_table(id: str, db: Session = Depends(get_db)):
+    tbl = db.query(RestaurantTable).filter((RestaurantTable.id == id) | (RestaurantTable.table_number.ilike(id))).first()
+    if not tbl:
+        raise HTTPException(status_code=404, detail="Table not found")
+
+    db.delete(tbl)
+    db.commit()
+    return {"success": True, "message": "Table deleted successfully"}
+
+@router.patch("/tables/{id}/status")
+def change_table_status(id: str, payload: dict = Body(...), db: Session = Depends(get_db)):
+    tbl = db.query(RestaurantTable).filter((RestaurantTable.id == id) | (RestaurantTable.table_number.ilike(id))).first()
+    if not tbl:
+        raise HTTPException(status_code=404, detail="Table not found")
+
+    new_status = payload.get("status", "available")
+    tbl.status = new_status
+    db.commit()
+    db.refresh(tbl)
+    return {"success": True, "status": tbl.status}
+
+@router.patch("/tables/{id}/seat")
+def seat_party_on_table(id: str, payload: dict = Body(...), db: Session = Depends(get_db)):
+    tbl = db.query(RestaurantTable).filter((RestaurantTable.id == id) | (RestaurantTable.table_number.ilike(id))).first()
+    if not tbl:
+        raise HTTPException(status_code=404, detail="Table not found")
+
+    tbl.status = "occupied"
+    if "assignedServer" in payload:
+        tbl.assigned_server = payload["assignedServer"]
+    if "notes" in payload:
+        tbl.notes = payload["notes"]
+
+    resv_id = payload.get("reservationId")
+    if resv_id:
+        resv = db.query(Reservation).filter((Reservation.id == resv_id) | (Reservation.reservation_number == resv_id)).first()
+        if resv:
+            resv.status = "seated"
+            resv.assigned_table_id = tbl.id
+
+    db.commit()
+    db.refresh(tbl)
+    return {"success": True, "status": tbl.status}
+
+@router.patch("/tables/{id}/bill")
+def issue_table_bill(id: str, db: Session = Depends(get_db)):
+    tbl = db.query(RestaurantTable).filter((RestaurantTable.id == id) | (RestaurantTable.table_number.ilike(id))).first()
+    if not tbl:
+        raise HTTPException(status_code=404, detail="Table not found")
+
+    tbl.status = "bill_issued"
+    db.commit()
+    db.refresh(tbl)
+    return {"success": True, "status": tbl.status}
+
+@router.patch("/tables/{id}/complete")
+def complete_table_dining(id: str, payload: dict = Body(...), db: Session = Depends(get_db)):
+    tbl = db.query(RestaurantTable).filter((RestaurantTable.id == id) | (RestaurantTable.table_number.ilike(id))).first()
+    if not tbl:
+        raise HTTPException(status_code=404, detail="Table not found")
+
+    set_status = payload.get("setStatus", "available")
+    tbl.status = set_status
+    tbl.notes = ""
+    db.commit()
+    db.refresh(tbl)
+    return {"success": True, "status": tbl.status}
+
+@router.patch("/tables/{id}/extend")
+def extend_table_stay(id: str, payload: dict = Body(...), db: Session = Depends(get_db)):
+    tbl = db.query(RestaurantTable).filter((RestaurantTable.id == id) | (RestaurantTable.table_number.ilike(id))).first()
+    if not tbl:
+        raise HTTPException(status_code=404, detail="Table not found")
+
+    db.commit()
+    return {"success": True, "status": tbl.status}
+
 @router.get("/users")
 def get_admin_users(db: Session = Depends(get_db)):
     return [
