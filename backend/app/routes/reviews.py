@@ -71,10 +71,10 @@ def get_reviews(db: Session = Depends(get_db)):
 
 @router.post("")
 def submit_review(payload: dict = Body(...), db: Session = Depends(get_db)):
-    name = (payload.get("name") or "Verified Guest").strip()
+    name = (payload.get("author") or payload.get("name") or "Verified Guest").strip()
     rating = int(payload.get("rating") or 5)
     comment = (payload.get("comment") or "").strip()
-    dish = payload.get("dishRecommended") or payload.get("dish_recommended") or ""
+    dish = payload.get("recommendedDish") or payload.get("dishRecommended") or payload.get("dish_recommended") or ""
 
     if not comment:
         raise HTTPException(status_code=400, detail="Review comment is required")
