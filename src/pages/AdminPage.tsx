@@ -105,8 +105,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     currentUser?.id === 'usr_super_admin_manager';
 
   const isManager = isMaster || isSuperAdmin || userRole === 'manager' || userRole === 'admin';
-  const isReceptionist = !isMaster && !isManager && (userRole === 'receptionist' || userRole === 'host' || userRole === 'frontdesk' || userRole === 'employee');
-  const isServer = !isMaster && !isManager && !isReceptionist;
+  const isHostOrReceptionist = !isMaster && !isManager && (userRole === 'host' || userRole === 'receptionist' || userRole === 'frontdesk' || userRole === 'hostess' || userRole === 'greeter' || userRole === 'staff' || userRole === 'employee');
+  const isServer = !isMaster && !isManager && !isHostOrReceptionist;
 
   // Allowed tab IDs strictly based on user role
   const allowedTabs = React.useMemo(() => {
@@ -116,18 +116,18 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     if (isManager) {
       return ['dashboard', 'tables', 'calendar', 'reservations', 'events', 'menu', 'gallery', 'reviews'];
     }
-    if (isReceptionist) {
-      return ['reservations', 'calendar', 'tables'];
+    if (isHostOrReceptionist) {
+      return ['tables', 'calendar', 'reservations'];
     }
     if (isServer) {
       return ['server_tasks'];
     }
     return ['server_tasks'];
-  }, [isMaster, isManager, isReceptionist, isServer]);
+  }, [isMaster, isManager, isHostOrReceptionist, isServer]);
 
   const [activeTab, setActiveTab] = useState<
     'dashboard' | 'server_tasks' | 'tables' | 'calendar' | 'reservations' | 'events' | 'menu' | 'gallery' | 'reviews' | 'settings' | 'users' | 'audit'
-  >(() => (isServer ? 'server_tasks' : isReceptionist ? 'reservations' : 'dashboard'));
+  >(() => (isServer ? 'server_tasks' : isHostOrReceptionist ? 'tables' : 'dashboard'));
 
   // Ensure user cannot navigate to unauthorized tabs
   useEffect(() => {
@@ -855,10 +855,10 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                   <Crown className="w-3.5 h-3.5" />
                   <span>MANAGER (OVERVIEW)</span>
                 </span>
-              ) : isReceptionist ? (
+              ) : isHostOrReceptionist ? (
                 <span className="inline-flex items-center gap-1 text-sky-400 font-bold text-[11px]">
                   <UserCheck className="w-3.5 h-3.5" />
-                  <span>RECEPTIONIST (RESERVATIONS & TABLES)</span>
+                  <span>HOST & RECEPTIONIST (FLOOR, TABLES & RESERVATIONS)</span>
                 </span>
               ) : (
                 <span className="inline-flex items-center gap-1 text-emerald-400 font-bold text-[11px]">
