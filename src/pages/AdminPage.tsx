@@ -89,7 +89,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     }
   });
 
-  const isMaster = currentUser?.role === 'master' || 
+  const userRole = (currentUser?.role || '').toLowerCase();
+  const isMaster = userRole === 'master' || 
     currentUser?.email?.toLowerCase() === 'amster@indochinese.com' ||
     currentUser?.email?.toLowerCase() === 'master@indochinese.com' ||
     currentUser?.email?.toLowerCase() === 'owner@indochinese.com' ||
@@ -99,13 +100,42 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     currentUser?.id === 'usr_master_owner';
 
   const isSuperAdmin = isMaster || 
-    currentUser?.role === 'super_admin' || 
+    userRole === 'super_admin' || 
     currentUser?.id === 'usr_super_admin' ||
     currentUser?.id === 'usr_super_admin_manager';
 
+  const isManager = isMaster || isSuperAdmin || userRole === 'manager' || userRole === 'admin';
+  const isReceptionist = !isMaster && !isManager && (userRole === 'receptionist' || userRole === 'host' || userRole === 'frontdesk' || userRole === 'employee');
+  const isServer = !isMaster && !isManager && !isReceptionist;
+
+  // Allowed tab IDs strictly based on user role
+  const allowedTabs = React.useMemo(() => {
+    if (isMaster) {
+      return ['dashboard', 'server_tasks', 'tables', 'calendar', 'reservations', 'events', 'menu', 'gallery', 'reviews', 'settings', 'users', 'audit'];
+    }
+    if (isManager) {
+      return ['dashboard', 'tables', 'calendar', 'reservations', 'events', 'menu', 'gallery', 'reviews'];
+    }
+    if (isReceptionist) {
+      return ['reservations', 'calendar', 'tables'];
+    }
+    if (isServer) {
+      return ['server_tasks'];
+    }
+    return ['server_tasks'];
+  }, [isMaster, isManager, isReceptionist, isServer]);
+
   const [activeTab, setActiveTab] = useState<
     'dashboard' | 'server_tasks' | 'tables' | 'calendar' | 'reservations' | 'events' | 'menu' | 'gallery' | 'reviews' | 'settings' | 'users' | 'audit'
-  >('dashboard');
+  >(() => (isServer ? 'server_tasks' : isReceptionist ? 'reservations' : 'dashboard'));
+
+  // Ensure user cannot navigate to unauthorized tabs
+  useEffect(() => {
+    if (!allowedTabs.includes(activeTab)) {
+      setActiveTab((allowedTabs[0] || 'server_tasks') as any);
+    }
+  }, [allowedTabs, activeTab]);
+
   const [reservationViewMode, setReservationViewMode] = useState<'calendar' | 'table'>('calendar');
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
@@ -820,20 +850,20 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                   <Crown className="w-3.5 h-3.5" />
                   <span>MASTER (OWNER)</span>
                 </span>
-              ) : isSuperAdmin ? (
+              ) : isManager ? (
                 <span className="inline-flex items-center gap-1 text-purple-400 font-bold text-[11px]">
                   <Crown className="w-3.5 h-3.5" />
-                  <span>SUPER ADMIN (GM)</span>
+                  <span>MANAGER (OVERVIEW)</span>
                 </span>
-              ) : currentUser.role === 'admin' ? (
-                <span className="inline-flex items-center gap-1 text-rose-400 font-bold text-[11px]">
-                  <Shield className="w-3.5 h-3.5" />
-                  <span>ADMIN (SUPERVISOR)</span>
+              ) : isReceptionist ? (
+                <span className="inline-flex items-center gap-1 text-sky-400 font-bold text-[11px]">
+                  <UserCheck className="w-3.5 h-3.5" />
+                  <span>RECEPTIONIST (RESERVATIONS & TABLES)</span>
                 </span>
               ) : (
                 <span className="inline-flex items-center gap-1 text-emerald-400 font-bold text-[11px]">
-                  <UserCheck className="w-3.5 h-3.5" />
-                  <span>EMPLOYEE (HOST)</span>
+                  <UtensilsCrossed className="w-3.5 h-3.5" />
+                  <span>FLOOR SERVER (FOOD ORDERING POS)</span>
                 </span>
               )}
               <span className="text-slate-500 text-[10px]">|</span>
@@ -922,7 +952,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
             { id: 'settings', label: 'Restaurant Settings', icon: Settings },
             { id: 'users', label: 'Admin Users & Roles', icon: Users },
             { id: 'audit', label: 'Audit Activity Logs', icon: History }
-          ].map(tab => {
+          ].filter(tab => allowedTabs.includes(tab.id)).map(tab => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
             return (
@@ -2625,14 +2655,13 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                   onChange={(e) => setNewAdminRole(e.target.value as any)}
                   className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-amber-500 font-medium text-xs"
                 >
-                  <option value="server">Floor Server / Waiter (POS Orders, Tables & SMS Invoices)</option>
-                  <option value="manager">Restaurant Manager (Floor Operations, Reservations, Shift Oversight)</option>
-                  <option value="admin">Admin / Floor Supervisor (Shift Management, Menus, Inquiries)</option>
-                  <option value="employee">Host / Receptionist Staff (Table Seating & Walk-in Arrivals)</option>
+                  <option value="server">Floor Server / Waiter (Food Ordering POS & Invoicing ONLY)</option>
+                  <option value="receptionist">Receptionist / Host (Order Assigning, Reservations & Table Assignment)</option>
+                  <option value="manager">Restaurant Manager (Overview Restaurant Operations & Floor)</option>
                   {isMaster && (
                     <>
-                      <option value="super_admin">Super Admin / General Manager (Operations & Team Management)</option>
-                      <option value="master">Master / Restaurant Owner (Root System Authority)</option>
+                      <option value="admin">Floor Supervisor / Admin (Shift & Menu Oversight)</option>
+                      <option value="master">Master Owner (Overview Everyone & Full System Control)</option>
                     </>
                   )}
                 </select>

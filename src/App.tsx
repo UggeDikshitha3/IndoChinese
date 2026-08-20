@@ -360,7 +360,9 @@ export default function App() {
         {/* Customer Testimonials & Reviews */}
         <ReviewsSection
           reviews={reviews}
+          settings={settings}
           onBookTable={handleNavigateBookTable}
+          onReviewSubmitted={(newRev) => setReviews(prev => [newRev, ...prev])}
         />
 
         {/* Location, Google Map & Opening Hours */}
