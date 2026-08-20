@@ -10,22 +10,19 @@ interface MenuSectionProps {
   items?: MenuItem[];
   menuItems?: MenuItem[];
   onBookTable?: () => void;
-  onAddToCart?: (item: MenuItem, quantity: number, spiceLevel?: string, instructions?: string) => void;
 }
 
 export const MenuSection: React.FC<MenuSectionProps> = ({
   categories = [],
   items,
   menuItems,
-  onBookTable,
-  onAddToCart
+  onBookTable
 }) => {
   const safeItems = (items && items.length > 0) ? items : (menuItems && menuItems.length > 0) ? menuItems : INITIAL_MENU_ITEMS;
   const safeCategories = (categories && categories.length > 0) ? categories : INITIAL_CATEGORIES;
 
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [recentAddedId, setRecentAddedId] = useState<string | null>(null);
   const [vegFilter, setVegFilter] = useState<'all' | 'veg' | 'nonveg'>('all');
   const [spicyOnly, setSpicyOnly] = useState<boolean>(false);
   const [chefSpecialsOnly, setChefSpecialsOnly] = useState<boolean>(false);
@@ -477,45 +474,15 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
                         {item.category.replace('_', ' ')}
                       </span>
 
-                      <div className="flex items-center space-x-1.5" onClick={(e) => e.stopPropagation()}>
-                        {onAddToCart && (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              onAddToCart(item, 1, 'Medium', '');
-                              setRecentAddedId(item.id);
-                              setTimeout(() => setRecentAddedId(null), 1500);
-                            }}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center space-x-1 shadow-2xs ${
-                              recentAddedId === item.id
-                                ? 'bg-emerald-600 text-white'
-                                : 'bg-red-50 text-red-700 hover:bg-red-600 hover:text-white border border-red-200'
-                            }`}
-                            title="Add 1 to Cart"
-                          >
-                            {recentAddedId === item.id ? (
-                              <>
-                                <Check className="w-3.5 h-3.5" />
-                                <span>Added!</span>
-                              </>
-                            ) : (
-                              <>
-                                <Plus className="w-3.5 h-3.5" />
-                                <span>Add</span>
-                              </>
-                            )}
-                          </button>
-                        )}
-
-                        <button
-                          type="button"
-                          onClick={() => setActiveDish(item)}
-                          className="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors"
-                          title="Customise & details"
-                        >
-                          <ArrowRight className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setActiveDish(item)}
+                        className="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-700 bg-slate-100 hover:bg-red-50 hover:text-red-700 hover:border-red-200 border border-slate-200 transition-colors flex items-center space-x-1.5 shadow-2xs cursor-pointer"
+                        title="View dish details, allergens & spice level"
+                      >
+                        <span>View Dish</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
                     </div>
                   </div>
                 </div>
