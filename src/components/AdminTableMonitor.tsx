@@ -23,8 +23,7 @@ import {
   UserCheck,
   DollarSign,
   Coffee,
-  RotateCcw,
-  Receipt
+  RotateCcw
 } from 'lucide-react';
 import { RestaurantTable, TableStatus, Reservation } from '../types';
 import { getApiUrl } from '../utils/api';
@@ -71,8 +70,8 @@ export const AdminTableMonitor: React.FC<AdminTableMonitorProps> = ({
 
       // Check if any table in cleaning status has passed the 5-minute cleaning window
       tables.forEach(table => {
-        if (table.status === 'cleaning' && table.cleaningStartedAt) {
-          const startTime = new Date(table.cleaningStartedAt).getTime();
+        if (table.status === 'cleaning') {
+          const startTime = table.cleaningStartedAt ? new Date(table.cleaningStartedAt).getTime() : nowTimestamp;
           if (currentNow - startTime >= 5 * 60 * 1000) {
             handleCompleteTable(table.id, 'available');
           }
@@ -80,7 +79,7 @@ export const AdminTableMonitor: React.FC<AdminTableMonitorProps> = ({
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, [tables]);
+  }, [tables, nowTimestamp]);
 
   // Helper to calculate elapsed time in minutes & seconds
   const getElapsedSeatedTime = (seatedAt?: string) => {
@@ -273,7 +272,10 @@ export const AdminTableMonitor: React.FC<AdminTableMonitorProps> = ({
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify({ status })
+        body: JSON.stringify({
+          status,
+          ...(status === 'cleaning' ? { cleaningStartedAt: new Date().toISOString() } : {})
+        })
       });
       if (res.ok) onRefresh();
     } catch (err) {

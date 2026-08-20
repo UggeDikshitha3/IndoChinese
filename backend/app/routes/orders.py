@@ -339,6 +339,11 @@ def complete_table_dining_order(table_id: str, db: Session = Depends(get_db)):
 
     # Set table to cleaning for 5-minute sanitization & table turnover
     tbl.status = TableStatus.CLEANING
+    tbl.cleaning_started_at = datetime.utcnow().isoformat()
+    tbl.seated_at = None
+    tbl.current_party_name = None
+    tbl.current_guests = None
+    tbl.expected_vacate_time = None
     tbl.notes = "Sanitizing & Resetting Table (5m turnover)"
     db.commit()
 

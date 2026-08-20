@@ -363,7 +363,6 @@ def submit_review(payload: dict = Body(...), db: Session = Depends(get_db)):
             "createdAt": new_review.created_at.isoformat()
         }
     }
-
 @router.post("/refresh")
 @router.post("/admin/refresh")
 def refresh_annual_reviews(db: Session = Depends(get_db)):

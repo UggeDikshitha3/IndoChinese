@@ -21,6 +21,11 @@ def get_all_tables(db: Session = Depends(get_db)):
             "area": t.area,
             "status": t.status,
             "assignedServer": t.assigned_server,
+            "cleaningStartedAt": t.cleaning_started_at,
+            "seatedAt": t.seated_at,
+            "currentPartyName": t.current_party_name,
+            "currentGuests": t.current_guests,
+            "expectedVacateTime": t.expected_vacate_time,
             "notes": t.notes
         }
         for t in tables

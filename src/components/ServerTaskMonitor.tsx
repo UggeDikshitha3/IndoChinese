@@ -101,8 +101,8 @@ export const ServerTaskMonitor: React.FC<ServerTaskMonitorProps> = ({
 
       // Auto-turn cleaning tables to available once 5 minutes (300s) pass
       tables.forEach(tbl => {
-        if (tbl.status === 'cleaning' && tbl.cleaningStartedAt) {
-          const startTime = new Date(tbl.cleaningStartedAt).getTime();
+        if (tbl.status === 'cleaning') {
+          const startTime = tbl.cleaningStartedAt ? new Date(tbl.cleaningStartedAt).getTime() : nowTimestamp;
           if (currentNow - startTime >= 5 * 60 * 1000) {
             handleCompleteTable(tbl.id, 'available');
           }
@@ -110,7 +110,7 @@ export const ServerTaskMonitor: React.FC<ServerTaskMonitorProps> = ({
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, [tables]);
+  }, [tables, nowTimestamp]);
 
   // Helper for 5-minute cleaning countdown
   const getCleaningCountdown = (cleaningStartedAt?: string) => {
