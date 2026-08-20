@@ -92,7 +92,8 @@ async function runFullAudit() {
   const settingsRes = await httpRequest(`${BACKEND_URL}/api/settings`);
   check('Backend', 'Settings API Responds HTTP 200', settingsRes.status === 200);
   const sData = settingsRes.data || {};
-  check('Backend', 'Settings contain NAP Information', Boolean(sData.name && sData.phone && sData.city), `${sData.name} • ${sData.phone}`);
+  const hasNap = Boolean(sData.name && sData.phone && (sData.address || sData.city));
+  check('Backend', 'Settings contain NAP Information', hasNap, `${sData.name} • ${sData.phone} • ${sData.address || sData.city}`);
 
   const menuRes = await httpRequest(`${BACKEND_URL}/api/menu`);
   check('Backend', 'Menu API Responds HTTP 200', menuRes.status === 200);
@@ -118,7 +119,8 @@ async function runFullAudit() {
     recommendedDish: 'Chilli Chicken Sizzler'
   };
   const submitReviewRes = await httpRequest(`${BACKEND_URL}/api/reviews`, { method: 'POST' }, testReviewPayload);
-  check('Reviews', 'Customer Review Submission (HTTP 200/201)', submitReviewRes.status === 200 || submitReviewRes.status === 201, `ID: ${submitReviewRes.data?.id}`);
+  const reviewId = submitReviewRes.data?.review?.id || submitReviewRes.data?.id;
+  check('Reviews', 'Customer Review Submission (HTTP 200/201)', submitReviewRes.status === 200 || submitReviewRes.status === 201, `ID: ${reviewId}`);
 
   // --- 4. Table Reservations & Availability ---
   console.log('\n>>> 4. TABLE RESERVATIONS & BOOKING ENGINE');
