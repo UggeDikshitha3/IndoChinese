@@ -23,7 +23,8 @@ import {
   UserCheck,
   DollarSign,
   Coffee,
-  RotateCcw
+  RotateCcw,
+  Receipt
 } from 'lucide-react';
 import { RestaurantTable, TableStatus, Reservation } from '../types';
 import { getApiUrl } from '../utils/api';
