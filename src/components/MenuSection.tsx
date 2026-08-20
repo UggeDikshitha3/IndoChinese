@@ -499,7 +499,6 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
           isFavorite={activeDish ? favoriteIds.includes(activeDish.id) : false}
           onToggleFavorite={toggleFavorite}
           onSelectPairingItem={(pairingItem) => setActiveDish(pairingItem)}
-          onAddToCart={onAddToCart}
           allItems={safeItems}
         />
       </div>
