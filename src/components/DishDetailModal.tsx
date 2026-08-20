@@ -24,6 +24,7 @@ export const DishDetailModal: React.FC<DishDetailModalProps> = ({
   const [selectedSpice, setSelectedSpice] = useState<number>(item?.spiceLevel || 1);
   const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [specialNote, setSpecialNote] = useState<string>('');
 
   if (!isOpen || !item) return null;
 

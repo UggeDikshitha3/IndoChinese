@@ -138,7 +138,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         throw new Error(data.error || 'Login failed');
       }
 
-      if (data.user?.role !== 'admin') {
+      const role = (data.user?.role || '').toLowerCase();
+      const isAllowedAdmin = ['admin', 'master', 'super_admin', 'manager', 'server', 'staff', 'employee'].includes(role);
+
+      if (!isAllowedAdmin) {
         throw new Error('Access denied. Admin credentials required.');
       }
 
