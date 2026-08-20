@@ -30,14 +30,16 @@ export const Hero: React.FC<HeroProps> = ({
       {/* Hero Content Container */}
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center flex flex-col items-center">
         
-        {/* Official Brand Logo with Floating Animation */}
+        {/* Official Brand Crest with Floating Animation */}
         <div className="mb-5 relative group cursor-pointer animate-float">
-          <div className="absolute -inset-1 bg-gradient-to-r from-red-600 to-amber-500 rounded-full blur-sm opacity-40 group-hover:opacity-75 transition duration-500" />
-          <img
-            src={logoImg}
-            alt="INDO CHINESE - The Real Taste of Bombay"
-            className="relative w-28 h-28 sm:w-36 sm:h-36 rounded-full border-2 border-amber-500 shadow-xl object-contain bg-white p-1"
-          />
+          <div className="absolute -inset-1 bg-gradient-to-r from-red-600 to-amber-500 rounded-full blur-md opacity-50 group-hover:opacity-80 transition duration-500" />
+          <div className="relative w-28 h-28 sm:w-36 sm:h-36 rounded-full border-4 border-amber-400 shadow-2xl bg-gradient-to-tr from-amber-500 via-red-600 to-amber-400 p-1 flex items-center justify-center">
+            <div className="w-full h-full rounded-full bg-slate-950 flex flex-col items-center justify-center text-center p-2 border border-amber-400/40">
+              <Flame className="w-8 h-8 sm:w-10 sm:h-10 text-amber-400 fill-amber-400 animate-pulse" />
+              <span className="text-[9px] sm:text-[11px] font-black text-amber-300 uppercase tracking-widest mt-1 font-serif">INDO CHINESE</span>
+              <span className="text-[7px] sm:text-[8px] text-amber-100 uppercase tracking-wider font-bold bg-red-900/80 px-2 py-0.5 rounded-full mt-0.5 border border-red-500/40">BOMBAY TASTE</span>
+            </div>
+          </div>
         </div>
 
         {/* Live Rating Badge */}

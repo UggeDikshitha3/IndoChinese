@@ -143,11 +143,11 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={() => handleNavClick('home')}
             className="flex items-center space-x-3 text-left group focus:outline-none"
           >
-            <img
-              src={logoImg}
-              alt="INDO CHINESE Logo"
-              className="w-11 h-11 rounded-full border-2 border-amber-500/80 object-cover shadow-sm group-hover:scale-105 transition-transform bg-white"
-            />
+            <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-amber-500 via-red-600 to-amber-400 p-0.5 shadow-md flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+              <div className="w-full h-full rounded-full bg-slate-950 flex items-center justify-center">
+                <Flame className="w-5 h-5 text-amber-400 fill-amber-400" />
+              </div>
+            </div>
             <div>
               <span className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-900 block font-serif">
                 INDO<span className="text-red-600"> CHINESE</span>
