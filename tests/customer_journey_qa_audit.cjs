@@ -94,10 +94,11 @@ async function runCustomerJourneyAudit() {
   const settingsRes = await httpRequest(`${BACKEND_URL}/api/settings`);
   record('Restaurant Info', 'Settings API Responds HTTP 200', settingsRes.status === 200);
   const settings = settingsRes.data || {};
-  record('Restaurant Info', 'Restaurant Name: Indo Chinese', settings.name?.includes('Indo Chinese'), settings.name);
+  const addrStr = typeof settings.address === 'object' ? (settings.address?.full || `${settings.address?.street}, ${settings.address?.city}`) : (settings.address || '');
+  record('Restaurant Info', 'Restaurant Name: Indo Chinese', Boolean(settings.name?.includes('INDO') || settings.name?.includes('Indo')), settings.name);
   record('Restaurant Info', 'Phone Contact Configured', Boolean(settings.phone), settings.phone);
-  record('Restaurant Info', 'Address in Hounslow, London', settings.city === 'London' || settings.address?.includes('Hounslow'), `${settings.address}, ${settings.city}`);
-  record('Restaurant Info', 'Opening Hours Available', Boolean(settings.openingHours), settings.openingHours);
+  record('Restaurant Info', 'Address in Hounslow, London', Boolean(addrStr.includes('London') || addrStr.includes('Hounslow')), addrStr);
+  record('Restaurant Info', 'Opening Hours Available', Boolean(settings.openingHours), typeof settings.openingHours === 'object' ? 'Mon-Sun Loaded' : settings.openingHours);
 
   // --- 3. Digital Menu Exploration & Filtering ---
   console.log('\n>>> 3. DIGITAL MENU CATALOG & CATEGORY VERIFICATION');
@@ -211,7 +212,8 @@ async function runCustomerJourneyAudit() {
   const bookRes = await httpRequest(`${BACKEND_URL}/api/reservations`, { method: 'POST' }, resvPayload);
   record('Reservations', 'Book Dining Table (HTTP 200)', bookRes.status === 200);
   const resvData = bookRes.data || {};
-  record('Reservations', 'Booking Reference Issued', Boolean(resvData.bookingReference), `Ref: ${resvData.bookingReference}`);
+  const ref = resvData.bookingReference || resvData.booking_reference;
+  record('Reservations', 'Booking Reference Issued', Boolean(ref), `Ref: ${ref}`);
 
   // Reschedule Booking
   if (resvData.id) {

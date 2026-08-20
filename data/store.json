@@ -1690,6 +1690,24 @@
   ],
   "reservations": [
     {
+      "id": "res_1787148895844",
+      "reservationNumber": "IC-2026-885156",
+      "name": "Deployment Test Guest",
+      "email": "testguest@example.com",
+      "phone": "+447999888777",
+      "guests": 2,
+      "date": "2026-08-25",
+      "time": "19:30",
+      "seatingArea": "Main Dining Floor",
+      "occasion": "Anniversary",
+      "specialRequests": "Window table requested for QA validation",
+      "status": "confirmed",
+      "holdExpiresAt": "2026-08-25T14:15:00.000Z",
+      "createdAt": "2026-08-19T14:14:55.844Z",
+      "assignedTableId": "tbl-5",
+      "assignedTableNumber": "T-05"
+    },
+    {
       "id": "res_1787141566111",
       "reservationNumber": "IC-2026-910041",
       "name": "Deployment Test Guest",
@@ -1827,8 +1845,16 @@
       "id": "tbl-5",
       "tableNumber": "T-05",
       "capacity": 4,
-      "status": "available",
-      "assignedServer": "Rohit K."
+      "status": "reserved",
+      "assignedServer": "Rohit K.",
+      "currentPartyName": "Deployment Test Guest",
+      "currentGuests": 2,
+      "currentReservationId": "res_1787148895844",
+      "reservedTime": "19:30",
+      "reservedDate": "2026-08-25",
+      "holdStartTime": "2026-08-25T14:00:00.000Z",
+      "holdExpiresAt": "2026-08-25T14:15:00.000Z",
+      "notes": "Auto-assigned for Deployment Test Guest (2 guests at 19:30) • 15m Grace Hold"
     },
     {
       "id": "tbl-6",
@@ -1938,6 +1964,16 @@
   ],
   "eventInquiries": [],
   "contactMessages": [
+    {
+      "id": "msg_1787148895864",
+      "name": "QA Test Runner",
+      "email": "qa@indochinese.com",
+      "phone": "+442085709888",
+      "subject": "Pre-deployment Verification",
+      "message": "Automated contact delivery test",
+      "createdAt": "2026-08-19T14:14:55.864Z",
+      "read": false
+    },
     {
       "id": "msg_1787141566132",
       "name": "QA Test Runner",
