@@ -1752,6 +1752,76 @@ export const INITIAL_GALLERY: GalleryItem[] = [
     category: 'food',
     image: IMG_TOM_YUM_CHICKEN,
     caption: 'Tangy and spicy Thai-Chinese broth infused with fresh galangal & herbs'
+  },
+  {
+    id: 'g19',
+    title: 'Fiery Wok-Tossed Szechwan Noodles',
+    category: 'chef_specials',
+    image: IMG_SZECHWAN_NOODLES,
+    caption: 'Thin Hakka noodles wok-tossed in homemade spicy Sichuan pepper reduction'
+  },
+  {
+    id: 'g20',
+    title: 'Singapore Golden Curry Fried Rice',
+    category: 'food',
+    image: IMG_SINGAPORE_FRIED_RICE,
+    caption: 'Aromatic basmati infused with yellow curry spices, bell peppers and spring onion'
+  },
+  {
+    id: 'g21',
+    title: 'Spicy Chicken 65 with Tempered Curry Leaves',
+    category: 'chef_specials',
+    image: IMG_CHICKEN_65,
+    caption: 'Iconic street specialty with crisp chicken bites, green chillies & mustard aroma'
+  },
+  {
+    id: 'g22',
+    title: 'Golden Crispy Veg Spring Rolls',
+    category: 'food',
+    image: IMG_SPRING_ROLLS,
+    caption: 'Handcrafted golden rolls filled with shredded seasonal vegetables & garlic'
+  },
+  {
+    id: 'g23',
+    title: 'Chilli Garlic Mushroom Wok Toss',
+    category: 'food',
+    image: IMG_CHILLI_MUSHROOM,
+    caption: 'Plump button mushrooms tossed with red peppers, onions and dark chili soy'
+  },
+  {
+    id: 'g24',
+    title: 'Wok Chilli Chicken (Bombay Style)',
+    category: 'food',
+    image: IMG_CHILLI_CHICKEN,
+    caption: 'Tender chicken breast tossed with green chillies, capsicum and rich soya glaze'
+  },
+  {
+    id: 'g25',
+    title: 'Signature Prawn Manchurian Gravy',
+    category: 'food',
+    image: IMG_PRAWN_MANCHURIAN,
+    caption: 'Succulent king prawns simmered in ginger, garlic, and coriander Manchurian sauce'
+  },
+  {
+    id: 'g26',
+    title: 'Crispy Szechwan Potato Chips',
+    category: 'food',
+    image: IMG_SZECHWAN_CHIPS,
+    caption: 'Freshly cut potato fries wok-coated with sizzling Szechwan garlic sauce'
+  },
+  {
+    id: 'g27',
+    title: 'Wok Dim Sum Steaming in Bamboo Baskets',
+    category: 'restaurant',
+    image: IMG_CHICKEN_MOMO_STEAM,
+    caption: 'Fresh batches of delicate vegetable and chicken momos steamed continuously'
+  },
+  {
+    id: 'g28',
+    title: 'Family Feast Table Setting',
+    category: 'ambience',
+    image: IMG_AMBIENCE,
+    caption: 'Cozy booths and spacious tables ready for vibrant Indo-Chinese dining'
   }
 ];
 

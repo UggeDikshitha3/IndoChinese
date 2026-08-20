@@ -92,7 +92,7 @@ export const Hero: React.FC<HeroProps> = ({
             className="w-full sm:w-auto px-8 py-3.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-red-600 via-rose-600 to-red-700 hover:from-red-500 hover:to-red-600 shadow-md transition-all flex items-center justify-center space-x-2 transform active:scale-95 cursor-pointer"
           >
             <Utensils className="w-4 h-4 text-amber-300" />
-            <span>EXPLORE 64+ DISHES</span>
+            <span>EXPLORE 105+ DISHES</span>
             <ArrowRight className="w-4 h-4 text-amber-200 ml-1" />
           </button>
 

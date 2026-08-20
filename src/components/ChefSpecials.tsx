@@ -110,7 +110,7 @@ export const ChefSpecials: React.FC<ChefSpecialsProps> = ({ items, menuItems, on
             className="inline-flex items-center space-x-2 px-6 py-2.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-slate-800 font-bold text-xs transition-all shadow-xs group"
           >
             <Utensils className="w-4 h-4 text-red-600" />
-            <span>SEE COMPLETE 64-DISH MENU</span>
+            <span>SEE COMPLETE 105-DISH MENU</span>
             <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
           </a>
         </div>
