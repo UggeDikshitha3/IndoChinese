@@ -197,6 +197,39 @@ def remove_item_from_table_order(table_id: str, item_id: str, db: Session = Depe
 
     return {"success": True, "totalAmount": order.total_amount}
 
+@router.post("/tables/{table_id}/seat")
+def seat_table(table_id: str, payload: dict = Body(default={}), db: Session = Depends(get_db)):
+    tbl = db.query(RestaurantTable).filter(
+        (RestaurantTable.id == table_id) | (RestaurantTable.table_number.ilike(table_id))
+    ).first()
+    if not tbl:
+        raise HTTPException(status_code=404, detail="Table not found")
+
+    server_name = payload.get("serverName") or tbl.assigned_server or "Floor Server"
+    party_name = payload.get("partyName") or "Guest"
+    tbl.status = TableStatus.OCCUPIED
+    tbl.assigned_server = server_name
+    tbl.notes = party_name
+
+    order = get_or_create_table_order(tbl, db)
+    order.server_name = server_name
+    order.party_name = party_name
+    order.status = "active"
+
+    db.commit()
+    db.refresh(tbl)
+    db.refresh(order)
+
+    return {
+        "success": True,
+        "tableId": tbl.id,
+        "tableNumber": tbl.table_number,
+        "status": tbl.status,
+        "assignedServer": tbl.assigned_server,
+        "orderId": order.id
+    }
+
+@router.post("/tables/{table_id}/bill")
 @router.post("/tables/{table_id}/issue-bill")
 @router.patch("/tables/{table_id}/bill")
 def issue_table_bill(table_id: str, payload: dict = Body(default={}), db: Session = Depends(get_db)):

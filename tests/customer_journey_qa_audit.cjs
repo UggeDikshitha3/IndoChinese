@@ -212,7 +212,7 @@ async function runCustomerJourneyAudit() {
   const bookRes = await httpRequest(`${BACKEND_URL}/api/reservations`, { method: 'POST' }, resvPayload);
   record('Reservations', 'Book Dining Table (HTTP 200)', bookRes.status === 200);
   const resvData = bookRes.data || {};
-  const ref = resvData.bookingReference || resvData.booking_reference;
+  const ref = resvData.reservationNumber || resvData.bookingReference || resvData.booking_reference;
   record('Reservations', 'Booking Reference Issued', Boolean(ref), `Ref: ${ref}`);
 
   // Reschedule Booking
