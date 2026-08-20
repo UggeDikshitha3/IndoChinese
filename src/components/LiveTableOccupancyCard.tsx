@@ -203,49 +203,6 @@ export const LiveTableOccupancyCard: React.FC<LiveTableOccupancyCardProps> = ({
           </p>
         </div>
       </div>
-
-      {/* Seating Capacity Status Breakdowns */}
-      <div className="space-y-2.5">
-        <h4 className={`text-xs font-bold uppercase tracking-wider ${isDark ? 'text-neutral-400' : 'text-slate-600'}`}>
-          Live Availability by Table Capacity:
-        </h4>
-
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-          {tableStatus.areas.map((area, idx) => {
-            const avail = area.availableTables;
-            const total = area.totalTables;
-            const percent = Math.round(((total - avail) / total) * 100);
-
-            return (
-              <div
-                key={idx}
-                className={`p-3 rounded-xl border ${
-                  isDark ? 'bg-neutral-900/50 border-neutral-800/80' : 'bg-slate-50 border-slate-200'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className={`text-xs font-bold ${isDark ? 'text-neutral-200' : 'text-slate-800'}`}>
-                    {area.name}
-                  </span>
-                  <span className="text-[11px] font-mono font-bold text-emerald-400">
-                    {avail} / {total} Open
-                  </span>
-                </div>
-
-                {/* Micro Progress Bar */}
-                <div className="w-full h-1.5 bg-neutral-800 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full transition-all duration-500 ${
-                      avail > 2 ? 'bg-emerald-500' : avail === 1 ? 'bg-amber-500' : 'bg-red-500'
-                    }`}
-                    style={{ width: `${100 - percent}%` }}
-                  />
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
     </div>
   );
 };

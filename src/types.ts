@@ -190,7 +190,7 @@ export interface TableStatusSummary {
   bookedTablesToday: number;
   occupancyPercentage: number;
   lastUpdated: string;
-  areas: TableAreaStatus[];
+  areas?: TableAreaStatus[];
 }
 
 export interface NotificationPreferences {

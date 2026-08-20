@@ -1084,31 +1084,12 @@ app.get('/api/tables/status', (req, res) => {
   const availableTables = tables.filter(t => t.status === 'available').length;
   const occupancyPercentage = Math.round((occupiedTables / totalTables) * 100);
 
-  // Group by Table Capacity Breakdown
-  const capacityCategories = [
-    { name: 'Tables for 1–2 People', min: 1, max: 2 },
-    { name: 'Tables for 3–4 People', min: 3, max: 4 },
-    { name: 'Tables for 5–6 People', min: 5, max: 6 },
-    { name: 'Tables for 7+ People', min: 7, max: 99 }
-  ];
-
-  const areas: any[] = capacityCategories.map(cat => {
-    const matchedTables = tables.filter(t => t.capacity >= cat.min && t.capacity <= cat.max);
-    return {
-      name: cat.name,
-      totalTables: matchedTables.length,
-      availableTables: matchedTables.filter(t => t.status === 'available').length,
-      occupiedTables: matchedTables.filter(t => t.status === 'occupied' || t.status === 'bill_issued').length
-    };
-  });
-
   res.json({
     totalTables,
     availableTables,
     bookedTablesToday: occupiedTables,
     occupancyPercentage,
-    lastUpdated: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    areas
+    lastUpdated: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   });
 });
 

@@ -198,33 +198,7 @@ export function calculateTableStatus(reservations: Reservation[]): TableStatusSu
     availableTables,
     bookedTablesToday: occupiedTables,
     occupancyPercentage,
-    lastUpdated: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    areas: [
-      {
-        name: 'Tables for 1–2 People',
-        totalTables: 4,
-        availableTables: Math.max(1, 4 - Math.ceil(occupiedTables * 0.25)),
-        occupiedTables: Math.min(3, Math.ceil(occupiedTables * 0.25))
-      },
-      {
-        name: 'Tables for 3–4 People',
-        totalTables: 8,
-        availableTables: Math.max(1, 8 - Math.ceil(occupiedTables * 0.40)),
-        occupiedTables: Math.min(7, Math.ceil(occupiedTables * 0.40))
-      },
-      {
-        name: 'Tables for 5–6 People',
-        totalTables: 4,
-        availableTables: Math.max(1, 4 - Math.ceil(occupiedTables * 0.20)),
-        occupiedTables: Math.min(3, Math.ceil(occupiedTables * 0.20))
-      },
-      {
-        name: 'Tables for 7+ People',
-        totalTables: 4,
-        availableTables: Math.max(1, 4 - Math.floor(occupiedTables * 0.15)),
-        occupiedTables: Math.min(3, Math.floor(occupiedTables * 0.15))
-      }
-    ]
+    lastUpdated: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   };
 }
 

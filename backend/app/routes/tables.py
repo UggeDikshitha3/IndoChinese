@@ -36,24 +36,12 @@ def get_tables_live_status(db: Session = Depends(get_db)):
 
     occupancy_pct = round((len(occupied) / max(1, total_tables)) * 100)
 
-    area_names = ["Main Dining Floor", "VIP / Family Booths", "Garden Terrace", "Banquet & Events"]
-    areas = []
-    for a_name in area_names:
-        a_tables = [t for t in tables if t.area == a_name]
-        areas.append({
-            "name": a_name,
-            "totalTables": len(a_tables),
-            "availableTables": len([t for t in a_tables if t.status == TableStatus.AVAILABLE]),
-            "occupiedTables": len([t for t in a_tables if t.status in [TableStatus.OCCUPIED, TableStatus.BILL_ISSUED]])
-        })
-
     return {
         "totalTables": total_tables,
         "availableTables": len(available),
         "bookedTablesToday": len(occupied),
         "occupancyPercentage": occupancy_pct,
-        "lastUpdated": datetime.now().strftime("%H:%M"),
-        "areas": areas
+        "lastUpdated": datetime.now().strftime("%H:%M")
     }
 
 @router.post("", response_model=TableResponse)
