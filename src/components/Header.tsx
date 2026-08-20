@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { RestaurantSettings } from '../types';
 import { DEFAULT_RESTAURANT_SETTINGS } from '../config/restaurantConfig';
+import logoImg from '../assets/images/indochinese_logo_1786470451835.jpg';
 
 interface HeaderProps {
   settings?: RestaurantSettings;
@@ -143,7 +144,7 @@ export const Header: React.FC<HeaderProps> = ({
             className="flex items-center space-x-3 text-left group focus:outline-none"
           >
             <img
-              src="/src/assets/images/indochinese_logo_1786470451835.jpg"
+              src={logoImg}
               alt="INDO CHINESE Logo"
               className="w-11 h-11 rounded-full border-2 border-amber-500/80 object-cover shadow-sm group-hover:scale-105 transition-transform bg-white"
             />

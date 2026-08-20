@@ -2,6 +2,7 @@ import React from 'react';
 import { Utensils, Calendar, Flame, Star, ShieldCheck, Sparkles, MapPin, ArrowRight } from 'lucide-react';
 import { RestaurantSettings } from '../types';
 import { DEFAULT_RESTAURANT_SETTINGS } from '../config/restaurantConfig';
+import logoImg from '../assets/images/indochinese_logo_1786470451835.jpg';
 
 interface HeroProps {
   settings?: RestaurantSettings;
@@ -26,15 +27,6 @@ export const Hero: React.FC<HeroProps> = ({
       <div className="absolute bottom-10 left-10 w-80 h-80 bg-red-100/40 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute top-20 right-10 w-96 h-96 bg-amber-100/40 rounded-full blur-3xl pointer-events-none" />
 
-      {/* Subtle Background Pattern & Light Blend */}
-      <div className="absolute inset-0 z-0 opacity-10 pointer-events-none">
-        <img
-          src="/src/assets/images/triple_schezwan_combo_1786516611209.jpg"
-          alt="Indo Chinese Restaurant Background"
-          className="w-full h-full object-cover object-center filter grayscale mix-blend-multiply"
-        />
-      </div>
-
       {/* Hero Content Container */}
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center flex flex-col items-center">
         
@@ -42,7 +34,7 @@ export const Hero: React.FC<HeroProps> = ({
         <div className="mb-5 relative group cursor-pointer animate-float">
           <div className="absolute -inset-1 bg-gradient-to-r from-red-600 to-amber-500 rounded-full blur-sm opacity-40 group-hover:opacity-75 transition duration-500" />
           <img
-            src="/src/assets/images/indochinese_logo_1786470451835.jpg"
+            src={logoImg}
             alt="INDO CHINESE - The Real Taste of Bombay"
             className="relative w-28 h-28 sm:w-36 sm:h-36 rounded-full border-2 border-amber-500 shadow-xl object-contain bg-white p-1"
           />
