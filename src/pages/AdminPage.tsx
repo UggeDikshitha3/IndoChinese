@@ -1576,8 +1576,16 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                           <span className="font-bold text-white text-sm block">{ev.name}</span>
                           <span className="text-slate-400">{ev.phone} • {ev.email}</span>
                         </div>
-                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${
-                          ev.status === 'confirmed' ? 'bg-emerald-950 text-emerald-300' : 'bg-amber-950 text-amber-300'
+                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                          ev.status === 'confirmed'
+                            ? 'bg-emerald-950 text-emerald-300 border border-emerald-800'
+                            : ev.status === 'completed'
+                            ? 'bg-purple-950 text-purple-300 border border-purple-800'
+                            : ev.status === 'contacted'
+                            ? 'bg-blue-950 text-blue-300 border border-blue-800'
+                            : ev.status === 'cancelled' || ev.status === 'declined'
+                            ? 'bg-rose-950 text-rose-300 border border-rose-800'
+                            : 'bg-amber-950 text-amber-300 border border-amber-800'
                         }`}>
                           {ev.status}
                         </span>
@@ -1593,8 +1601,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                           <span className="font-semibold text-white">{ev.guests} People</span>
                         </div>
                         <div>
-                          <span className="text-[10px] text-slate-500 uppercase font-bold block">Date</span>
-                          <span className="font-semibold text-white">{ev.date}</span>
+                          <span className="text-[10px] text-slate-500 uppercase font-bold block">Date & Time</span>
+                          <span className="font-semibold text-white">{ev.date} {ev.time || ''}</span>
                         </div>
                       </div>
 
@@ -1604,19 +1612,39 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                         </p>
                       )}
 
-                      <div className="flex justify-end gap-2 pt-2 border-t border-slate-700/60">
-                        <button
-                          onClick={() => handleEventStatus(ev.id, 'confirmed')}
-                          className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs"
-                        >
-                          Mark Confirmed
-                        </button>
-                        <button
-                          onClick={() => handleEventStatus(ev.id, 'contacted')}
-                          className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold rounded-xl text-xs"
-                        >
-                          Mark Contacted
-                        </button>
+                      <div className="flex flex-wrap justify-end gap-2 pt-2 border-t border-slate-700/60">
+                        {ev.status !== 'confirmed' && ev.status !== 'completed' && (
+                          <button
+                            onClick={() => handleEventStatus(ev.id, 'confirmed')}
+                            className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs transition-colors cursor-pointer"
+                          >
+                            Mark Confirmed
+                          </button>
+                        )}
+                        {ev.status === 'confirmed' && (
+                          <button
+                            onClick={() => handleEventStatus(ev.id, 'completed')}
+                            className="px-3 py-1.5 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl text-xs transition-colors cursor-pointer"
+                          >
+                            Mark Completed
+                          </button>
+                        )}
+                        {ev.status === 'pending' && (
+                          <button
+                            onClick={() => handleEventStatus(ev.id, 'contacted')}
+                            className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold rounded-xl text-xs transition-colors cursor-pointer"
+                          >
+                            Mark Contacted
+                          </button>
+                        )}
+                        {ev.status !== 'cancelled' && (
+                          <button
+                            onClick={() => handleEventStatus(ev.id, 'cancelled')}
+                            className="px-3 py-1.5 bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800 font-bold rounded-xl text-xs transition-colors cursor-pointer"
+                          >
+                            Cancel
+                          </button>
+                        )}
                       </div>
                     </div>
                   ))

@@ -443,6 +443,25 @@ def get_contact_messages(db: Session = Depends(get_db)):
 def get_event_inquiries(db: Session = Depends(get_db)):
     return db.query(EventInquiry).order_by(EventInquiry.created_at.desc()).all()
 
+@router.patch("/events/{id}/status")
+@router.put("/events/{id}/status")
+def update_event_inquiry_status(id: str, payload: dict = Body(...), db: Session = Depends(get_db)):
+    ev = db.query(EventInquiry).filter(EventInquiry.id == id).first()
+    if not ev:
+        raise HTTPException(status_code=404, detail="Event inquiry not found")
+
+    new_status = payload.get("status") if isinstance(payload, dict) else str(payload)
+    if new_status:
+        ev.status = new_status
+    db.commit()
+    db.refresh(ev)
+    return {
+        "success": True,
+        "id": ev.id,
+        "name": ev.name,
+        "status": ev.status
+    }
+
 @router.get("/server-stats")
 def get_admin_server_stats(db: Session = Depends(get_db)):
     from app.routes.orders import get_servers_daily_performance

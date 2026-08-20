@@ -62,13 +62,24 @@ export const AdminTableMonitor: React.FC<AdminTableMonitorProps> = ({
   const [isAddEditModalOpen, setIsAddEditModalOpen] = useState(false);
   const [editingTable, setEditingTable] = useState<Partial<RestaurantTable> | null>(null);
 
-  // Update timer every second for real-time live elapsed duration display
+  // Update timer every second for real-time live elapsed duration display and auto-cleaning
   useEffect(() => {
     const timer = setInterval(() => {
-      setNowTimestamp(Date.now());
+      const currentNow = Date.now();
+      setNowTimestamp(currentNow);
+
+      // Check if any table in cleaning status has passed the 5-minute cleaning window
+      tables.forEach(table => {
+        if (table.status === 'cleaning' && table.cleaningStartedAt) {
+          const startTime = new Date(table.cleaningStartedAt).getTime();
+          if (currentNow - startTime >= 5 * 60 * 1000) {
+            handleCompleteTable(table.id, 'available');
+          }
+        }
+      });
     }, 1000);
     return () => clearInterval(timer);
-  }, []);
+  }, [tables]);
 
   // Helper to calculate elapsed time in minutes & seconds
   const getElapsedSeatedTime = (seatedAt?: string) => {
@@ -80,6 +91,24 @@ export const AdminTableMonitor: React.FC<AdminTableMonitorProps> = ({
       minutes: totalMinutes,
       seconds,
       formatted: `${totalMinutes}m ${seconds.toString().padStart(2, '0')}s`
+    };
+  };
+
+  // Helper to calculate 5-minute cleaning remaining countdown
+  const getCleaningCountdown = (cleaningStartedAt?: string) => {
+    const start = cleaningStartedAt ? new Date(cleaningStartedAt).getTime() : nowTimestamp;
+    const durationMs = 5 * 60 * 1000; // 5 minutes
+    const remainingMs = Math.max(0, (start + durationMs) - nowTimestamp);
+    if (remainingMs <= 0) {
+      return { isDone: true, minutes: 0, seconds: 0, formatted: '0m 00s (Cleaned)' };
+    }
+    const totalMinutes = Math.floor(remainingMs / 60000);
+    const seconds = Math.floor((remainingMs % 60000) / 1000);
+    return {
+      isDone: false,
+      minutes: totalMinutes,
+      seconds,
+      formatted: `${totalMinutes}m ${seconds.toString().padStart(2, '0')}s remaining`
     };
   };
 
@@ -705,13 +734,24 @@ export const AdminTableMonitor: React.FC<AdminTableMonitorProps> = ({
                       </div>
                     );
                   })()
-                ) : table.status === 'cleaning' ? (
-                  <div className="bg-sky-50 border border-sky-200 rounded-xl p-3 text-center space-y-1">
-                    <div className="text-xs font-bold text-sky-800 flex items-center justify-center gap-1">
-                      <RotateCcw className="w-3.5 h-3.5 text-sky-600 animate-spin" />
-                      <span>Table Bussed & Cleaning</span>
+                ) : table.status === 'bill_issued' ? (
+                  <div className="bg-amber-50 border border-amber-300 rounded-xl p-3 text-center space-y-1 animate-pulse">
+                    <div className="text-xs font-bold text-amber-900 flex items-center justify-center gap-1.5">
+                      <Receipt className="w-3.5 h-3.5 text-amber-700" />
+                      <span>Bill Issued • Payment Pending</span>
                     </div>
-                    <div className="text-[10px] text-sky-600">Sanitizing for next guest</div>
+                    <div className="text-[10px] text-amber-700 font-medium">Guest requested bill / server issued invoice</div>
+                  </div>
+                ) : table.status === 'cleaning' ? (
+                  <div className="bg-sky-50 border border-sky-300 rounded-xl p-3 text-center space-y-1">
+                    <div className="text-xs font-bold text-sky-900 flex items-center justify-center gap-1.5">
+                      <RotateCcw className="w-3.5 h-3.5 text-sky-600 animate-spin" />
+                      <span>Sanitizing Table (5m Turnover)</span>
+                    </div>
+                    <div className="text-[11px] font-mono font-bold text-sky-700">
+                      {getCleaningCountdown(table.cleaningStartedAt || table.seatedAt)?.formatted || '5m 00s remaining'}
+                    </div>
+                    <div className="text-[10px] text-sky-600">Auto-clears to Ready in 5 minutes</div>
                   </div>
                 ) : (
                   <div className="bg-emerald-50/60 border border-emerald-200/60 rounded-xl p-3 text-center space-y-1">
@@ -733,7 +773,7 @@ export const AdminTableMonitor: React.FC<AdminTableMonitorProps> = ({
                         setSeatingPartyName('');
                         setSeatingDuration(90);
                       }}
-                      className="w-full py-2 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-bold text-xs shadow-xs flex items-center justify-center gap-1.5 transition-all"
+                      className="w-full py-2 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-bold text-xs shadow-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
                     >
                       <UserCheck className="w-3.5 h-3.5" />
                       <span>Seat Walk-in / Guest</span>
@@ -742,43 +782,41 @@ export const AdminTableMonitor: React.FC<AdminTableMonitorProps> = ({
                     <div className="w-full grid grid-cols-2 gap-1.5">
                       <button
                         onClick={() => handleIssueBill(table.id)}
-                        className="py-1.5 px-2 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-[11px] font-bold flex items-center justify-center gap-1 transition-all"
+                        className="py-1.5 px-2 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-[11px] font-bold flex items-center justify-center gap-1 transition-all cursor-pointer"
                       >
                         <DollarSign className="w-3 h-3 text-amber-600" />
                         <span>Issue Bill</span>
                       </button>
                       <button
                         onClick={() => handleExtendStay(table.id, 15)}
-                        className="py-1.5 px-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 text-[11px] font-bold flex items-center justify-center gap-1 transition-all"
+                        className="py-1.5 px-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 text-[11px] font-bold flex items-center justify-center gap-1 transition-all cursor-pointer"
                       >
                         <Plus className="w-3 h-3 text-slate-500" />
                         <span>+15 Mins</span>
                       </button>
                       <button
                         onClick={() => handleCompleteTable(table.id, 'cleaning')}
-                        className="col-span-2 py-1.5 rounded-lg bg-slate-900 hover:bg-black text-white text-xs font-bold flex items-center justify-center gap-1 transition-all"
+                        className="col-span-2 py-1.5 rounded-lg bg-slate-900 hover:bg-black text-white text-xs font-bold flex items-center justify-center gap-1 transition-all cursor-pointer"
                       >
                         <Check className="w-3 h-3 text-emerald-400" />
-                        <span>Clear & Mark Cleaning</span>
+                        <span>Complete Dining (Start 5m Clean)</span>
                       </button>
                     </div>
                   ) : table.status === 'bill_issued' ? (
-                    <div className="w-full flex items-center gap-1.5">
-                      <button
-                        onClick={() => handleCompleteTable(table.id, 'cleaning')}
-                        className="flex-1 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center justify-center gap-1"
-                      >
-                        <Check className="w-3 h-3" />
-                        <span>Payment Received (Clean)</span>
-                      </button>
-                    </div>
+                    <button
+                      onClick={() => handleCompleteTable(table.id, 'cleaning')}
+                      className="w-full py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
+                    >
+                      <Check className="w-3.5 h-3.5" />
+                      <span>Payment Settled (Start 5m Clean)</span>
+                    </button>
                   ) : table.status === 'cleaning' ? (
                     <button
                       onClick={() => handleDirectStatusChange(table.id, 'available')}
-                      className="w-full py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1.5"
+                      className="w-full py-2 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-700 hover:to-blue-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
                     >
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      <span>Ready (Mark Available)</span>
+                      <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                      <span>✨ Finish Cleaning Now (Mark Ready)</span>
                     </button>
                   ) : (
                     <div className="w-full grid grid-cols-2 gap-1.5">
@@ -1098,32 +1136,15 @@ export const AdminTableMonitor: React.FC<AdminTableMonitorProps> = ({
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Assigned Server</label>
-                  <select
-                    value={seatingServer}
-                    onChange={(e) => setSeatingServer(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-medium focus:outline-none focus:border-red-500"
-                  >
-                    <option value="Rohit K.">Rohit K. (Senior Captain)</option>
-                    <option value="Anita S.">Anita S. (Main Floor)</option>
-                    <option value="Vikram M.">Vikram M. (Terrace & Floor)</option>
-                    <option value="Sunil R.">Sunil R. (VIP Booths)</option>
-                    <option value="Deepak T.">Deepak T. (Garden Terrace)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">Special Notes</label>
-                  <input
-                    type="text"
-                    value={seatingNotes}
-                    onChange={(e) => setSeatingNotes(e.target.value)}
-                    placeholder="e.g. Extra high-chair, birthday"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-medium focus:outline-none focus:border-red-500"
-                  />
-                </div>
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Special Notes / Dietary Requests</label>
+                <input
+                  type="text"
+                  value={seatingNotes}
+                  onChange={(e) => setSeatingNotes(e.target.value)}
+                  placeholder="e.g. Extra high-chair, birthday, window booth requested"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-medium focus:outline-none focus:border-red-500"
+                />
               </div>
 
               <div className="pt-2 flex items-center justify-end gap-2">
@@ -1188,17 +1209,6 @@ export const AdminTableMonitor: React.FC<AdminTableMonitorProps> = ({
                     className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-medium focus:outline-none focus:border-red-500"
                   />
                 </div>
-              </div>
-
-              <div>
-                <label className="block font-bold text-slate-700 mb-1">Default Server / Staff Name</label>
-                <input
-                  type="text"
-                  value={editingTable.assignedServer || ''}
-                  onChange={(e) => setEditingTable({ ...editingTable, assignedServer: e.target.value })}
-                  placeholder="e.g. Rohit K."
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-medium focus:outline-none focus:border-red-500"
-                />
               </div>
 
               <div>

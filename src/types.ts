@@ -43,6 +43,8 @@ export interface RestaurantTable {
   holdStartTime?: string; // ISO string
   reservedTime?: string; // e.g. "19:30"
   reservedDate?: string; // e.g. "2026-08-18"
+  cleaningStartedAt?: string; // ISO string for 5-minute cleaning countdown
+  billIssuedAt?: string; // ISO string
   notes?: string;
 }
 
@@ -69,7 +71,7 @@ export interface Reservation {
   createdAt: string;
 }
 
-export type EventStatus = 'pending' | 'contacted' | 'confirmed' | 'declined' | 'responded' | 'closed';
+export type EventStatus = 'pending' | 'contacted' | 'confirmed' | 'completed' | 'cancelled' | 'declined' | 'responded' | 'closed';
 
 export interface EventInquiry {
   id: string;
