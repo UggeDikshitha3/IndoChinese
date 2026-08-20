@@ -71,7 +71,17 @@ export const LocationSection: React.FC<LocationSectionProps> = ({ settings = DEF
               </h3>
 
               <div className="space-y-2 text-xs">
-                {(currentSettings.openingHours || []).map((h, i) => (
+                {(Array.isArray(currentSettings.openingHours) 
+                  ? currentSettings.openingHours 
+                  : (typeof currentSettings.openingHours === 'object' && currentSettings.openingHours !== null
+                    ? Object.entries(currentSettings.openingHours).map(([d, t]) => ({
+                        day: d.charAt(0).toUpperCase() + d.slice(1),
+                        open: typeof t === 'string' && t.includes('-') ? t.split('-')[0].trim() : '12:00 PM',
+                        close: typeof t === 'string' && t.includes('-') ? t.split('-')[1].trim() : '10:30 PM'
+                      }))
+                    : []
+                  )
+                ).map((h: any, i: number) => (
                   <div
                     key={i}
                     className="flex justify-between py-1.5 border-b border-slate-100 text-slate-700 font-sans"

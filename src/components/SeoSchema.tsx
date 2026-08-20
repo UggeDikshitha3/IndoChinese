@@ -30,9 +30,12 @@ export const SeoSchema: React.FC<SeoSchemaProps> = ({ settings = DEFAULT_RESTAUR
       "latitude": currentSettings?.latitude || 51.4682,
       "longitude": currentSettings?.longitude || -0.3609
     },
-    "openingHoursSpecification": (currentSettings?.openingHours || [])
-      .filter(h => !h.closed)
-      .map(h => ({
+    "openingHoursSpecification": (Array.isArray(currentSettings?.openingHours) 
+      ? currentSettings.openingHours 
+      : []
+    )
+      .filter((h: any) => !h.closed)
+      .map((h: any) => ({
         "@type": "OpeningHoursSpecification",
         "dayOfWeek": h.day,
         "opens": h.open,

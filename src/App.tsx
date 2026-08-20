@@ -211,8 +211,74 @@ export default function App() {
     try {
       const res = await fetch(getApiUrl('/api/settings'));
       if (res.ok) {
-        const data = await res.json();
-        setSettings(data);
+        const raw = await res.json();
+        if (!raw) return;
+
+        let addressStr = DEFAULT_RESTAURANT_SETTINGS.address;
+        let cityStr = DEFAULT_RESTAURANT_SETTINGS.city;
+        let postcodeStr = DEFAULT_RESTAURANT_SETTINGS.postcode;
+        let countryStr = DEFAULT_RESTAURANT_SETTINGS.country;
+        let lat = DEFAULT_RESTAURANT_SETTINGS.latitude;
+        let lng = DEFAULT_RESTAURANT_SETTINGS.longitude;
+
+        if (typeof raw.address === 'object' && raw.address !== null) {
+          addressStr = raw.address.street || raw.address.full || DEFAULT_RESTAURANT_SETTINGS.address;
+          cityStr = raw.address.city || raw.address.area || DEFAULT_RESTAURANT_SETTINGS.city;
+          postcodeStr = raw.address.postcode || DEFAULT_RESTAURANT_SETTINGS.postcode;
+          countryStr = raw.address.country || DEFAULT_RESTAURANT_SETTINGS.country;
+          if (raw.address.coordinates) {
+            lat = raw.address.coordinates.lat ?? lat;
+            lng = raw.address.coordinates.lng ?? lng;
+          }
+        } else if (typeof raw.address === 'string' && raw.address.trim()) {
+          addressStr = raw.address;
+          if (raw.city) cityStr = raw.city;
+          if (raw.postcode) postcodeStr = raw.postcode;
+        }
+
+        let hoursArray = DEFAULT_RESTAURANT_SETTINGS.openingHours;
+        if (Array.isArray(raw.openingHours)) {
+          hoursArray = raw.openingHours;
+        } else if (typeof raw.openingHours === 'object' && raw.openingHours !== null) {
+          hoursArray = Object.entries(raw.openingHours).map(([d, timeStr]) => {
+            const dayName = d.charAt(0).toUpperCase() + d.slice(1);
+            let open = "12:00 PM";
+            let close = "10:30 PM";
+            if (typeof timeStr === 'string' && timeStr.includes('-')) {
+              const parts = timeStr.split('-');
+              open = parts[0].trim();
+              close = parts[1].trim();
+            } else if (typeof timeStr === 'string') {
+              open = timeStr;
+            }
+            return { day: dayName, open, close, closed: false };
+          });
+        }
+
+        const normalized: RestaurantSettings = {
+          ...DEFAULT_RESTAURANT_SETTINGS,
+          ...raw,
+          name: raw.name || DEFAULT_RESTAURANT_SETTINGS.name,
+          tagline: raw.tagline || DEFAULT_RESTAURANT_SETTINGS.tagline,
+          description: raw.description || DEFAULT_RESTAURANT_SETTINGS.description,
+          phone: raw.phone || DEFAULT_RESTAURANT_SETTINGS.phone,
+          email: raw.email || DEFAULT_RESTAURANT_SETTINGS.email,
+          whatsapp: raw.whatsapp || raw.social?.whatsapp || DEFAULT_RESTAURANT_SETTINGS.whatsapp,
+          address: addressStr,
+          city: cityStr,
+          postcode: postcodeStr,
+          country: countryStr,
+          latitude: lat,
+          longitude: lng,
+          openingHours: hoursArray,
+          googleMapsUrl: raw.googleMapsUrl || raw.social?.googleMaps || DEFAULT_RESTAURANT_SETTINGS.googleMapsUrl,
+          googleBusinessProfileUrl: raw.googleBusinessProfileUrl || raw.social?.googleBusiness || DEFAULT_RESTAURANT_SETTINGS.googleBusinessProfileUrl,
+          instagramUrl: raw.instagramUrl || raw.social?.instagram || DEFAULT_RESTAURANT_SETTINGS.instagramUrl,
+          facebookUrl: raw.facebookUrl || raw.social?.facebook || DEFAULT_RESTAURANT_SETTINGS.facebookUrl,
+          tiktokUrl: raw.tiktokUrl || DEFAULT_RESTAURANT_SETTINGS.tiktokUrl
+        };
+
+        setSettings(normalized);
       }
     } catch (err) {
       console.warn('Failed to load server settings, using defaults:', err);
