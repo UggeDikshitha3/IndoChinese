@@ -18,8 +18,19 @@ export const MenuSection: React.FC<MenuSectionProps> = ({
   menuItems,
   onBookTable
 }) => {
-  const safeItems = (items && items.length > 0) ? items : (menuItems && menuItems.length > 0) ? menuItems : INITIAL_MENU_ITEMS;
   const safeCategories = (categories && categories.length > 0) ? categories : INITIAL_CATEGORIES;
+
+  // Deduplicate safeItems by normalized name to guarantee 0 duplicates under any network condition
+  const safeItems = React.useMemo(() => {
+    const raw = (items && items.length > 0) ? items : (menuItems && menuItems.length > 0) ? menuItems : INITIAL_MENU_ITEMS;
+    const seen = new Set<string>();
+    return raw.filter(item => {
+      const norm = (item.name || '').trim().toLowerCase();
+      if (!norm || seen.has(norm)) return false;
+      seen.add(norm);
+      return true;
+    });
+  }, [items, menuItems]);
 
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');

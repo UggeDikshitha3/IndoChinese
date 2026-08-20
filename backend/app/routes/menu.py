@@ -115,10 +115,23 @@ def ensure_default_menu(db: Session):
             MenuItem(name="Bombay Chips", description="Signature crispy potato chips served with cooling yoghurt mint sauce and cilantro. [Allergens: Gluten, Dairy]", price=4.50, category="chips", is_veg=True, is_spicy=True, spice_level=1, is_chef_special=True, is_popular=True, image_url="/src/assets/images/bombay_manchow_soup_1786516536756.jpg", available=True),
         ]
 
-        existing_names = {d.name.lower() for d in db.query(MenuItem).all()}
-        for d in default_dishes:
-            if d.name.lower() not in existing_names:
+        canonical_map = {d.name.strip().lower(): d for d in default_dishes}
+        all_db_items = db.query(MenuItem).all()
+        seen_names = set()
+        
+        # Purge duplicates or non-canonical items
+        for item in all_db_items:
+            norm_name = item.name.strip().lower()
+            if norm_name in seen_names or norm_name not in canonical_map:
+                db.delete(item)
+            else:
+                seen_names.add(norm_name)
+        
+        # Add any missing canonical dishes
+        for norm_name, d in canonical_map.items():
+            if norm_name not in seen_names:
                 db.add(d)
+        
         db.commit()
     except Exception as e:
         db.rollback()

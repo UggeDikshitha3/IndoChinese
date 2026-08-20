@@ -177,7 +177,19 @@ export default function App() {
       ]);
 
       if (catRes.ok) setCategories(await catRes.json());
-      if (menuRes.ok) setMenuItems(await menuRes.json());
+      if (menuRes.ok) {
+        const rawMenu = await menuRes.json();
+        if (Array.isArray(rawMenu)) {
+          const seen = new Set<string>();
+          const deduped = rawMenu.filter((m: any) => {
+            const norm = (m.name || '').trim().toLowerCase();
+            if (!norm || seen.has(norm)) return false;
+            seen.add(norm);
+            return true;
+          });
+          setMenuItems(deduped);
+        }
+      }
       if (offersRes.ok) setOffers(await offersRes.json());
       if (galRes.ok) setGallery(await galRes.json());
     } catch (err) {

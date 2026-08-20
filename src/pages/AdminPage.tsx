@@ -270,7 +270,14 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       if (menuRes.status === 'fulfilled' && menuRes.value.ok) {
         const fetchedMenu = await menuRes.value.json();
         if (Array.isArray(fetchedMenu) && fetchedMenu.length > 0) {
-          setMenuItems(fetchedMenu);
+          const seen = new Set<string>();
+          const deduped = fetchedMenu.filter((m: any) => {
+            const norm = (m.name || '').trim().toLowerCase();
+            if (!norm || seen.has(norm)) return false;
+            seen.add(norm);
+            return true;
+          });
+          setMenuItems(deduped);
         } else {
           setMenuItems(INITIAL_MENU_ITEMS);
         }
