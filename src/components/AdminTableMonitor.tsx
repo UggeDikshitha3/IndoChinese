@@ -43,6 +43,9 @@ export const AdminTableMonitor: React.FC<AdminTableMonitorProps> = ({
 }) => {
   const [selectedStatus, setSelectedStatus] = useState<string>('All');
   const [minGuestsFilter, setMinGuestsFilter] = useState<string>('All');
+  const [selectedDate, setSelectedDate] = useState<string>(() => {
+    return new Date().toISOString().split('T')[0];
+  });
   const [viewMode, setViewMode] = useState<'grid' | 'floor'>('grid');
   const [nowTimestamp, setNowTimestamp] = useState<number>(Date.now());
 
@@ -437,6 +440,23 @@ export const AdminTableMonitor: React.FC<AdminTableMonitorProps> = ({
 
         {/* Party Size / Guest Filter, Layout Toggle & Action Buttons */}
         <div className="flex items-center gap-2 justify-between lg:justify-end flex-wrap">
+          {/* Service Date Selector */}
+          <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1">
+            <Calendar className="w-3.5 h-3.5 text-amber-600" />
+            <span className="text-[11px] font-bold text-slate-600">Day:</span>
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="bg-transparent text-xs text-slate-900 font-bold focus:outline-none cursor-pointer"
+            />
+            {selectedDate === new Date().toISOString().split('T')[0] && (
+              <span className="bg-amber-100 text-amber-900 text-[10px] font-bold px-1.5 py-0.5 rounded">
+                Today
+              </span>
+            )}
+          </div>
+
           {/* Party Size Filter */}
           <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1">
             <Users className="w-3.5 h-3.5 text-slate-500" />
@@ -937,37 +957,84 @@ export const AdminTableMonitor: React.FC<AdminTableMonitorProps> = ({
             </div>
 
             <form onSubmit={handleSeatParty} className="space-y-3.5 text-xs">
-              {/* Optional: Link with today's reservations */}
-              {reservations.filter(r => r.status === 'confirmed').length > 0 && (
-                <div>
-                  <label className="block font-bold text-slate-700 mb-1">
-                    Link Confirmed Reservation (Optional)
-                  </label>
-                  <select
-                    value={selectedReservationId}
-                    onChange={(e) => {
-                      const resId = e.target.value;
-                      setSelectedReservationId(resId);
-                      const found = reservations.find(r => r.id === resId);
-                      if (found) {
-                        setSeatingPartyName(found.name);
-                        setSeatingGuests(found.guests);
-                        setSeatingNotes(`Reservation #${found.reservationNumber} (${found.time})`);
-                      }
-                    }}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-medium focus:outline-none focus:border-red-500"
-                  >
-                    <option value="">-- Walk-in Guest (No pre-booking) --</option>
-                    {reservations
-                      .filter(r => r.status === 'confirmed')
-                      .map(r => (
-                        <option key={r.id} value={r.id}>
-                          #{r.reservationNumber} - {r.name} ({r.guests} guests, {r.time})
-                        </option>
-                      ))}
-                  </select>
+              {/* Active Service Date Context Banner */}
+              <div className="bg-amber-50/90 border border-amber-200 rounded-2xl p-3 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-amber-700 flex-shrink-0" />
+                  <div>
+                    <span className="text-[10px] text-amber-800 font-bold uppercase tracking-wider block">Service Date</span>
+                    <span className="font-bold text-slate-900 text-xs">
+                      {new Date(selectedDate + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
+                    </span>
+                  </div>
                 </div>
-              )}
+                <input
+                  type="date"
+                  value={selectedDate}
+                  onChange={(e) => {
+                    setSelectedDate(e.target.value);
+                    setSelectedReservationId('');
+                  }}
+                  className="bg-white border border-slate-300 rounded-lg px-2 py-1 text-xs font-bold text-slate-800 focus:outline-none focus:border-red-500 cursor-pointer shadow-2xs"
+                />
+              </div>
+
+              {/* Day-Specific Confirmed Reservations Dropdown */}
+              {(() => {
+                const dayReservations = reservations.filter(r => {
+                  const rDate = r.date || new Date().toISOString().split('T')[0];
+                  return rDate === selectedDate && (r.status === 'confirmed' || r.status === 'pending' || r.status === 'rescheduled');
+                });
+
+                if (dayReservations.length > 0) {
+                  return (
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="font-bold text-slate-700">
+                          Select Guest for {selectedDate}
+                        </label>
+                        <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                          {dayReservations.length} {dayReservations.length === 1 ? 'Guest' : 'Guests'} on this Day
+                        </span>
+                      </div>
+                      <select
+                        value={selectedReservationId}
+                        onChange={(e) => {
+                          const resId = e.target.value;
+                          setSelectedReservationId(resId);
+                          const found = reservations.find(r => r.id === resId);
+                          if (found) {
+                            setSeatingPartyName(found.name);
+                            setSeatingGuests(found.guests);
+                            setSeatingNotes(`Reservation #${found.reservationNumber} (${found.time}) • ${found.occasion || 'Dining'}`);
+                          } else {
+                            setSeatingPartyName('');
+                            setSeatingGuests(seatingModalTable.capacity);
+                            setSeatingNotes('');
+                          }
+                        }}
+                        className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-slate-900 font-medium focus:outline-none focus:border-red-500"
+                      >
+                        <option value="">-- Walk-in Guest (No pre-booking) --</option>
+                        {dayReservations.map(r => (
+                          <option key={r.id} value={r.id}>
+                            #{r.reservationNumber} - {r.name} ({r.guests} guests, {r.time}) - {r.seatingArea || 'Main Floor'}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-2.5 flex items-center gap-2 text-slate-600">
+                    <Users className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                    <span className="text-[11px]">
+                      No pre-booked reservations found for <strong>{selectedDate}</strong>. Enter walk-in details below:
+                    </span>
+                  </div>
+                );
+              })()}
 
               <div>
                 <label className="block font-bold text-slate-700 mb-1">Guest / Party Name</label>
