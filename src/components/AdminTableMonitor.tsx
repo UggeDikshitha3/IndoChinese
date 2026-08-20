@@ -54,7 +54,6 @@ export const AdminTableMonitor: React.FC<AdminTableMonitorProps> = ({
   const [seatingPartyName, setSeatingPartyName] = useState('');
   const [seatingGuests, setSeatingGuests] = useState<number>(2);
   const [seatingDuration, setSeatingDuration] = useState<number>(90);
-  const [seatingServer, setSeatingServer] = useState('Rohit K.');
   const [seatingNotes, setSeatingNotes] = useState('');
   const [selectedReservationId, setSelectedReservationId] = useState<string>('');
 
@@ -213,7 +212,6 @@ export const AdminTableMonitor: React.FC<AdminTableMonitorProps> = ({
           partyName: seatingPartyName || 'Walk-in Guest',
           guests: seatingGuests,
           durationMinutes: seatingDuration,
-          assignedServer: seatingServer,
           reservationId: selectedReservationId || undefined,
           notes: seatingNotes
         })
@@ -572,8 +570,7 @@ export const AdminTableMonitor: React.FC<AdminTableMonitorProps> = ({
               setEditingTable({
                 tableNumber: `T-${(tables.length + 1).toString().padStart(2, '0')}`,
                 capacity: 4,
-                status: 'available',
-                assignedServer: 'Rohit K.'
+                status: 'available'
               });
               setIsAddEditModalOpen(true);
             }}
@@ -663,9 +660,7 @@ export const AdminTableMonitor: React.FC<AdminTableMonitorProps> = ({
 
                   <div className="text-[11px] text-slate-500 font-semibold mt-1 flex items-center justify-between">
                     <span>{table.capacity} Person Table</span>
-                    {table.assignedServer && (
-                      <span className="text-[10px] text-slate-400 font-normal">Server: {table.assignedServer}</span>
-                    )}
+                    <span className="text-[10px] text-slate-400 font-normal">{table.area || 'Dining Area'}</span>
                   </div>
                 </div>
 
@@ -700,12 +695,6 @@ export const AdminTableMonitor: React.FC<AdminTableMonitorProps> = ({
                         <span className={`font-bold ${remainingMins !== null && remainingMins <= 0 ? 'text-red-600 font-mono' : 'text-slate-700'}`}>
                           {remainingMins !== null && remainingMins > 0 ? `In ~${remainingMins} mins` : 'Turnover due now'}
                         </span>
-                      </div>
-                    )}
-
-                    {table.assignedServer && (
-                      <div className="text-[10px] text-slate-500">
-                        Server: <strong className="text-slate-800">{table.assignedServer}</strong>
                       </div>
                     )}
 
@@ -979,7 +968,7 @@ export const AdminTableMonitor: React.FC<AdminTableMonitorProps> = ({
                   </div>
 
                   <div className="text-[10px] text-slate-500 font-medium flex items-center justify-between border-t border-slate-200/60 pt-1">
-                    <span className="truncate max-w-[70px]">{table.assignedServer || 'Staff'}</span>
+                    <span className="font-semibold text-slate-700">{table.capacity} Seats</span>
                     <button
                       type="button"
                       onClick={(e) => {
@@ -1009,7 +998,7 @@ export const AdminTableMonitor: React.FC<AdminTableMonitorProps> = ({
                   Seat Party at Table {seatingModalTable.tableNumber}
                 </h3>
                 <p className="text-xs text-slate-500">
-                  Capacity: {seatingModalTable.capacity} Guests • {seatingModalTable.assignedServer || 'Service Staff'}
+                  Capacity: {seatingModalTable.capacity} Guests • {seatingModalTable.area || 'Dining Table'}
                 </p>
               </div>
               <button
