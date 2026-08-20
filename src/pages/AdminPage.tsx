@@ -44,7 +44,10 @@ import {
   UtensilsCrossed,
   Receipt,
   Send,
-  Award
+  Award,
+  Eye,
+  Building2,
+  Tag
 } from 'lucide-react';
 import {
   Reservation,
@@ -184,6 +187,15 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   const [adminModalLoading, setAdminModalLoading] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [userActionFeedback, setUserActionFeedback] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+
+  // Event Details Dossier Modal & Reservation Conversion Modal States
+  const [selectedEventDetails, setSelectedEventDetails] = useState<EventInquiry | null>(null);
+  const [eventToConfirmModal, setEventToConfirmModal] = useState<EventInquiry | null>(null);
+  const [eventReservationTableId, setEventReservationTableId] = useState<string>('');
+  const [eventReservationDuration, setEventReservationDuration] = useState<number>(120);
+  const [eventReservationNotes, setEventReservationNotes] = useState<string>('');
+  const [isConvertingEvent, setIsConvertingEvent] = useState<boolean>(false);
+  const [isRefreshingReviews, setIsRefreshingReviews] = useState<boolean>(false);
 
   // Settings form state
   const [settingsForm, setSettingsForm] = useState<RestaurantSettings>(settings);
@@ -476,6 +488,99 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       }
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleOpenConfirmEventModal = (event: EventInquiry) => {
+    setEventToConfirmModal(event);
+    const suitableTbl = tables.find(t => t.capacity >= event.guests) || tables[0];
+    setEventReservationTableId(suitableTbl?.id || '');
+    setEventReservationDuration(event.durationHours ? event.durationHours * 60 : 120);
+    setEventReservationNotes(`${event.eventType} Private Event: ${event.specialRequests || 'Banquet & Dining Package'}`);
+  };
+
+  const handleConfirmEventAndCreateReservation = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!eventToConfirmModal) return;
+    setIsConvertingEvent(true);
+
+    try {
+      // 1. Create reservation
+      const assignedTbl = tables.find(t => t.id === eventReservationTableId);
+      const resPayload = {
+        name: eventToConfirmModal.name,
+        email: eventToConfirmModal.email,
+        phone: eventToConfirmModal.phone,
+        guests: eventToConfirmModal.guests,
+        date: eventToConfirmModal.date,
+        time: eventToConfirmModal.time || '19:00',
+        seatingArea: assignedTbl?.area || 'VIP Banquet Section',
+        occasion: eventToConfirmModal.eventType,
+        specialRequests: eventReservationNotes,
+        assignedTableId: eventReservationTableId || undefined,
+        assignedTableNumber: assignedTbl?.tableNumber || undefined,
+        status: 'confirmed'
+      };
+
+      const resRes = await fetch(getApiUrl('/api/reservations'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(resPayload)
+      });
+
+      let createdResRef = '';
+      if (resRes.ok) {
+        const resData = await resRes.json();
+        createdResRef = resData.reservationNumber || resData.id;
+      }
+
+      // 2. Mark event as confirmed
+      await handleEventStatus(eventToConfirmModal.id, 'confirmed');
+
+      // 3. Close modals & update UI
+      setEventToConfirmModal(null);
+      if (selectedEventDetails) setSelectedEventDetails(null);
+      fetchAdminData();
+      setUserActionFeedback({
+        text: `✓ Event confirmed! Live reservation created for ${eventToConfirmModal.name} (${createdResRef || 'Ref Generated'}).`,
+        type: 'success'
+      });
+      setTimeout(() => setUserActionFeedback(null), 5000);
+    } catch (err) {
+      console.error('Error confirming event:', err);
+    } finally {
+      setIsConvertingEvent(false);
+    }
+  };
+
+  const handleRefreshAnnualReviews = async () => {
+    setIsRefreshingReviews(true);
+    try {
+      const token = localStorage.getItem('indochinese_admin_token');
+      const res = await fetch(getApiUrl('/api/reviews/refresh'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const revRes = await fetch(getApiUrl('/api/reviews'));
+        if (revRes.ok) {
+          const revData = await revRes.json();
+          setReviews(revData);
+        }
+        setUserActionFeedback({
+          text: `✓ ${data.message || 'Annual customer reviews refreshed (25 verified reviews) for ' + new Date().getFullYear()}!`,
+          type: 'success'
+        });
+        setTimeout(() => setUserActionFeedback(null), 5000);
+      }
+    } catch (err) {
+      console.error('Error refreshing reviews:', err);
+    } finally {
+      setIsRefreshingReviews(false);
     }
   };
 
@@ -1559,7 +1664,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
               <div className="flex justify-between items-center">
                 <div>
                   <h2 className="text-xl font-bold font-serif text-white">Private Dining & Event Inquiries</h2>
-                  <p className="text-xs text-slate-400">Large party reservations, banquet hire, and celebration requests.</p>
+                  <p className="text-xs text-slate-400">Large party reservations, banquet hire, catering, and celebration requests.</p>
                 </div>
               </div>
 
@@ -1570,19 +1675,18 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                   </div>
                 ) : (
                   events.map(ev => (
-                    <div key={ev.id} className="bg-slate-800/80 border border-slate-700 rounded-2xl p-5 space-y-3">
+                    <div key={ev.id} className="bg-slate-800/80 border border-slate-700 rounded-2xl p-5 space-y-3 hover:border-slate-600 transition-all">
                       <div className="flex justify-between items-start">
                         <div>
                           <span className="font-bold text-white text-sm block">{ev.name}</span>
                           <span className="text-slate-400">{ev.phone} • {ev.email}</span>
+                          {ev.company && <span className="text-[11px] text-amber-400 font-mono block">Org: {ev.company}</span>}
                         </div>
                         <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                           ev.status === 'confirmed'
                             ? 'bg-emerald-950 text-emerald-300 border border-emerald-800'
                             : ev.status === 'completed'
                             ? 'bg-purple-950 text-purple-300 border border-purple-800'
-                            : ev.status === 'contacted'
-                            ? 'bg-blue-950 text-blue-300 border border-blue-800'
                             : ev.status === 'cancelled' || ev.status === 'declined'
                             ? 'bg-rose-950 text-rose-300 border border-rose-800'
                             : 'bg-amber-950 text-amber-300 border border-amber-800'
@@ -1607,44 +1711,49 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                       </div>
 
                       {ev.specialRequests && (
-                        <p className="text-slate-300 text-xs italic bg-slate-900/40 p-2.5 rounded-lg border border-slate-800">
+                        <p className="text-slate-300 text-xs italic bg-slate-900/40 p-2.5 rounded-lg border border-slate-800 line-clamp-2">
                           "{ev.specialRequests}"
                         </p>
                       )}
 
-                      <div className="flex flex-wrap justify-end gap-2 pt-2 border-t border-slate-700/60">
-                        {ev.status !== 'confirmed' && ev.status !== 'completed' && (
-                          <button
-                            onClick={() => handleEventStatus(ev.id, 'confirmed')}
-                            className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs transition-colors cursor-pointer"
-                          >
-                            Mark Confirmed
-                          </button>
-                        )}
-                        {ev.status === 'confirmed' && (
-                          <button
-                            onClick={() => handleEventStatus(ev.id, 'completed')}
-                            className="px-3 py-1.5 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl text-xs transition-colors cursor-pointer"
-                          >
-                            Mark Completed
-                          </button>
-                        )}
-                        {ev.status === 'pending' && (
-                          <button
-                            onClick={() => handleEventStatus(ev.id, 'contacted')}
-                            className="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold rounded-xl text-xs transition-colors cursor-pointer"
-                          >
-                            Mark Contacted
-                          </button>
-                        )}
-                        {ev.status !== 'cancelled' && (
-                          <button
-                            onClick={() => handleEventStatus(ev.id, 'cancelled')}
-                            className="px-3 py-1.5 bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800 font-bold rounded-xl text-xs transition-colors cursor-pointer"
-                          >
-                            Cancel
-                          </button>
-                        )}
+                      <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-700/60">
+                        <button
+                          onClick={() => setSelectedEventDetails(ev)}
+                          className="px-3 py-1.5 bg-slate-700/80 hover:bg-slate-600 text-amber-300 font-bold rounded-xl text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                          <span>View Full Event Details</span>
+                        </button>
+
+                        <div className="flex items-center gap-1.5">
+                          {ev.status !== 'confirmed' && ev.status !== 'completed' && ev.status !== 'cancelled' && (
+                            <button
+                              onClick={() => handleOpenConfirmEventModal(ev)}
+                              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs transition-colors cursor-pointer flex items-center gap-1"
+                            >
+                              <Check className="w-3.5 h-3.5" />
+                              <span>Mark Confirmed (Reserve Table)</span>
+                            </button>
+                          )}
+                          {ev.status === 'confirmed' && (
+                            <button
+                              onClick={() => handleEventStatus(ev.id, 'completed')}
+                              className="px-3 py-1.5 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl text-xs transition-colors cursor-pointer flex items-center gap-1"
+                            >
+                              <CheckCircle2 className="w-3.5 h-3.5" />
+                              <span>Mark Completed</span>
+                            </button>
+                          )}
+                          {ev.status !== 'cancelled' && (
+                            <button
+                              onClick={() => handleEventStatus(ev.id, 'cancelled')}
+                              className="px-3 py-1.5 bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800 font-bold rounded-xl text-xs transition-colors cursor-pointer flex items-center gap-1"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                              <span>Mark Cancelled</span>
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   ))
@@ -1967,27 +2076,47 @@ export const AdminPage: React.FC<AdminPageProps> = ({
           {/* TAB 7: REVIEWS MODERATION */}
           {activeTab === 'reviews' && (
             <div className="space-y-6 animate-fadeIn">
-              <div>
-                <h2 className="text-xl font-bold font-serif text-white">Customer Reviews & Testimonials</h2>
-                <p className="text-xs text-slate-400">Verified dining guest feedback and ratings.</p>
+              <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 bg-slate-800/60 border border-slate-700/60 p-5 rounded-3xl">
+                <div>
+                  <h2 className="text-xl font-bold font-serif text-white">Customer Reviews & Testimonials ({reviews.length} Total)</h2>
+                  <p className="text-xs text-slate-400">Verified dining guest feedback and ratings refreshed annually.</p>
+                </div>
+
+                <button
+                  onClick={handleRefreshAnnualReviews}
+                  disabled={isRefreshingReviews}
+                  className="px-4 py-2.5 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-bold rounded-xl text-xs flex items-center gap-1.5 shadow-md transition-all active:scale-95 cursor-pointer disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${isRefreshingReviews ? 'animate-spin' : ''}`} />
+                  <span>{isRefreshingReviews ? 'Refreshing...' : `🔄 Refresh Annual Reviews (${reviews.length >= 20 ? reviews.length : 25} Verified Diners)`}</span>
+                </button>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {reviews.map(r => (
-                  <div key={r.id} className="bg-slate-800/80 border border-slate-700 rounded-2xl p-4 space-y-2 text-xs">
-                    <div className="flex justify-between items-center">
-                      <span className="font-bold text-white text-sm">{r.author}</span>
+                  <div key={r.id} className="bg-slate-800/80 border border-slate-700 rounded-2xl p-4 space-y-2.5 text-xs">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <div className="flex items-center space-x-1.5">
+                          <span className="font-bold text-white text-sm">{r.author}</span>
+                          {r.verified && (
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" title="Verified Customer" />
+                          )}
+                        </div>
+                        <span className="text-[10px] text-slate-400 font-mono">{r.date} • {r.source || 'Direct'}</span>
+                      </div>
                       <div className="flex text-amber-400">
                         {Array.from({ length: r.rating }).map((_, i) => (
                           <Star key={i} className="w-3.5 h-3.5 fill-amber-400" />
                         ))}
                       </div>
                     </div>
-                    <p className="text-slate-300 italic">"{r.comment}"</p>
+                    <p className="text-slate-300 italic leading-relaxed">"{r.comment}"</p>
                     {r.recommendedDish && (
-                      <span className="text-[11px] text-amber-400 font-semibold block">
-                        Recommended: {r.recommendedDish}
-                      </span>
+                      <div className="pt-2 border-t border-slate-700/60 flex items-center gap-1 text-[11px] text-amber-400 font-medium">
+                        <Utensils className="w-3 h-3 text-amber-400" />
+                        <span>Recommended: {r.recommendedDish}</span>
+                      </div>
                     )}
                   </div>
                 ))}
@@ -2718,6 +2847,341 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                   className="px-5 py-2 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold rounded-xl shadow-md transition-all disabled:opacity-50"
                 >
                   {adminModalLoading ? 'Creating Account...' : 'Create Account'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 1. COMPLETE EVENT DETAILS DOSSIER MODAL */}
+      {/* ========================================================================= */}
+      {selectedEventDetails && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md overflow-y-auto animate-fadeIn">
+          <div className="bg-slate-900 border border-slate-700 rounded-3xl max-w-2xl w-full p-6 text-slate-100 text-xs space-y-5 shadow-2xl animate-scaleUp max-h-[90vh] overflow-y-auto">
+            {/* Header */}
+            <div className="flex justify-between items-start border-b border-slate-800 pb-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-11 h-11 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center">
+                  <PartyPopper className="w-6 h-6" />
+                </div>
+                <div>
+                  <div className="flex items-center space-x-2">
+                    <h3 className="text-lg font-bold text-white font-serif">{selectedEventDetails.name} - Event Dossier</h3>
+                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${
+                      selectedEventDetails.status === 'confirmed'
+                        ? 'bg-emerald-950 text-emerald-300 border border-emerald-800'
+                        : selectedEventDetails.status === 'completed'
+                        ? 'bg-purple-950 text-purple-300 border border-purple-800'
+                        : selectedEventDetails.status === 'cancelled' || selectedEventDetails.status === 'declined'
+                        ? 'bg-rose-950 text-rose-300 border border-rose-800'
+                        : 'bg-amber-950 text-amber-300 border border-amber-800'
+                    }`}>
+                      {selectedEventDetails.status}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-400 mt-0.5">Reference ID: {selectedEventDetails.id}</p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setSelectedEventDetails(null)}
+                className="p-1.5 rounded-xl bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Organizer Contact Profile */}
+            <div className="bg-slate-950/70 border border-slate-800 p-4 rounded-2xl space-y-2">
+              <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider block">1. Organizer Contact & Profile</span>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <span className="text-[10px] text-slate-500 block">Full Name</span>
+                  <span className="font-bold text-white text-xs">{selectedEventDetails.name}</span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-500 block">Phone</span>
+                  <a href={`tel:${selectedEventDetails.phone}`} className="font-mono text-emerald-400 hover:underline text-xs flex items-center gap-1">
+                    <Phone className="w-3 h-3" />
+                    <span>{selectedEventDetails.phone}</span>
+                  </a>
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-500 block">Email Address</span>
+                  <a href={`mailto:${selectedEventDetails.email}`} className="font-mono text-sky-400 hover:underline text-xs flex items-center gap-1 truncate">
+                    <Mail className="w-3 h-3" />
+                    <span>{selectedEventDetails.email}</span>
+                  </a>
+                </div>
+              </div>
+              {selectedEventDetails.company && (
+                <div className="pt-2 border-t border-slate-800/80 flex items-center gap-1.5 text-slate-300 text-[11px]">
+                  <Building2 className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Company / Organization: <strong>{selectedEventDetails.company}</strong></span>
+                </div>
+              )}
+            </div>
+
+            {/* Event Overview & Logistics */}
+            <div className="bg-slate-950/70 border border-slate-800 p-4 rounded-2xl space-y-2">
+              <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider block">2. Event Logistics & Date</span>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="bg-slate-900 p-2.5 rounded-xl border border-slate-800">
+                  <span className="text-[10px] text-slate-500 block">Occasion / Type</span>
+                  <span className="font-bold text-amber-300">{selectedEventDetails.eventType}</span>
+                </div>
+                <div className="bg-slate-900 p-2.5 rounded-xl border border-slate-800">
+                  <span className="text-[10px] text-slate-500 block">Guest Count</span>
+                  <span className="font-bold text-white">{selectedEventDetails.guests} Diners</span>
+                </div>
+                <div className="bg-slate-900 p-2.5 rounded-xl border border-slate-800">
+                  <span className="text-[10px] text-slate-500 block">Date & Time</span>
+                  <span className="font-bold text-white">{selectedEventDetails.date} at {selectedEventDetails.time || '19:00'}</span>
+                </div>
+                <div className="bg-slate-900 p-2.5 rounded-xl border border-slate-800">
+                  <span className="text-[10px] text-slate-500 block">Budget / Package</span>
+                  <span className="font-bold text-emerald-400 font-mono">{selectedEventDetails.budget || 'Custom Set Menu'}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Food, Catering & Production Preferences */}
+            <div className="bg-slate-950/70 border border-slate-800 p-4 rounded-2xl space-y-2">
+              <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider block">3. Culinary & Catering Preferences</span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[11px]">
+                <div className="space-y-1">
+                  <span className="text-slate-500">Dietary & Halal Certifications:</span>
+                  <div className="font-medium text-slate-200 bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-800">
+                    {selectedEventDetails.dietaryRequirements || '100% Halal Certified • Vegetarian & Jain options required'}
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-slate-500">Spice Preference:</span>
+                  <div className="font-medium text-slate-200 bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-800">
+                    {selectedEventDetails.spicePreference || 'Medium Bombay Spice & Mild Children Dishes'}
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-slate-500">Seating & Table Arrangement:</span>
+                  <div className="font-medium text-slate-200 bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-800">
+                    {selectedEventDetails.seatingLayout || 'VIP Banquet Rounds & Connected Family Tables'}
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-slate-500">Audio-Visual & Decor Requests:</span>
+                  <div className="font-medium text-slate-200 bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-800">
+                    {selectedEventDetails.audioVisual || 'Background Bombay Music Playlist & Celebration Cake Setup'}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Special Requests */}
+            {selectedEventDetails.specialRequests && (
+              <div className="bg-slate-950/70 border border-slate-800 p-4 rounded-2xl space-y-1">
+                <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider block">4. Organizer Special Notes</span>
+                <p className="text-slate-300 italic text-xs leading-relaxed bg-slate-900 p-3 rounded-xl border border-slate-800">
+                  "{selectedEventDetails.specialRequests}"
+                </p>
+              </div>
+            )}
+
+            {/* Action Bar */}
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-800">
+              <button
+                type="button"
+                onClick={() => setSelectedEventDetails(null)}
+                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-xs cursor-pointer"
+              >
+                Close Dossier
+              </button>
+
+              <div className="flex items-center gap-2">
+                {selectedEventDetails.status !== 'confirmed' && selectedEventDetails.status !== 'completed' && (
+                  <button
+                    onClick={() => handleOpenConfirmEventModal(selectedEventDetails)}
+                    className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 shadow-md cursor-pointer"
+                  >
+                    <Check className="w-4 h-4" />
+                    <span>Confirm Event & Create Live Reservation</span>
+                  </button>
+                )}
+                {selectedEventDetails.status === 'confirmed' && (
+                  <button
+                    onClick={() => {
+                      handleEventStatus(selectedEventDetails.id, 'completed');
+                      setSelectedEventDetails(null);
+                    }}
+                    className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 shadow-md cursor-pointer"
+                  >
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Mark Completed</span>
+                  </button>
+                )}
+                {selectedEventDetails.status !== 'cancelled' && (
+                  <button
+                    onClick={() => {
+                      handleEventStatus(selectedEventDetails.id, 'cancelled');
+                      setSelectedEventDetails(null);
+                    }}
+                    className="px-4 py-2 bg-rose-950 hover:bg-rose-900 text-rose-300 border border-rose-800 font-bold rounded-xl text-xs flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <X className="w-4 h-4" />
+                    <span>Mark Cancelled</span>
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 2. CONFIRM EVENT & CREATE BANQUET RESERVATION POPUP (MASTER / MANAGER) */}
+      {/* ========================================================================= */}
+      {eventToConfirmModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md overflow-y-auto animate-fadeIn">
+          <div className="bg-slate-900 border border-amber-500/50 rounded-3xl max-w-lg w-full p-6 text-slate-100 text-xs space-y-4 shadow-2xl ring-1 ring-amber-500/30 animate-scaleUp">
+            {/* Modal Header */}
+            <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+              <div className="flex items-center space-x-2.5">
+                <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center">
+                  <CheckCircle2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white font-serif">Confirm Event & Reserve Table</h3>
+                  <p className="text-[11px] text-slate-400">Convert event inquiry into a live confirmed restaurant reservation</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setEventToConfirmModal(null)}
+                className="p-1.5 rounded-xl bg-slate-800 text-slate-400 hover:text-white cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleConfirmEventAndCreateReservation} className="space-y-3.5">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-300 font-bold mb-1">Guest / Organizer Name</label>
+                  <input
+                    type="text"
+                    required
+                    value={eventToConfirmModal.name}
+                    readOnly
+                    className="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-3 py-2 text-white font-medium focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-slate-300 font-bold mb-1">Phone Number</label>
+                  <input
+                    type="text"
+                    required
+                    value={eventToConfirmModal.phone}
+                    readOnly
+                    className="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-3 py-2 text-emerald-400 font-mono focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-slate-300 font-bold mb-1">Event Date</label>
+                  <input
+                    type="date"
+                    required
+                    value={eventToConfirmModal.date}
+                    readOnly
+                    className="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-slate-300 font-bold mb-1">Event Time</label>
+                  <input
+                    type="time"
+                    required
+                    value={eventToConfirmModal.time || '19:00'}
+                    readOnly
+                    className="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-slate-300 font-bold mb-1">Number of Guests</label>
+                  <input
+                    type="number"
+                    min={1}
+                    required
+                    value={eventToConfirmModal.guests}
+                    readOnly
+                    className="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-3 py-2 text-amber-300 font-bold text-center"
+                  />
+                </div>
+              </div>
+
+              {/* Table / Banquet Section Allocation */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-300 font-bold mb-1">Allocated Table / Zone</label>
+                  <select
+                    value={eventReservationTableId}
+                    onChange={(e) => setEventReservationTableId(e.target.value)}
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-amber-300 font-bold focus:outline-none focus:border-amber-500 cursor-pointer"
+                  >
+                    {tables.map(tbl => (
+                      <option key={tbl.id} value={tbl.id}>
+                        {tbl.tableNumber} ({tbl.capacity} Seats) - {tbl.area || 'Main Dining'}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-slate-300 font-bold mb-1">Dining Duration</label>
+                  <select
+                    value={eventReservationDuration}
+                    onChange={(e) => setEventReservationDuration(Number(e.target.value))}
+                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white font-medium focus:outline-none focus:border-amber-500 cursor-pointer"
+                  >
+                    <option value={60}>1 Hour</option>
+                    <option value={90}>1.5 Hours</option>
+                    <option value={120}>2 Hours (Standard Event)</option>
+                    <option value={180}>3 Hours (Banquet / Gala)</option>
+                    <option value={240}>4 Hours (Full Hire)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-slate-300 font-bold mb-1">Special Reservation Notes & Catering Details</label>
+                <textarea
+                  rows={2}
+                  value={eventReservationNotes}
+                  onChange={(e) => setEventReservationNotes(e.target.value)}
+                  className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 resize-none"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-3 border-t border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setEventToConfirmModal(null)}
+                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-bold transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isConvertingEvent}
+                  className="px-5 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-xl shadow-lg transition-all active:scale-95 disabled:opacity-50 cursor-pointer flex items-center gap-1.5"
+                >
+                  <Check className="w-4 h-4" />
+                  <span>{isConvertingEvent ? 'Confirming & Creating...' : 'Confirm & Create Live Reservation'}</span>
                 </button>
               </div>
             </form>

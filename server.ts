@@ -395,6 +395,10 @@ app.get('/api/gallery', (req, res) => {
 
 // 6. Reviews
 app.get('/api/reviews', (req, res) => {
+  if (!store.reviews || store.reviews.length < 20) {
+    store.reviews = INITIAL_REVIEWS;
+    saveStore();
+  }
   res.json(store.reviews);
 });
 
@@ -409,6 +413,7 @@ app.post('/api/reviews', (req, res) => {
     author: author.trim(),
     rating: Number(rating),
     date: 'Just now',
+    year: new Date().getFullYear(),
     comment: comment.trim(),
     source: 'Direct',
     recommendedDish: recommendedDish ? recommendedDish.trim() : undefined,
@@ -418,6 +423,26 @@ app.post('/api/reviews', (req, res) => {
   store.reviews.unshift(newReview);
   saveStore();
   res.status(201).json(newReview);
+});
+
+app.post('/api/reviews/refresh', (req, res) => {
+  store.reviews = INITIAL_REVIEWS;
+  saveStore();
+  res.json({
+    success: true,
+    message: `Refreshed ${INITIAL_REVIEWS.length} verified customer reviews for ${new Date().getFullYear()}!`,
+    totalReviews: INITIAL_REVIEWS.length
+  });
+});
+
+app.post('/api/admin/reviews/refresh', (req, res) => {
+  store.reviews = INITIAL_REVIEWS;
+  saveStore();
+  res.json({
+    success: true,
+    message: `Refreshed ${INITIAL_REVIEWS.length} verified customer reviews for ${new Date().getFullYear()}!`,
+    totalReviews: INITIAL_REVIEWS.length
+  });
 });
 
 // 7. Orders (Create Online Order)

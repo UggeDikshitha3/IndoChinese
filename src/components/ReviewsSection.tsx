@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Star, MessageSquarePlus, CheckCircle2, ExternalLink, X, Send } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { Star, MessageSquarePlus, CheckCircle2, ExternalLink, X, Send, Search, Sparkles, Filter, ChevronDown, ChevronUp } from 'lucide-react';
 import { Review, RestaurantSettings } from '../types';
 import { getApiUrl } from '../utils/api';
 
@@ -24,6 +24,42 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successToast, setSuccessToast] = useState(false);
 
+  // Filter & Search State
+  const [activeFilter, setActiveFilter] = useState<'all' | '5stars' | 'verified' | 'google' | 'tripadvisor'>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [visibleCount, setVisibleCount] = useState(8);
+
+  const currentYear = new Date().getFullYear();
+
+  // Filtered Reviews List
+  const filteredReviews = useMemo(() => {
+    return reviews.filter((rev) => {
+      // Category Match
+      let matchCat = true;
+      if (activeFilter === '5stars') matchCat = rev.rating === 5;
+      else if (activeFilter === 'verified') matchCat = rev.verified === true;
+      else if (activeFilter === 'google') matchCat = (rev.source || '').toLowerCase().includes('google');
+      else if (activeFilter === 'tripadvisor') matchCat = (rev.source || '').toLowerCase().includes('tripadvisor');
+
+      // Search Match
+      const q = searchQuery.toLowerCase().trim();
+      const matchSearch = !q ||
+        rev.author.toLowerCase().includes(q) ||
+        rev.comment.toLowerCase().includes(q) ||
+        (rev.recommendedDish && rev.recommendedDish.toLowerCase().includes(q));
+
+      return matchCat && matchSearch;
+    });
+  }, [reviews, activeFilter, searchQuery]);
+
+  const displayedReviews = filteredReviews.slice(0, visibleCount);
+
+  // Ratings calculation
+  const totalReviewsCount = reviews.length;
+  const avgRating = totalReviewsCount > 0
+    ? (reviews.reduce((acc, r) => acc + (Number(r.rating) || 5), 0) / totalReviewsCount).toFixed(1)
+    : '4.9';
+
   const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!author || !comment) return;
@@ -39,7 +75,8 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
       });
 
       if (res.ok) {
-        createdReview = await res.json();
+        const data = await res.json();
+        createdReview = data.review || data;
       } else {
         createdReview = {
           id: `rev_${Date.now()}`,
@@ -48,8 +85,9 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
           comment,
           recommendedDish: recommendedDish || undefined,
           date: 'Just now',
+          year: currentYear,
           verified: true,
-          source: 'Website Diner'
+          source: 'Direct'
         };
       }
     } catch (err) {
@@ -60,8 +98,9 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
         comment,
         recommendedDish: recommendedDish || undefined,
         date: 'Just now',
+        year: currentYear,
         verified: true,
-        source: 'Website Diner'
+        source: 'Direct'
       };
     } finally {
       if (onReviewSubmitted) {
@@ -82,21 +121,24 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 pb-6 border-b border-slate-200">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 pb-6 border-b border-slate-200 gap-4">
           <div>
             <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-xs font-bold tracking-wider uppercase mb-3">
               <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
-              <span>CUSTOMER TESTIMONIALS</span>
+              <span>AUTHENTIC CUSTOMER TESTIMONIALS ({reviews.length}+ REVIEWS)</span>
             </div>
             <h2 className="text-3xl sm:text-5xl font-extrabold text-slate-900 font-serif tracking-tight">
               CUSTOMER <span className="text-red-600">REVIEWS</span>
             </h2>
+            <p className="text-xs sm:text-sm text-slate-500 mt-1">
+              Verified dining experiences & feedback refreshed annually ({currentYear} verified diners).
+            </p>
           </div>
 
           {/* Aggregate Rating Score Card */}
-          <div className="mt-4 md:mt-0 flex items-center space-x-4 bg-slate-50 p-4 rounded-2xl border border-slate-200 shadow-xs">
+          <div className="flex items-center space-x-4 bg-slate-50 p-4 rounded-2xl border border-slate-200 shadow-xs">
             <div className="text-center border-r border-slate-200 pr-4">
-              <span className="text-3xl font-extrabold text-slate-900 font-serif">4.9</span>
+              <span className="text-3xl font-extrabold text-slate-900 font-serif">{avgRating}</span>
               <span className="text-[10px] text-slate-500 block font-bold">OUT OF 5</span>
             </div>
             <div>
@@ -105,7 +147,44 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
                   <Star key={i} className="w-4 h-4 fill-amber-500 text-amber-500" />
                 ))}
               </div>
+              <span className="text-xs font-bold text-slate-700">Based on {reviews.length}+ Verified Ratings</span>
             </div>
+          </div>
+        </div>
+
+        {/* Filter Pills & Search Bar */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-xs">
+            {[
+              { id: 'all', label: `All Reviews (${reviews.length})` },
+              { id: '5stars', label: `5 Stars (${reviews.filter(r => r.rating === 5).length})` },
+              { id: 'verified', label: `Verified Diners (${reviews.filter(r => r.verified).length})` },
+              { id: 'google', label: `Google (${reviews.filter(r => (r.source || '').toLowerCase().includes('google')).length})` },
+              { id: 'tripadvisor', label: `TripAdvisor (${reviews.filter(r => (r.source || '').toLowerCase().includes('tripadvisor')).length})` }
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveFilter(tab.id as any)}
+                className={`px-3.5 py-1.5 rounded-xl font-bold whitespace-nowrap transition-all cursor-pointer ${
+                  activeFilter === tab.id
+                    ? 'bg-red-600 text-white shadow-xs'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="relative min-w-[240px]">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+            <input
+              type="text"
+              placeholder="Search by name, dish or note..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-red-500"
+            />
           </div>
         </div>
 
@@ -121,7 +200,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
             </div>
             <button
               onClick={() => setSuccessToast(false)}
-              className="p-1 text-emerald-600 hover:text-emerald-900 rounded-lg"
+              className="p-1 text-emerald-600 hover:text-emerald-900 rounded-lg cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
@@ -129,59 +208,94 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
         )}
 
         {/* Review Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-          {reviews.map((rev) => (
-            <div
-              key={rev.id}
-              className="bg-slate-50 border border-slate-200 p-5 rounded-2xl shadow-xs flex flex-col justify-between"
+        {filteredReviews.length === 0 ? (
+          <div className="py-12 text-center text-slate-500 bg-slate-50 rounded-3xl border border-slate-200">
+            <p className="text-sm font-bold">No reviews matching your search criteria.</p>
+            <button
+              onClick={() => { setSearchQuery(''); setActiveFilter('all'); }}
+              className="mt-2 text-xs font-bold text-red-600 hover:underline cursor-pointer"
             >
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex text-amber-500">
-                    {[...Array(rev.rating)].map((_, i) => (
-                      <Star key={i} className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
-                    ))}
+              Clear filters and view all reviews
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {displayedReviews.map((rev) => (
+              <div
+                key={rev.id}
+                className="bg-slate-50 border border-slate-200 p-5 rounded-2xl shadow-xs flex flex-col justify-between hover:shadow-md transition-shadow group"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex text-amber-500">
+                      {[...Array(rev.rating)].map((_, i) => (
+                        <Star key={i} className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+                      ))}
+                    </div>
+
+                    <span className="text-[10px] text-slate-600 font-medium bg-white px-2 py-0.5 rounded border border-slate-200">
+                      {rev.source}
+                    </span>
                   </div>
 
-                  <span className="text-[10px] text-slate-600 font-medium bg-white px-2 py-0.5 rounded border border-slate-200">
-                    {rev.source}
-                  </span>
-                </div>
-
-                <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-sans italic mb-4">
-                  "{rev.comment}"
-                </p>
-              </div>
-
-              <div className="pt-3 border-t border-slate-200">
-                {rev.recommendedDish && (
-                  <p className="text-[11px] text-red-600 font-bold mb-2">
-                    Dish Recommended: <span className="text-slate-800 font-normal">{rev.recommendedDish}</span>
+                  <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-sans italic mb-4">
+                    "{rev.comment}"
                   </p>
-                )}
+                </div>
 
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-1.5">
-                    <span className="text-xs font-bold text-slate-900">{rev.author}</span>
-                    {rev.verified && (
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" title="Verified Customer" />
-                    )}
+                <div className="pt-3 border-t border-slate-200">
+                  {rev.recommendedDish && (
+                    <p className="text-[11px] text-red-600 font-bold mb-2 truncate">
+                      Dish Recommended: <span className="text-slate-800 font-normal">{rev.recommendedDish}</span>
+                    </p>
+                  )}
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-1.5">
+                      <span className="text-xs font-bold text-slate-900">{rev.author}</span>
+                      {rev.verified && (
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" title="Verified Customer" />
+                      )}
+                    </div>
+                    <span className="text-[10px] text-slate-400 font-mono">{rev.date}</span>
                   </div>
-                  <span className="text-[10px] text-slate-400">{rev.date}</span>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
+
+        {/* View More / Show Less Toggle */}
+        {filteredReviews.length > 8 && (
+          <div className="flex justify-center mb-8">
+            {visibleCount < filteredReviews.length ? (
+              <button
+                onClick={() => setVisibleCount(prev => Math.min(filteredReviews.length, prev + 8))}
+                className="px-6 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
+              >
+                <span>View More Reviews ({filteredReviews.length - visibleCount} remaining)</span>
+                <ChevronDown className="w-4 h-4" />
+              </button>
+            ) : (
+              <button
+                onClick={() => setVisibleCount(8)}
+                className="px-6 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
+              >
+                <span>Show Less Reviews</span>
+                <ChevronUp className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+        )}
 
         {/* CTAs */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 border-t border-slate-100">
           <a
             id="read-google-reviews-button"
             href={settings?.googleBusinessProfileUrl || '#'}
             target="_blank"
             rel="noreferrer"
-            className="px-6 py-3 rounded-xl bg-white border border-slate-300 hover:border-slate-400 text-slate-800 text-xs font-bold transition-all shadow-xs flex items-center space-x-2"
+            className="px-6 py-3 rounded-xl bg-white border border-slate-300 hover:border-slate-400 text-slate-800 text-xs font-bold transition-all shadow-xs flex items-center space-x-2 cursor-pointer"
           >
             <span>READ OUR GOOGLE REVIEWS</span>
             <ExternalLink className="w-4 h-4 text-red-600" />
@@ -190,7 +304,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
           <button
             id="write-review-button"
             onClick={() => setModalOpen(true)}
-            className="px-6 py-3 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-bold transition-all shadow-md flex items-center space-x-2"
+            className="px-6 py-3 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-bold transition-all shadow-md flex items-center space-x-2 cursor-pointer"
           >
             <MessageSquarePlus className="w-4 h-4" />
             <span>WRITE A REVIEW</span>
@@ -203,7 +317,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
             <div className="bg-white border border-slate-200 rounded-2xl max-w-md w-full p-6 shadow-2xl relative text-slate-800">
               <button
                 onClick={() => setModalOpen(false)}
-                className="absolute top-4 right-4 p-2 rounded-lg bg-slate-100 text-slate-600 hover:text-slate-900"
+                className="absolute top-4 right-4 p-2 rounded-lg bg-slate-100 text-slate-600 hover:text-slate-900 cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -232,7 +346,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
                         type="button"
                         key={star}
                         onClick={() => setRating(star)}
-                        className="p-1 focus:outline-none"
+                        className="p-1 focus:outline-none cursor-pointer"
                       >
                         <Star
                           className={`w-6 h-6 ${
@@ -270,7 +384,7 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full py-3 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs shadow-md flex items-center justify-center space-x-2"
+                  className="w-full py-3 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs shadow-md flex items-center justify-center space-x-2 cursor-pointer"
                 >
                   <Send className="w-4 h-4" />
                   <span>{isSubmitting ? 'SUBMITTING...' : 'SUBMIT REVIEW'}</span>

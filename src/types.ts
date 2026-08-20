@@ -71,20 +71,29 @@ export interface Reservation {
   createdAt: string;
 }
 
-export type EventStatus = 'pending' | 'contacted' | 'confirmed' | 'completed' | 'cancelled' | 'declined' | 'responded' | 'closed';
+export type EventStatus = 'pending' | 'confirmed' | 'completed' | 'cancelled' | 'declined' | 'closed';
 
 export interface EventInquiry {
   id: string;
   name: string;
   email: string;
   phone: string;
-  eventType: 'Birthday Party' | 'Anniversary' | 'Corporate Dinner' | 'Festival Celebration' | 'Private Dining' | 'Group Gathering';
+  company?: string;
+  eventType: string;
   guests: number;
   date: string;
   time: string;
+  durationHours?: number;
   budget?: string;
+  menuPackage?: string;
+  dietaryRequirements?: string;
+  spicePreference?: string;
+  audioVisual?: string;
+  seatingLayout?: string;
+  decorRequests?: string;
   specialRequests?: string;
   status: EventStatus;
+  linkedReservationId?: string;
   createdAt: string;
 }
 
@@ -114,6 +123,7 @@ export interface Review {
   author: string;
   rating: number; // 1 to 5
   date: string;
+  year?: number;
   comment: string;
   source: 'Google' | 'Direct' | 'TripAdvisor';
   recommendedDish?: string;
