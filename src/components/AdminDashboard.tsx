@@ -27,13 +27,6 @@ import {
 } from '../types';
 import { AdminTableMonitor } from './AdminTableMonitor';
 import { getApiUrl } from '../utils/api';
-import {
-  INITIAL_TABLES,
-  INITIAL_RESERVATIONS,
-  INITIAL_EVENTS,
-  INITIAL_MENU_ITEMS,
-  INITIAL_MESSAGES
-} from '../data/initialData';
 
 interface AdminDashboardProps {
   isOpen: boolean;
@@ -64,12 +57,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [loginError, setLoginError] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
-  // Data states with rich default test data
-  const [tables, setTables] = useState<RestaurantTable[]>(() => INITIAL_TABLES || []);
-  const [reservations, setReservations] = useState<Reservation[]>(() => INITIAL_RESERVATIONS || []);
-  const [events, setEvents] = useState<EventInquiry[]>(() => INITIAL_EVENTS || []);
-  const [menuItems, setMenuItems] = useState<MenuItem[]>(() => INITIAL_MENU_ITEMS || []);
-  const [messages, setMessages] = useState<ContactMessage[]>(() => INITIAL_MESSAGES || []);
+  // Data states
+  const [tables, setTables] = useState<RestaurantTable[]>([]);
+  const [reservations, setReservations] = useState<Reservation[]>([]);
+  const [events, setEvents] = useState<EventInquiry[]>([]);
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [messages, setMessages] = useState<ContactMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   // Menu Modal State
