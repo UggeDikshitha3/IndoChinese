@@ -99,31 +99,57 @@ export const ServerTaskMonitor: React.FC<ServerTaskMonitorProps> = ({
       const currentNow = Date.now();
       setNowTimestamp(currentNow);
 
-      // Auto-turn cleaning tables to available once 5 minutes (300s) pass
+      // Auto-turn cleaning tables to available once 5 minutes (300s) pass (counting backward 5:00 -> 0:00)
       tables.forEach(tbl => {
         if (tbl.status === 'cleaning') {
-          const startTime = tbl.cleaningStartedAt ? new Date(tbl.cleaningStartedAt).getTime() : nowTimestamp;
-          if (currentNow - startTime >= 5 * 60 * 1000) {
+          let startTime = tbl.cleaningStartedAt ? new Date(tbl.cleaningStartedAt).getTime() : null;
+          if (!startTime && typeof sessionStorage !== 'undefined' && sessionStorage.getItem(`cleaning_start_${tbl.id}`)) {
+            startTime = Number(sessionStorage.getItem(`cleaning_start_${tbl.id}`));
+          }
+          if (startTime && (currentNow - startTime >= 5 * 60 * 1000)) {
+            if (typeof sessionStorage !== 'undefined') {
+              sessionStorage.removeItem(`cleaning_start_${tbl.id}`);
+            }
             handleCompleteTable(tbl.id, 'available');
           }
         }
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, [tables, nowTimestamp]);
+  }, [tables]);
 
-  // Helper for 5-minute cleaning countdown
-  const getCleaningCountdown = (cleaningStartedAt?: string) => {
-    const start = cleaningStartedAt ? new Date(cleaningStartedAt).getTime() : nowTimestamp;
-    const durationMs = 5 * 60 * 1000;
-    const remainingMs = Math.max(0, (start + durationMs) - nowTimestamp);
-    if (remainingMs <= 0) {
-      return { isDone: true, formatted: '0m 00s (Cleaned)' };
+  // Helper for 5-minute cleaning countdown running backward 5:00 -> 0:00
+  const getCleaningCountdown = (cleaningStartedAt?: string, tableId?: string) => {
+    let startMs: number;
+    if (cleaningStartedAt) {
+      startMs = new Date(cleaningStartedAt).getTime();
+    } else if (tableId && typeof sessionStorage !== 'undefined' && sessionStorage.getItem(`cleaning_start_${tableId}`)) {
+      startMs = Number(sessionStorage.getItem(`cleaning_start_${tableId}`));
+    } else {
+      startMs = nowTimestamp;
+      if (tableId && typeof sessionStorage !== 'undefined') {
+        sessionStorage.setItem(`cleaning_start_${tableId}`, String(nowTimestamp));
+      }
     }
+
+    const durationMs = 5 * 60 * 1000; // 5 minutes total
+    const elapsedMs = Math.max(0, nowTimestamp - startMs);
+    const remainingMs = Math.max(0, durationMs - elapsedMs);
+
+    if (remainingMs <= 0) {
+      if (tableId && typeof sessionStorage !== 'undefined') {
+        sessionStorage.removeItem(`cleaning_start_${tableId}`);
+      }
+      return { isDone: true, formatted: '0m 00s (Cleaned)', countdown: '0:00' };
+    }
+
     const totalMinutes = Math.floor(remainingMs / 60000);
     const seconds = Math.floor((remainingMs % 60000) / 1000);
+    const countdown = `${totalMinutes}:${seconds.toString().padStart(2, '0')}`;
+
     return {
       isDone: false,
+      countdown,
       formatted: `${totalMinutes}m ${seconds.toString().padStart(2, '0')}s remaining`
     };
   };
@@ -613,10 +639,10 @@ export const ServerTaskMonitor: React.FC<ServerTaskMonitorProps> = ({
                       <span className="font-medium text-slate-300">{table.area || 'Main Dining'}</span>
                     </div>
                     {isCleaning && (
-                      <div className="p-2 bg-sky-950/80 border border-sky-800 rounded-xl text-center">
-                        <span className="text-[10px] text-sky-400 font-bold uppercase block">Cleaning Turnover</span>
-                        <span className="font-mono text-xs font-bold text-sky-200">
-                          {getCleaningCountdown(table.cleaningStartedAt)?.formatted}
+                      <div className="p-2.5 bg-sky-950/80 border border-sky-800 rounded-xl text-center space-y-0.5">
+                        <span className="text-[10px] text-sky-400 font-bold uppercase block">Sanitizing (5:00 → 0:00)</span>
+                        <span className="font-mono text-xs font-black text-sky-200 block">
+                          ⏱️ {getCleaningCountdown(table.cleaningStartedAt, table.id)?.formatted}
                         </span>
                       </div>
                     )}

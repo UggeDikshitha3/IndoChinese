@@ -68,18 +68,24 @@ export const AdminTableMonitor: React.FC<AdminTableMonitorProps> = ({
       const currentNow = Date.now();
       setNowTimestamp(currentNow);
 
-      // Check if any table in cleaning status has passed the 5-minute cleaning window
+      // Check if any table in cleaning status has passed the 5-minute cleaning window (running 5:00 down to 0:00)
       tables.forEach(table => {
         if (table.status === 'cleaning') {
-          const startTime = table.cleaningStartedAt ? new Date(table.cleaningStartedAt).getTime() : nowTimestamp;
-          if (currentNow - startTime >= 5 * 60 * 1000) {
+          let startTime = table.cleaningStartedAt ? new Date(table.cleaningStartedAt).getTime() : null;
+          if (!startTime && typeof sessionStorage !== 'undefined' && sessionStorage.getItem(`cleaning_start_${table.id}`)) {
+            startTime = Number(sessionStorage.getItem(`cleaning_start_${table.id}`));
+          }
+          if (startTime && (currentNow - startTime >= 5 * 60 * 1000)) {
+            if (typeof sessionStorage !== 'undefined') {
+              sessionStorage.removeItem(`cleaning_start_${table.id}`);
+            }
             handleCompleteTable(table.id, 'available');
           }
         }
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, [tables, nowTimestamp]);
+  }, [tables]);
 
   // Helper to calculate elapsed time in minutes & seconds
   const getElapsedSeatedTime = (seatedAt?: string) => {
@@ -94,20 +100,40 @@ export const AdminTableMonitor: React.FC<AdminTableMonitorProps> = ({
     };
   };
 
-  // Helper to calculate 5-minute cleaning remaining countdown
-  const getCleaningCountdown = (cleaningStartedAt?: string) => {
-    const start = cleaningStartedAt ? new Date(cleaningStartedAt).getTime() : nowTimestamp;
-    const durationMs = 5 * 60 * 1000; // 5 minutes
-    const remainingMs = Math.max(0, (start + durationMs) - nowTimestamp);
-    if (remainingMs <= 0) {
-      return { isDone: true, minutes: 0, seconds: 0, formatted: '0m 00s (Cleaned)' };
+  // Helper to calculate 5-minute cleaning countdown running backward 5:00 -> 0:00
+  const getCleaningCountdown = (cleaningStartedAt?: string, tableId?: string) => {
+    let startMs: number;
+    if (cleaningStartedAt) {
+      startMs = new Date(cleaningStartedAt).getTime();
+    } else if (tableId && typeof sessionStorage !== 'undefined' && sessionStorage.getItem(`cleaning_start_${tableId}`)) {
+      startMs = Number(sessionStorage.getItem(`cleaning_start_${tableId}`));
+    } else {
+      startMs = nowTimestamp;
+      if (tableId && typeof sessionStorage !== 'undefined') {
+        sessionStorage.setItem(`cleaning_start_${tableId}`, String(nowTimestamp));
+      }
     }
+
+    const durationMs = 5 * 60 * 1000; // 5 minutes total
+    const elapsedMs = Math.max(0, nowTimestamp - startMs);
+    const remainingMs = Math.max(0, durationMs - elapsedMs);
+
+    if (remainingMs <= 0) {
+      if (tableId && typeof sessionStorage !== 'undefined') {
+        sessionStorage.removeItem(`cleaning_start_${tableId}`);
+      }
+      return { isDone: true, minutes: 0, seconds: 0, formatted: '0m 00s (Cleaned)', countdown: '0:00' };
+    }
+
     const totalMinutes = Math.floor(remainingMs / 60000);
     const seconds = Math.floor((remainingMs % 60000) / 1000);
+    const countdown = `${totalMinutes}:${seconds.toString().padStart(2, '0')}`;
+
     return {
       isDone: false,
       minutes: totalMinutes,
       seconds,
+      countdown,
       formatted: `${totalMinutes}m ${seconds.toString().padStart(2, '0')}s remaining`
     };
   };
@@ -272,10 +298,7 @@ export const AdminTableMonitor: React.FC<AdminTableMonitorProps> = ({
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify({
-          status,
-          ...(status === 'cleaning' ? { cleaningStartedAt: new Date().toISOString() } : {})
-        })
+        body: JSON.stringify({ status })
       });
       if (res.ok) onRefresh();
     } catch (err) {
@@ -749,12 +772,12 @@ export const AdminTableMonitor: React.FC<AdminTableMonitorProps> = ({
                   <div className="bg-sky-50 border border-sky-300 rounded-xl p-3 text-center space-y-1">
                     <div className="text-xs font-bold text-sky-900 flex items-center justify-center gap-1.5">
                       <RotateCcw className="w-3.5 h-3.5 text-sky-600 animate-spin" />
-                      <span>Sanitizing Table (5m Turnover)</span>
+                      <span>Sanitizing Table (5:00 → 0:00)</span>
                     </div>
-                    <div className="text-[11px] font-mono font-bold text-sky-700">
-                      {getCleaningCountdown(table.cleaningStartedAt || table.seatedAt)?.formatted || '5m 00s remaining'}
+                    <div className="text-sm font-mono font-black text-sky-800 tracking-wider">
+                      ⏱️ {getCleaningCountdown(table.cleaningStartedAt, table.id)?.formatted || '5m 00s remaining'}
                     </div>
-                    <div className="text-[10px] text-sky-600">Auto-clears to Ready in 5 minutes</div>
+                    <div className="text-[10px] text-sky-600">Auto-clears to Ready when timer reaches 0:00</div>
                   </div>
                 ) : (
                   <div className="bg-emerald-50/60 border border-emerald-200/60 rounded-xl p-3 text-center space-y-1">

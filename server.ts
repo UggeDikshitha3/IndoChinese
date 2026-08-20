@@ -1668,11 +1668,11 @@ app.patch('/api/admin/tables/:id/bill', authenticateAdmin, (req, res) => {
 });
 
 // Clear / complete table dining session
-app.patch('/api/admin/tables/:id/complete', (req, res) => {
+app.patch('/api/admin/tables/:id/complete', authenticateAdmin, (req, res) => {
   const { id } = req.params;
   const { setStatus } = req.body; // 'cleaning' | 'available'
 
-  const table = (store.tables || []).find(t => t.id === id || t.tableNumber.toLowerCase() === id.toLowerCase());
+  const table = (store.tables || []).find(t => t.id === id);
   if (!table) {
     return res.status(404).json({ error: 'Table not found.' });
   }
@@ -1686,11 +1686,6 @@ app.patch('/api/admin/tables/:id/complete', (req, res) => {
   }
 
   table.status = setStatus === 'available' ? 'available' : 'cleaning';
-  if (table.status === 'cleaning') {
-    table.cleaningStartedAt = new Date().toISOString();
-  } else {
-    table.cleaningStartedAt = undefined;
-  }
   table.currentPartyName = undefined;
   table.currentGuests = undefined;
   table.seatedAt = undefined;
@@ -1703,11 +1698,11 @@ app.patch('/api/admin/tables/:id/complete', (req, res) => {
 });
 
 // Extend table dining time
-app.patch('/api/admin/tables/:id/extend', (req, res) => {
+app.patch('/api/admin/tables/:id/extend', authenticateAdmin, (req, res) => {
   const { id } = req.params;
   const { additionalMinutes } = req.body;
 
-  const table = (store.tables || []).find(t => t.id === id || t.tableNumber.toLowerCase() === id.toLowerCase());
+  const table = (store.tables || []).find(t => t.id === id);
   if (!table) {
     return res.status(404).json({ error: 'Table not found.' });
   }
@@ -1722,192 +1717,29 @@ app.patch('/api/admin/tables/:id/extend', (req, res) => {
 });
 
 // Update table status directly
-app.patch('/api/admin/tables/:id/status', (req, res) => {
+app.patch('/api/admin/tables/:id/status', authenticateAdmin, (req, res) => {
   const { id } = req.params;
-  const { status, assignedServer, notes, cleaningStartedAt } = req.body;
+  const { status, assignedServer, notes } = req.body;
 
-  const table = (store.tables || []).find(t => t.id === id || t.tableNumber.toLowerCase() === id.toLowerCase());
+  const table = (store.tables || []).find(t => t.id === id);
   if (!table) {
     return res.status(404).json({ error: 'Table not found.' });
   }
 
-  if (status) {
-    table.status = status;
-    if (status === 'cleaning') {
-      table.cleaningStartedAt = cleaningStartedAt || new Date().toISOString();
-      table.seatedAt = undefined;
-      table.currentPartyName = undefined;
-      table.currentGuests = undefined;
-      table.expectedVacateTime = undefined;
-    } else if (status === 'available') {
-      table.cleaningStartedAt = undefined;
-      table.currentPartyName = undefined;
-      table.currentGuests = undefined;
-      table.seatedAt = undefined;
-      table.expectedVacateTime = undefined;
-      table.currentReservationId = undefined;
-      table.notes = undefined;
-    }
-  }
+  if (status) table.status = status;
   if (assignedServer !== undefined) table.assignedServer = assignedServer;
   if (notes !== undefined) table.notes = notes;
 
+  if (status === 'available') {
+    table.currentPartyName = undefined;
+    table.currentGuests = undefined;
+    table.seatedAt = undefined;
+    table.expectedVacateTime = undefined;
+    table.currentReservationId = undefined;
+  }
+
   saveStore();
   res.json(table);
-});
-
-// ==========================================
-// TABLE ORDERS & SERVER POS ENDPOINTS
-// ==========================================
-let activeTableOrders: any[] = [];
-
-app.get('/api/orders/tables/:tableId', (req, res) => {
-  const { tableId } = req.params;
-  let order = activeTableOrders.find(o => (o.tableId === tableId || o.tableNumber === tableId) && o.status !== 'completed');
-  if (!order) {
-    const tbl = (store.tables || []).find(t => t.id === tableId || t.tableNumber === tableId);
-    order = {
-      id: `ord_${Date.now()}`,
-      tableId: tbl ? tbl.id : tableId,
-      tableNumber: tbl ? tbl.tableNumber : tableId,
-      serverName: tbl?.assignedServer || 'Rohit K.',
-      partyName: tbl?.currentPartyName || 'Table Guest',
-      items: [],
-      subtotal: 0,
-      vat: 0,
-      totalAmount: 0,
-      status: tbl?.status === 'bill_issued' ? 'bill_issued' : 'active',
-      createdAt: new Date().toISOString()
-    };
-    activeTableOrders.push(order);
-  }
-  res.json(order);
-});
-
-app.post('/api/orders/tables/:tableId/items', (req, res) => {
-  const { tableId } = req.params;
-  const { menuItemId, name, price, quantity = 1, notes = '' } = req.body;
-
-  let order = activeTableOrders.find(o => (o.tableId === tableId || o.tableNumber === tableId) && o.status !== 'completed');
-  if (!order) {
-    const tbl = (store.tables || []).find(t => t.id === tableId || t.tableNumber === tableId);
-    order = {
-      id: `ord_${Date.now()}`,
-      tableId: tbl ? tbl.id : tableId,
-      tableNumber: tbl ? tbl.tableNumber : tableId,
-      serverName: tbl?.assignedServer || 'Rohit K.',
-      partyName: tbl?.currentPartyName || 'Table Guest',
-      items: [],
-      subtotal: 0,
-      vat: 0,
-      totalAmount: 0,
-      status: 'active',
-      createdAt: new Date().toISOString()
-    };
-    activeTableOrders.push(order);
-  }
-
-  const existingItem = order.items.find((i: any) => i.menuItemId === menuItemId);
-  if (existingItem) {
-    existingItem.quantity += Number(quantity);
-  } else {
-    order.items.push({
-      id: `item_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
-      menuItemId,
-      name,
-      price: Number(price),
-      quantity: Number(quantity),
-      notes
-    });
-  }
-
-  // Recalculate totals
-  const sub = order.items.reduce((sum: number, item: any) => sum + (item.price * item.quantity), 0);
-  order.subtotal = Number(sub.toFixed(2));
-  order.vat = Number((sub * 0.20).toFixed(2));
-  order.totalAmount = Number((order.subtotal + order.vat).toFixed(2));
-
-  res.json(order);
-});
-
-app.delete('/api/orders/tables/:tableId/items/:itemId', (req, res) => {
-  const { tableId, itemId } = req.params;
-  let order = activeTableOrders.find(o => (o.tableId === tableId || o.tableNumber === tableId) && o.status !== 'completed');
-  if (order) {
-    order.items = order.items.filter((i: any) => i.id !== itemId);
-    const sub = order.items.reduce((sum: number, item: any) => sum + (item.price * item.quantity), 0);
-    order.subtotal = Number(sub.toFixed(2));
-    order.vat = Number((sub * 0.20).toFixed(2));
-    order.totalAmount = Number((order.subtotal + order.vat).toFixed(2));
-  }
-  res.json(order || { items: [], totalAmount: 0 });
-});
-
-app.post('/api/orders/tables/:tableId/issue-bill', (req, res) => {
-  const { tableId } = req.params;
-  const { customerPhone, partyName } = req.body;
-  const tbl = (store.tables || []).find(t => t.id === tableId || t.tableNumber === tableId);
-  if (tbl) {
-    tbl.status = 'bill_issued';
-    saveStore();
-  }
-
-  let order = activeTableOrders.find(o => (o.tableId === tableId || o.tableNumber === tableId) && o.status !== 'completed');
-  if (order) {
-    order.status = 'bill_issued';
-    order.customerPhone = customerPhone;
-    order.partyName = partyName || order.partyName;
-    order.invoiceNumber = `INV-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
-  }
-
-  res.json(order || {
-    invoiceNumber: `INV-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`,
-    totalAmount: order?.totalAmount || 0,
-    status: 'bill_issued'
-  });
-});
-
-app.post('/api/orders/tables/:tableId/send-sms-invoice', (req, res) => {
-  const { tableId } = req.params;
-  const { phone } = req.body;
-  res.json({
-    success: true,
-    phone,
-    timestamp: new Date().toISOString(),
-    message: `SMS Invoice successfully dispatched to ${phone}`
-  });
-});
-
-app.post('/api/orders/tables/:tableId/complete', (req, res) => {
-  const { tableId } = req.params;
-  const tbl = (store.tables || []).find(t => t.id === tableId || t.tableNumber === tableId);
-  if (tbl) {
-    tbl.status = 'cleaning';
-    tbl.cleaningStartedAt = new Date().toISOString();
-    tbl.seatedAt = undefined;
-    tbl.currentPartyName = undefined;
-    tbl.currentGuests = undefined;
-    tbl.expectedVacateTime = undefined;
-    tbl.notes = 'Sanitizing & Resetting Table (5m turnover)';
-    saveStore();
-  }
-
-  let order = activeTableOrders.find(o => (o.tableId === tableId || o.tableNumber === tableId) && o.status !== 'completed');
-  if (order) {
-    order.status = 'completed';
-    order.paymentStatus = 'paid';
-  }
-
-  res.json({
-    success: true,
-    status: 'cleaning',
-    cleaningStartedAt: tbl?.cleaningStartedAt,
-    message: `Table ${tbl?.tableNumber || tableId} dining completed and set to 5-minute cleaning turnover`
-  });
-});
-
-app.get('/api/orders/history', (req, res) => {
-  res.json(activeTableOrders);
 });
 
 // Create new Table

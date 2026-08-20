@@ -106,11 +106,6 @@ def get_admin_tables(db: Session = Depends(get_db)):
             "area": t.area,
             "status": t.status,
             "assignedServer": t.assigned_server,
-            "cleaningStartedAt": t.cleaning_started_at,
-            "seatedAt": t.seated_at,
-            "currentPartyName": t.current_party_name,
-            "currentGuests": t.current_guests,
-            "expectedVacateTime": t.expected_vacate_time,
             "notes": t.notes
         }
         for t in tables
@@ -213,26 +208,9 @@ def change_table_status(id: str, payload: dict = Body(...), db: Session = Depend
 
     new_status = payload.get("status", "available")
     tbl.status = new_status
-    if new_status == "cleaning":
-        tbl.cleaning_started_at = payload.get("cleaningStartedAt") or datetime.utcnow().isoformat()
-        tbl.seated_at = None
-        tbl.current_party_name = None
-        tbl.current_guests = None
-        tbl.expected_vacate_time = None
-    elif new_status == "available":
-        tbl.cleaning_started_at = None
-        tbl.seated_at = None
-        tbl.current_party_name = None
-        tbl.current_guests = None
-        tbl.expected_vacate_time = None
-        tbl.notes = ""
     db.commit()
     db.refresh(tbl)
-    return {
-        "success": True,
-        "status": tbl.status,
-        "cleaningStartedAt": tbl.cleaning_started_at
-    }
+    return {"success": True, "status": tbl.status}
 
 @router.patch("/tables/{id}/seat")
 def seat_party_on_table(id: str, payload: dict = Body(...), db: Session = Depends(get_db)):
@@ -241,12 +219,6 @@ def seat_party_on_table(id: str, payload: dict = Body(...), db: Session = Depend
         raise HTTPException(status_code=404, detail="Table not found")
 
     tbl.status = "occupied"
-    tbl.seated_at = datetime.utcnow().isoformat()
-    tbl.cleaning_started_at = None
-    if "partyName" in payload:
-        tbl.current_party_name = payload["partyName"]
-    if "guests" in payload:
-        tbl.current_guests = int(payload["guests"])
     if "assignedServer" in payload:
         tbl.assigned_server = payload["assignedServer"]
     if "notes" in payload:
@@ -280,24 +252,12 @@ def complete_table_dining(id: str, payload: dict = Body(...), db: Session = Depe
     if not tbl:
         raise HTTPException(status_code=404, detail="Table not found")
 
-    set_status = payload.get("setStatus", "cleaning")
+    set_status = payload.get("setStatus", "available")
     tbl.status = set_status
-    if set_status == "cleaning":
-        tbl.cleaning_started_at = datetime.utcnow().isoformat()
-    else:
-        tbl.cleaning_started_at = None
-    tbl.seated_at = None
-    tbl.current_party_name = None
-    tbl.current_guests = None
-    tbl.expected_vacate_time = None
     tbl.notes = ""
     db.commit()
     db.refresh(tbl)
-    return {
-        "success": True,
-        "status": tbl.status,
-        "cleaningStartedAt": tbl.cleaning_started_at
-    }
+    return {"success": True, "status": tbl.status}
 
 @router.patch("/tables/{id}/extend")
 def extend_table_stay(id: str, payload: dict = Body(...), db: Session = Depends(get_db)):
