@@ -63,7 +63,17 @@ import {
 import { AdminTableMonitor } from '../components/AdminTableMonitor';
 import { AdminReservationCalendar } from '../components/AdminReservationCalendar';
 import { ServerTaskMonitor } from '../components/ServerTaskMonitor';
-import { INITIAL_MENU_ITEMS, INITIAL_CATEGORIES } from '../data/initialData';
+import {
+  INITIAL_MENU_ITEMS,
+  INITIAL_CATEGORIES,
+  INITIAL_TABLES,
+  INITIAL_RESERVATIONS,
+  INITIAL_EVENTS,
+  INITIAL_GALLERY,
+  INITIAL_REVIEWS,
+  INITIAL_MESSAGES,
+  INITIAL_AUDIT_LOGS
+} from '../data/initialData';
 import { getApiUrl } from '../utils/api';
 
 interface AdminPageProps {
@@ -148,14 +158,14 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   const [loginError, setLoginError] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
-  // Data states
-  const [tables, setTables] = useState<RestaurantTable[]>([]);
-  const [reservations, setReservations] = useState<Reservation[]>([]);
-  const [events, setEvents] = useState<EventInquiry[]>([]);
+  // Data states with rich default test data
+  const [tables, setTables] = useState<RestaurantTable[]>(() => INITIAL_TABLES || []);
+  const [reservations, setReservations] = useState<Reservation[]>(() => INITIAL_RESERVATIONS || []);
+  const [events, setEvents] = useState<EventInquiry[]>(() => INITIAL_EVENTS || []);
   const [menuItems, setMenuItems] = useState<MenuItem[]>(() => INITIAL_MENU_ITEMS);
-  const [gallery, setGallery] = useState<any[]>([]);
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [messages, setMessages] = useState<ContactMessage[]>([]);
+  const [gallery, setGallery] = useState<any[]>(() => INITIAL_GALLERY || []);
+  const [reviews, setReviews] = useState<Review[]>(() => INITIAL_REVIEWS || []);
+  const [messages, setMessages] = useState<ContactMessage[]>(() => INITIAL_MESSAGES || []);
   const [serverStats, setServerStats] = useState<ServerStat[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
