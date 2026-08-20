@@ -1,0 +1,1013 @@
+{
+  "items": [
+    {
+      "id": "soup-manchow-veg",
+      "name": "Manchow Soup (Veg)",
+      "category": "soups",
+      "image_var": "IMG_SOUP",
+      "image_path": "/src/assets/images/bombay_manchow_soup_1786516536756.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "soup-manchow-chicken",
+      "name": "Manchow Soup (Chicken)",
+      "category": "soups",
+      "image_var": "IMG_SOUP",
+      "image_path": "/src/assets/images/bombay_manchow_soup_1786516536756.jpg",
+      "is_veg": false
+    },
+    {
+      "id": "soup-manchow-prawns",
+      "name": "Manchow Soup (Prawns)",
+      "category": "soups",
+      "image_var": "IMG_MANCHOW_PRAWNS",
+      "image_path": "/src/assets/images/manchow_prawns_soup_1786615681191.jpg",
+      "is_veg": false
+    },
+    {
+      "id": "soup-hot-sour-veg",
+      "name": "Hot-n-Sour Soup (Veg)",
+      "category": "soups",
+      "image_var": "IMG_HOT_SOUR_SOUP",
+      "image_path": "/src/assets/images/hot_sour_soup_1786609347778.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "soup-hot-sour-chicken",
+      "name": "Hot-n-Sour Soup (Chicken)",
+      "category": "soups",
+      "image_var": "IMG_HOT_SOUR_SOUP",
+      "image_path": "/src/assets/images/hot_sour_soup_1786609347778.jpg",
+      "is_veg": false
+    },
+    {
+      "id": "soup-hot-sour-prawns",
+      "name": "Hot-n-Sour Soup (Prawns)",
+      "category": "soups",
+      "image_var": "IMG_HOT_SOUR_PRAWNS",
+      "image_path": "/src/assets/images/hot_sour_prawns_soup_1786615698187.jpg",
+      "is_veg": false
+    },
+    {
+      "id": "soup-sweet-sour-veg",
+      "name": "Sweet-n-Sour Soup (Veg)",
+      "category": "soups",
+      "image_var": "IMG_SWEET_SOUR_SOUP",
+      "image_path": "/src/assets/images/sweet_sour_soup_1786865648230.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "soup-sweet-sour-chicken",
+      "name": "Sweet-n-Sour Soup (Chicken)",
+      "category": "soups",
+      "image_var": "IMG_SWEET_SOUR_SOUP",
+      "image_path": "/src/assets/images/sweet_sour_soup_1786865648230.jpg",
+      "is_veg": false
+    },
+    {
+      "id": "soup-sweet-sour-prawns",
+      "name": "Sweet-n-Sour Soup (Prawns)",
+      "category": "soups",
+      "image_var": "IMG_SWEET_SOUR_SOUP",
+      "image_path": "/src/assets/images/sweet_sour_soup_1786865648230.jpg",
+      "is_veg": false
+    },
+    {
+      "id": "soup-sweet-corn-veg",
+      "name": "Sweet Corn Soup (Veg)",
+      "category": "soups",
+      "image_var": "IMG_SWEET_CORN_SOUP",
+      "image_path": "/src/assets/images/sweet_corn_soup_1786609365927.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "soup-sweet-corn-chicken",
+      "name": "Sweet Corn Soup (Chicken)",
+      "category": "soups",
+      "image_var": "IMG_SWEET_CORN_SOUP",
+      "image_path": "/src/assets/images/sweet_corn_soup_1786609365927.jpg",
+      "is_veg": false
+    },
+    {
+      "id": "soup-sweet-corn-prawns",
+      "name": "Sweet Corn Soup (Prawns)",
+      "category": "soups",
+      "image_var": "IMG_SWEET_CORN_PRAWNS",
+      "image_path": "/src/assets/images/sweet_corn_prawns_soup_1786873008746.jpg",
+      "is_veg": false
+    },
+    {
+      "id": "soup-tom-yum-veg",
+      "name": "Tom Yum Soup (Veg - Soya)",
+      "category": "soups",
+      "image_var": "IMG_TOM_YUM_VEG",
+      "image_path": "/src/assets/images/tom_yum_veg_soup_1786865225455.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "soup-tom-yum-chicken",
+      "name": "Tom Yum Soup (Chicken - Soya)",
+      "category": "soups",
+      "image_var": "IMG_TOM_YUM_CHICKEN",
+      "image_path": "/src/assets/images/tom_yum_chicken_soup_1786610012394.jpg",
+      "is_veg": false
+    },
+    {
+      "id": "soup-tom-yum-prawns",
+      "name": "Tom Yum Soup (Prawns - Soya)",
+      "category": "soups",
+      "image_var": "IMG_TOM_YUM_CHICKEN",
+      "image_path": "/src/assets/images/tom_yum_chicken_soup_1786610012394.jpg",
+      "is_veg": false
+    },
+    {
+      "id": "momo-veg-steam",
+      "name": "Veg Dumpling (Steam)",
+      "category": "momos",
+      "image_var": "IMG_MOMO_STEAM",
+      "image_path": "/src/assets/images/steamed_dumplings_momo_1786520824895.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "momo-veg-chilli",
+      "name": "Veg Dumpling (Chilli)",
+      "category": "momos",
+      "image_var": "IMG_MOMO_CHILLI",
+      "image_path": "/src/assets/images/chilli_wok_dumplings_1786520842041.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "momo-veg-fried",
+      "name": "Veg Dumpling (Fried)",
+      "category": "momos",
+      "image_var": "IMG_MOMO_FRIED",
+      "image_path": "/src/assets/images/crispy_fried_momos_1786521404691.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "momo-chicken-steam",
+      "name": "Chicken Dumpling (Steam)",
+      "category": "momos",
+      "image_var": "IMG_CHICKEN_MOMO_STEAM",
+      "image_path": "/src/assets/images/chicken_momos_steamed_1786610033977.jpg",
+      "is_veg": false
+    },
+    {
+      "id": "momo-chicken-chilli",
+      "name": "Chicken Dumpling (Chilli)",
+      "category": "momos",
+      "image_var": "IMG_CHICKEN_MOMO_CHILLI",
+      "image_path": "/src/assets/images/chicken_momos_chilli_1786610048331.jpg",
+      "is_veg": false
+    },
+    {
+      "id": "momo-chicken-fried",
+      "name": "Chicken Dumpling (Fried)",
+      "category": "momos",
+      "image_var": "IMG_CHICKEN_MOMO_FRIED",
+      "image_path": "/src/assets/images/chicken_momos_fried_1786610073286.jpg",
+      "is_veg": false
+    },
+    {
+      "id": "vstar-spring-rolls",
+      "name": "Veg Spring Rolls",
+      "category": "veg_starters",
+      "image_var": "IMG_SPRING_ROLLS",
+      "image_path": "/src/assets/images/veg_spring_rolls_1786542679969.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "vstar-manchurian-veg",
+      "name": "Manchurian (Veg - Dry/Gravy)",
+      "category": "veg_starters",
+      "image_var": "IMG_VEG_MANCHURIAN",
+      "image_path": "/src/assets/images/veg_manchurian_1786542694203.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "vstar-manchurian-paneer",
+      "name": "Manchurian (Paneer - Dry/Gravy)",
+      "category": "veg_starters",
+      "image_var": "IMG_PANEER_MANCHURIAN",
+      "image_path": "/src/assets/images/paneer_manchurian_1786542710989.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "vstar-manchurian-gobi",
+      "name": "Manchurian (Gobi - Dry/Gravy)",
+      "category": "veg_starters",
+      "image_var": "IMG_GOBI_MANCHURIAN",
+      "image_path": "/src/assets/images/gobi_manchurian_1786865605343.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "vstar-manchurian-tofu",
+      "name": "Manchurian (Tofu - Dry/Gravy)",
+      "category": "veg_starters",
+      "image_var": "IMG_TOFU_MANCHURIAN",
+      "image_path": "/src/assets/images/tofu_manchurian_1786865617999.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "vstar-manchurian-mushroom",
+      "name": "Manchurian (Mushroom - Dry/Gravy)",
+      "category": "veg_starters",
+      "image_var": "IMG_MUSHROOM_MANCHURIAN",
+      "image_path": "/src/assets/images/mushroom_manchurian_1786610712161.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "vstar-szechwan-veg",
+      "name": "Szechwan (Veg - Dry/Gravy)",
+      "category": "veg_starters",
+      "image_var": "IMG_VEG_MANCHURIAN",
+      "image_path": "/src/assets/images/veg_manchurian_1786542694203.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "vstar-szechwan-paneer",
+      "name": "Szechwan (Paneer - Dry/Gravy)",
+      "category": "veg_starters",
+      "image_var": "IMG_SZECHWAN_PANEER",
+      "image_path": "/src/assets/images/szechwan_paneer_1786542753122.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "vstar-szechwan-gobi",
+      "name": "Szechwan (Gobi - Dry/Gravy)",
+      "category": "veg_starters",
+      "image_var": "IMG_CHILLI_GOBI",
+      "image_path": "/src/assets/images/chilli_gobi_1786542738688.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "vstar-szechwan-tofu",
+      "name": "Szechwan (Tofu - Dry/Gravy)",
+      "category": "veg_starters",
+      "image_var": "IMG_CHILLI_TOFU",
+      "image_path": "/src/assets/images/chilli_tofu_dry_1786865242576.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "vstar-szechwan-mushroom",
+      "name": "Szechwan (Mushroom - Dry/Gravy)",
+      "category": "veg_starters",
+      "image_var": "IMG_CHILLI_MUSHROOM",
+      "image_path": "/src/assets/images/chilli_mushroom_1786610730124.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "vstar-chilli-veg",
+      "name": "Chilli (Veg - Dry/Gravy)",
+      "category": "veg_starters",
+      "image_var": "IMG_VEG_MANCHURIAN",
+      "image_path": "/src/assets/images/veg_manchurian_1786542694203.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "vstar-chilli-paneer",
+      "name": "Chilli (Paneer - Dry/Gravy)",
+      "category": "veg_starters",
+      "image_var": "IMG_CHILLI_PANEER",
+      "image_path": "/src/assets/images/chilli_paneer_1786542725460.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "vstar-chilli-gobi",
+      "name": "Chilli (Gobi - Dry/Gravy)",
+      "category": "veg_starters",
+      "image_var": "IMG_CHILLI_GOBI",
+      "image_path": "/src/assets/images/chilli_gobi_1786542738688.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "vstar-chilli-tofu",
+      "name": "Chilli (Tofu - Dry/Gravy)",
+      "category": "veg_starters",
+      "image_var": "IMG_CHILLI_TOFU",
+      "image_path": "/src/assets/images/chilli_tofu_dry_1786865242576.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "vstar-chilli-mushroom",
+      "name": "Chilli (Mushroom - Dry/Gravy)",
+      "category": "veg_starters",
+      "image_var": "IMG_CHILLI_MUSHROOM",
+      "image_path": "/src/assets/images/chilli_mushroom_1786610730124.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "vstar-65-veg",
+      "name": "65 (Veg)",
+      "category": "veg_starters",
+      "image_var": "IMG_VEG_MANCHURIAN",
+      "image_path": "/src/assets/images/veg_manchurian_1786542694203.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "vstar-65-paneer",
+      "name": "65 (Paneer)",
+      "category": "veg_starters",
+      "image_var": "IMG_PANEER_65",
+      "image_path": "/src/assets/images/paneer_65_1786542764483.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "vstar-65-gobi",
+      "name": "65 (Gobi)",
+      "category": "veg_starters",
+      "image_var": "IMG_GOBI_65",
+      "image_path": "/src/assets/images/gobi_sixty_five_1786864920541.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "vstar-65-tofu",
+      "name": "65 (Tofu)",
+      "category": "veg_starters",
+      "image_var": "IMG_CHILLI_TOFU",
+      "image_path": "/src/assets/images/chilli_tofu_dry_1786865242576.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "vstar-65-mushroom",
+      "name": "65 (Mushroom)",
+      "category": "veg_starters",
+      "image_var": "IMG_MUSHROOM_65",
+      "image_path": "/src/assets/images/mushroom_65_1786610746598.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "vstar-hotgarlic-veg",
+      "name": "Hot Garlic (Veg - Dry/Gravy)",
+      "category": "veg_starters",
+      "image_var": "IMG_HOT_GARLIC_VEG",
+      "image_path": "/src/assets/images/hot_garlic_veg_1786964808786.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "vstar-hotgarlic-paneer",
+      "name": "Hot Garlic (Paneer - Dry/Gravy)",
+      "category": "veg_starters",
+      "image_var": "IMG_HOT_GARLIC_PANEER",
+      "image_path": "/src/assets/images/hot_garlic_paneer_1786964854908.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "vstar-hotgarlic-gobi",
+      "name": "Hot Garlic (Gobi - Dry/Gravy)",
+      "category": "veg_starters",
+      "image_var": "IMG_HOT_GARLIC_GOBI",
+      "image_path": "/src/assets/images/hot_garlic_gobi_1786964822117.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "vstar-hotgarlic-tofu",
+      "name": "Hot Garlic (Tofu - Dry/Gravy)",
+      "category": "veg_starters",
+      "image_var": "IMG_HOT_GARLIC_TOFU",
+      "image_path": "/src/assets/images/hot_garlic_tofu_1786964867817.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "vstar-hotgarlic-mushroom",
+      "name": "Hot Garlic (Mushroom - Dry/Gravy)",
+      "category": "veg_starters",
+      "image_var": "IMG_HOT_GARLIC_MUSHROOM",
+      "image_path": "/src/assets/images/hot_garlic_mushroom_1786964837820.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "nvstar-chicken-lollipop-dry",
+      "name": "Chicken Lollipop (Dry)",
+      "category": "nonveg_starters",
+      "image_var": "IMG_CHICKEN_LOLLIPOP_DRY",
+      "image_path": "/src/assets/images/chicken_lollipop_dry_1786864878519.jpg",
+      "is_veg": false
+    },
+    {
+      "id": "nvstar-chicken-lollipop-sauted",
+      "name": "Chicken Lollipop (Sauted)",
+      "category": "nonveg_starters",
+      "image_var": "IMG_CHICKEN_LOLLIPOP_SAUTED",
+      "image_path": "/src/assets/images/chicken_lollipop_sauced_1786516573910.jpg",
+      "is_veg": false
+    },
+    {
+      "id": "nvstar-chicken-rolls",
+      "name": "Chicken Rolls",
+      "category": "nonveg_starters",
+      "image_var": "IMG_CHICKEN_ROLL",
+      "image_path": "/src/assets/images/chicken_roll_1786542779983.jpg",
+      "is_veg": false
+    },
+    {
+      "id": "nvstar-manchurian-chicken",
+      "name": "Manchurian (Chicken - Dry/Gravy)",
+      "category": "nonveg_starters",
+      "image_var": "IMG_CHICKEN_MANCHURIAN",
+      "image_path": "/src/assets/images/chicken_manchurian_1786864894429.jpg",
+      "is_veg": false
+    },
+    {
+      "id": "nvstar-manchurian-prawns",
+      "name": "Manchurian (Prawns - Dry/Gravy)",
+      "category": "nonveg_starters",
+      "image_var": "IMG_PRAWN_MANCHURIAN",
+      "image_path": "/src/assets/images/prawn_manchurian_1786865589831.jpg",
+      "is_veg": false
+    },
+    {
+      "id": "nvstar-szechwan-chicken",
+      "name": "Szechwan (Chicken - Dry/Gravy)",
+      "category": "nonveg_starters",
+      "image_var": "IMG_CHILLI_CHICKEN",
+      "image_path": "/src/assets/images/chilli_chicken_1786542793770.jpg",
+      "is_veg": false
+    },
+    {
+      "id": "nvstar-szechwan-prawns",
+      "name": "Szechwan (Prawns - Dry/Gravy)",
+      "category": "nonveg_starters",
+      "image_var": "IMG_CHILLI_PRAWNS",
+      "image_path": "/src/assets/images/chilli_prawns_1786542836086.jpg",
+      "is_veg": false
+    },
+    {
+      "id": "nvstar-chilli-chicken",
+      "name": "Chilli (Chicken - Dry/Gravy)",
+      "category": "nonveg_starters",
+      "image_var": "IMG_CHILLI_CHICKEN",
+      "image_path": "/src/assets/images/chilli_chicken_1786542793770.jpg",
+      "is_veg": false
+    },
+    {
+      "id": "nvstar-chilli-prawns",
+      "name": "Chilli (Prawns - Dry/Gravy)",
+      "category": "nonveg_starters",
+      "image_var": "IMG_CHILLI_PRAWNS",
+      "image_path": "/src/assets/images/chilli_prawns_1786542836086.jpg",
+      "is_veg": false
+    },
+    {
+      "id": "nvstar-65-chicken",
+      "name": "65 (Chicken)",
+      "category": "nonveg_starters",
+      "image_var": "IMG_CHICKEN_65",
+      "image_path": "/src/assets/images/chicken_65_1786542806844.jpg",
+      "is_veg": false
+    },
+    {
+      "id": "nvstar-65-prawns",
+      "name": "65 (Prawns)",
+      "category": "nonveg_starters",
+      "image_var": "IMG_PRAWN_65",
+      "image_path": "/src/assets/images/prawn_65_classic_1786865689768.jpg",
+      "is_veg": false
+    },
+    {
+      "id": "nvstar-hotgarlic-chicken",
+      "name": "Hot Garlic (Chicken - Dry/Gravy)",
+      "category": "nonveg_starters",
+      "image_var": "IMG_HOT_GARLIC_CHICKEN",
+      "image_path": "/src/assets/images/hot_garlic_chicken_1786872610686.jpg",
+      "is_veg": false
+    },
+    {
+      "id": "nvstar-hotgarlic-prawns",
+      "name": "Hot Garlic (Prawns - Dry/Gravy)",
+      "category": "nonveg_starters",
+      "image_var": "IMG_HOT_GARLIC_PRAWNS",
+      "image_path": "/src/assets/images/hot_garlic_prawns_1786865700810.jpg",
+      "is_veg": false
+    },
+    {
+      "id": "nvstar-andhra65-chicken",
+      "name": "Andhra 65 (Chicken)",
+      "category": "nonveg_starters",
+      "image_var": "IMG_ANDHRA_65",
+      "image_path": "/src/assets/images/andhra_spicy_65_1786865322955.jpg",
+      "is_veg": false
+    },
+    {
+      "id": "nvstar-andhra65-prawns",
+      "name": "Andhra 65 (Prawns)",
+      "category": "nonveg_starters",
+      "image_var": "IMG_ANDHRA_PRAWN_65",
+      "image_path": "/src/assets/images/andhra_prawn_65_1786865574041.jpg",
+      "is_veg": false
+    },
+    {
+      "id": "rice-veg-fried",
+      "name": "Veg Fried Rice / Noodles",
+      "category": "rice_noodles",
+      "image_var": "IMG_VEG_HAKKA_NOODLES",
+      "image_path": "/src/assets/images/veg_hakka_noodles_1786864935647.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "rice-manchurian-veg",
+      "name": "Manchurian Fried Rice / Noodles (Veg)",
+      "category": "rice_noodles",
+      "image_var": "IMG_BURNT_GARLIC_MANCHURIAN_RICE",
+      "image_path": "/src/assets/images/burnt_garlic_manchurian_rice_1786865954823.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "rice-paneer-veg",
+      "name": "Paneer Fried Rice / Noodles",
+      "category": "rice_noodles",
+      "image_var": "IMG_PANEER_FRIED_RICE",
+      "image_path": "/src/assets/images/paneer_fried_rice_1786865295220.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "rice-tofu-veg",
+      "name": "Tofu Fried Rice / Noodles",
+      "category": "rice_noodles",
+      "image_var": "IMG_BURNT_GARLIC_TOFU_RICE",
+      "image_path": "/src/assets/images/burnt_garlic_tofu_rice_1786865942184.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "rice-mushroom-veg",
+      "name": "Mushroom Fried Rice / Noodles",
+      "category": "rice_noodles",
+      "image_var": "IMG_BURNT_GARLIC_MUSHROOM_RICE",
+      "image_path": "/src/assets/images/burnt_garlic_mushroom_rice_1786865904696.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "rice-szechwan-veg",
+      "name": "Szechwan Fried Rice / Noodles (Veg)",
+      "category": "rice_noodles",
+      "image_var": "IMG_SZECHWAN_NOODLES",
+      "image_path": "/src/assets/images/szechwan_noodles_1786865275304.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "rice-szechwan-manchurian",
+      "name": "Szechwan Manchurian Rice / Noodles",
+      "category": "rice_noodles",
+      "image_var": "IMG_BURNT_GARLIC_MANCHURIAN_RICE",
+      "image_path": "/src/assets/images/burnt_garlic_manchurian_rice_1786865954823.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "rice-szechwan-paneer",
+      "name": "Szechwan Paneer Rice / Noodles",
+      "category": "rice_noodles",
+      "image_var": "IMG_BURNT_GARLIC_PANEER_RICE",
+      "image_path": "/src/assets/images/burnt_garlic_paneer_rice_1786865926634.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "rice-szechwan-tofu",
+      "name": "Szechwan Tofu Rice / Noodles",
+      "category": "rice_noodles",
+      "image_var": "IMG_BURNT_GARLIC_TOFU_RICE",
+      "image_path": "/src/assets/images/burnt_garlic_tofu_rice_1786865942184.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "rice-szechwan-mushroom",
+      "name": "Szechwan Mushroom Rice / Noodles",
+      "category": "rice_noodles",
+      "image_var": "IMG_BURNT_GARLIC_MUSHROOM_RICE",
+      "image_path": "/src/assets/images/burnt_garlic_mushroom_rice_1786865904696.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "rice-burntgarlic-veg",
+      "name": "Burnt Garlic Rice / Noodles (Veg)",
+      "category": "rice_noodles",
+      "image_var": "IMG_BURNT_GARLIC_RICE",
+      "image_path": "/src/assets/images/burnt_garlic_rice_1786864831413.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "rice-burntgarlic-manchurian",
+      "name": "Burnt Garlic Manchurian Rice / Noodles",
+      "category": "rice_noodles",
+      "image_var": "IMG_BURNT_GARLIC_MANCHURIAN_RICE",
+      "image_path": "/src/assets/images/burnt_garlic_manchurian_rice_1786865954823.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "rice-burntgarlic-paneer",
+      "name": "Burnt Garlic Paneer Rice / Noodles",
+      "category": "rice_noodles",
+      "image_var": "IMG_BURNT_GARLIC_PANEER_RICE",
+      "image_path": "/src/assets/images/burnt_garlic_paneer_rice_1786865926634.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "rice-burntgarlic-tofu",
+      "name": "Burnt Garlic Tofu Rice / Noodles",
+      "category": "rice_noodles",
+      "image_var": "IMG_BURNT_GARLIC_TOFU_RICE",
+      "image_path": "/src/assets/images/burnt_garlic_tofu_rice_1786865942184.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "rice-burntgarlic-mushroom",
+      "name": "Burnt Garlic Mushroom Rice / Noodles",
+      "category": "rice_noodles",
+      "image_var": "IMG_BURNT_GARLIC_MUSHROOM_RICE",
+      "image_path": "/src/assets/images/burnt_garlic_mushroom_rice_1786865904696.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "rice-singapore-veg",
+      "name": "Singapore Rice / Noodles (Veg)",
+      "category": "rice_noodles",
+      "image_var": "IMG_SINGAPORE_FRIED_RICE",
+      "image_path": "/src/assets/images/singapore_fried_rice_1786865981318.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "rice-singapore-manchurian",
+      "name": "Singapore Manchurian Rice / Noodles",
+      "category": "rice_noodles",
+      "image_var": "IMG_BURNT_GARLIC_MANCHURIAN_RICE",
+      "image_path": "/src/assets/images/burnt_garlic_manchurian_rice_1786865954823.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "rice-singapore-paneer",
+      "name": "Singapore Paneer Rice / Noodles",
+      "category": "rice_noodles",
+      "image_var": "IMG_BURNT_GARLIC_PANEER_RICE",
+      "image_path": "/src/assets/images/burnt_garlic_paneer_rice_1786865926634.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "rice-singapore-tofu",
+      "name": "Singapore Tofu Rice / Noodles",
+      "category": "rice_noodles",
+      "image_var": "IMG_BURNT_GARLIC_TOFU_RICE",
+      "image_path": "/src/assets/images/burnt_garlic_tofu_rice_1786865942184.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "rice-singapore-mushroom",
+      "name": "Singapore Mushroom Rice / Noodles",
+      "category": "rice_noodles",
+      "image_var": "IMG_BURNT_GARLIC_MUSHROOM_RICE",
+      "image_path": "/src/assets/images/burnt_garlic_mushroom_rice_1786865904696.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "rice-fried-egg",
+      "name": "Fried Rice / Noodles (Egg)",
+      "category": "rice_noodles",
+      "image_var": "IMG_EGG_FRIED_RICE",
+      "image_path": "/src/assets/images/egg_fried_rice_1786864861119.jpg",
+      "is_veg": false
+    },
+    {
+      "id": "rice-fried-chicken",
+      "name": "Fried Rice / Noodles (Chicken)",
+      "category": "rice_noodles",
+      "image_var": "IMG_CHICKEN_FRIED_RICE",
+      "image_path": "/src/assets/images/chicken_fried_rice_1786865261779.jpg",
+      "is_veg": false
+    },
+    {
+      "id": "rice-fried-prawns",
+      "name": "Fried Rice / Noodles (Prawns)",
+      "category": "rice_noodles",
+      "image_var": "IMG_PRAWN_FRIED_RICE",
+      "image_path": "/src/assets/images/prawn_fried_rice_1786864907958.jpg",
+      "is_veg": false
+    },
+    {
+      "id": "rice-szechwan-egg",
+      "name": "Szechwan Fried Rice / Noodles (Egg)",
+      "category": "rice_noodles",
+      "image_var": "IMG_EGG_FRIED_RICE",
+      "image_path": "/src/assets/images/egg_fried_rice_1786864861119.jpg",
+      "is_veg": false
+    },
+    {
+      "id": "rice-szechwan-chicken",
+      "name": "Szechwan Fried Rice / Noodles (Chicken)",
+      "category": "rice_noodles",
+      "image_var": "IMG_CHICKEN_FRIED_RICE",
+      "image_path": "/src/assets/images/chicken_fried_rice_1786865261779.jpg",
+      "is_veg": false
+    },
+    {
+      "id": "rice-szechwan-prawns",
+      "name": "Szechwan Fried Rice / Noodles (Prawns)",
+      "category": "rice_noodles",
+      "image_var": "IMG_PRAWN_HAKKA_NOODLES",
+      "image_path": "/src/assets/images/prawn_hakka_noodles_1786865634448.jpg",
+      "is_veg": false
+    },
+    {
+      "id": "rice-burntgarlic-egg",
+      "name": "Burnt Garlic Rice / Noodles (Egg)",
+      "category": "rice_noodles",
+      "image_var": "IMG_EGG_FRIED_RICE",
+      "image_path": "/src/assets/images/egg_fried_rice_1786864861119.jpg",
+      "is_veg": false
+    },
+    {
+      "id": "rice-burntgarlic-chicken",
+      "name": "Burnt Garlic Rice / Noodles (Chicken)",
+      "category": "rice_noodles",
+      "image_var": "IMG_BURNT_GARLIC_NOODLES",
+      "image_path": "/src/assets/images/burnt_garlic_noodles_1786865309380.jpg",
+      "is_veg": false
+    },
+    {
+      "id": "rice-burntgarlic-prawns",
+      "name": "Burnt Garlic Rice / Noodles (Prawns)",
+      "category": "rice_noodles",
+      "image_var": "IMG_BURNT_GARLIC_PRAWNS_RICE",
+      "image_path": "/src/assets/images/burnt_garlic_prawns_rice_1786865968949.jpg",
+      "is_veg": false
+    },
+    {
+      "id": "rice-singapore-egg",
+      "name": "Singapore Rice / Noodles (Egg)",
+      "category": "rice_noodles",
+      "image_var": "IMG_SINGAPORE_FRIED_RICE",
+      "image_path": "/src/assets/images/singapore_fried_rice_1786865981318.jpg",
+      "is_veg": false
+    },
+    {
+      "id": "rice-singapore-chicken",
+      "name": "Singapore Rice / Noodles (Chicken)",
+      "category": "rice_noodles",
+      "image_var": "IMG_SINGAPORE_NOODLES",
+      "image_path": "/src/assets/images/singapore_curry_noodles_1786864846091.jpg",
+      "is_veg": false
+    },
+    {
+      "id": "rice-singapore-prawns",
+      "name": "Singapore Rice / Noodles (Prawns)",
+      "category": "rice_noodles",
+      "image_var": "IMG_BURNT_GARLIC_PRAWNS_RICE",
+      "image_path": "/src/assets/images/burnt_garlic_prawns_rice_1786865968949.jpg",
+      "is_veg": false
+    },
+    {
+      "id": "rice-hyderabad-egg",
+      "name": "Fried Rice / Noodles - Hyderabad Style (Egg)",
+      "category": "rice_noodles",
+      "image_var": "IMG_HYDERABAD_EGG_RICE",
+      "image_path": "/src/assets/images/hyderabad_egg_rice_1786964773898.jpg",
+      "is_veg": false
+    },
+    {
+      "id": "rice-hyderabad-chicken",
+      "name": "Fried Rice / Noodles - Hyderabad Style (Chicken)",
+      "category": "rice_noodles",
+      "image_var": "IMG_HYDERABAD_CHICKEN_RICE",
+      "image_path": "/src/assets/images/hyderabad_chicken_rice_1786964791860.jpg",
+      "is_veg": false
+    },
+    {
+      "id": "rice-hyderabad-prawns",
+      "name": "Fried Rice / Noodles - Hyderabad Style (Prawns)",
+      "category": "rice_noodles",
+      "image_var": "IMG_PRAWN_FRIED_RICE",
+      "image_path": "/src/assets/images/prawn_fried_rice_1786864907958.jpg",
+      "is_veg": false
+    },
+    {
+      "id": "combo-1",
+      "name": "COMBO 1 (Rice / Noodles with Gravy)",
+      "category": "combos",
+      "image_var": "IMG_TRIPLE_COMBO",
+      "image_path": "/src/assets/images/triple_schezwan_combo_1786516611209.jpg",
+      "is_veg": false
+    },
+    {
+      "id": "combo-2",
+      "name": "COMBO 2 (Rice / Noodles with 65 + Drink)",
+      "category": "combos",
+      "image_var": "IMG_TRIPLE_COMBO",
+      "image_path": "/src/assets/images/triple_schezwan_combo_1786516611209.jpg",
+      "is_veg": false
+    },
+    {
+      "id": "combo-triple",
+      "name": "TRIPLE COMBO (Rice and Noodles Mix and Gravy)",
+      "category": "combos",
+      "image_var": "IMG_TRIPLE_COMBO",
+      "image_path": "/src/assets/images/triple_schezwan_combo_1786516611209.jpg",
+      "is_veg": false
+    },
+    {
+      "id": "chip-plain",
+      "name": "Plain Chips",
+      "category": "chips",
+      "image_var": "IMG_PLAIN_CHIPS",
+      "image_path": "/src/assets/images/plain_chips_1786542849444.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "chip-masala",
+      "name": "Masala Chips",
+      "category": "chips",
+      "image_var": "IMG_MASALA_CHIPS",
+      "image_path": "/src/assets/images/masala_chips_1786542864367.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "chip-chilli",
+      "name": "Chilli Chips",
+      "category": "chips",
+      "image_var": "IMG_CHILLI_CHIPS",
+      "image_path": "/src/assets/images/chilli_chips_1786542878114.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "chip-szechwan",
+      "name": "Szechwan Chips",
+      "category": "chips",
+      "image_var": "IMG_SZECHWAN_CHIPS",
+      "image_path": "/src/assets/images/szechwan_chips_1786542892121.jpg",
+      "is_veg": true
+    },
+    {
+      "id": "chip-bombay",
+      "name": "Bombay Chips",
+      "category": "chips",
+      "image_var": "IMG_BOMBAY_CHIPS",
+      "image_path": "/src/assets/images/bombay_chips_1786542907959.jpg",
+      "is_veg": true
+    }
+  ],
+  "available_images": [
+    "admin_dashboard_preview_1786608465958.jpg",
+    "andhra_65_1786542823550.jpg",
+    "andhra_prawn_65_1786865574041.jpg",
+    "andhra_spicy_65_1786865322955.jpg",
+    "bombay_chips_1786542907959.jpg",
+    "bombay_dumplings_momo_1786516555397.jpg",
+    "bombay_manchow_soup_1786516536756.jpg",
+    "bombay_special_chips_1786516628457.jpg",
+    "burnt_garlic_manchurian_rice_1786865954823.jpg",
+    "burnt_garlic_mushroom_rice_1786865904696.jpg",
+    "burnt_garlic_noodles_1786865309380.jpg",
+    "burnt_garlic_paneer_rice_1786865926634.jpg",
+    "burnt_garlic_prawns_rice_1786865968949.jpg",
+    "burnt_garlic_rice_1786864831413.jpg",
+    "burnt_garlic_tofu_rice_1786865942184.jpg",
+    "chicken_65_1786542806844.jpg",
+    "chicken_fried_rice_1786865261779.jpg",
+    "chicken_hakka_noodles_1786609308917.jpg",
+    "chicken_lollipop_dry_1786864878519.jpg",
+    "chicken_lollipop_sauced_1786516573910.jpg",
+    "chicken_manchurian_1786864894429.jpg",
+    "chicken_momos_chilli_1786610048331.jpg",
+    "chicken_momos_fried_1786610073286.jpg",
+    "chicken_momos_steamed_1786610033977.jpg",
+    "chicken_roll_1786542779983.jpg",
+    "chilli_chicken_1786542793770.jpg",
+    "chilli_chips_1786542878114.jpg",
+    "chilli_gobi_1786542738688.jpg",
+    "chilli_mushroom_1786610730124.jpg",
+    "chilli_paneer_1786542725460.jpg",
+    "chilli_prawns_1786542836086.jpg",
+    "chilli_tofu_dry_1786865242576.jpg",
+    "chilli_wok_dumplings_1786520842041.jpg",
+    "crispy_fried_momos_1786521404691.jpg",
+    "egg_fried_rice_1786864861119.jpg",
+    "fiery_wok_kitchen_1786965247008.jpg",
+    "gobi_manchurian_1786865605343.jpg",
+    "gobi_sixty_five_1786864920541.jpg",
+    "hot_garlic_chicken_1786872610686.jpg",
+    "hot_garlic_dish_1786613872546.jpg",
+    "hot_garlic_gobi_1786964822117.jpg",
+    "hot_garlic_mushroom_1786964837820.jpg",
+    "hot_garlic_paneer_1786964854908.jpg",
+    "hot_garlic_prawns_1786865700810.jpg",
+    "hot_garlic_tofu_1786964867817.jpg",
+    "hot_garlic_veg_1786964808786.jpg",
+    "hot_sour_prawns_soup_1786615698187.jpg",
+    "hot_sour_soup_1786609347778.jpg",
+    "hyderabad_chicken_rice_1786964791860.jpg",
+    "hyderabad_egg_rice_1786964773898.jpg",
+    "hyderabad_spicy_rice_1786865662834.jpg",
+    "indochinese_logo_1786470451835.jpg",
+    "manchow_prawns_soup_1786615681191.jpg",
+    "masala_chips_1786542864367.jpg",
+    "master_chef_plating_1786965291357.jpg",
+    "mushroom_65_1786610746598.jpg",
+    "mushroom_manchurian_1786610712161.jpg",
+    "nano_banana_test_1786622534486.jpg",
+    "paneer_65_1786542764483.jpg",
+    "paneer_fried_rice_1786865295220.jpg",
+    "paneer_gobi_chilli_1786516594932.jpg",
+    "paneer_manchurian_1786542710989.jpg",
+    "plain_chips_1786542849444.jpg",
+    "prawn_65_classic_1786865689768.jpg",
+    "prawn_fried_rice_1786864907958.jpg",
+    "prawn_hakka_noodles_1786865634448.jpg",
+    "prawn_manchurian_1786865589831.jpg",
+    "restaurant_ambience_1786965269878.jpg",
+    "singapore_curry_noodles_1786864846091.jpg",
+    "singapore_fried_rice_1786865981318.jpg",
+    "steamed_dumplings_momo_1786520824895.jpg",
+    "sweet_corn_prawns_soup_1786873008746.jpg",
+    "sweet_corn_soup_1786609365927.jpg",
+    "sweet_sour_soup_1786865648230.jpg",
+    "szechwan_chips_1786542892121.jpg",
+    "szechwan_fried_rice_1786609327627.jpg",
+    "szechwan_noodles_1786865275304.jpg",
+    "szechwan_paneer_1786542753122.jpg",
+    "tofu_manchurian_1786865617999.jpg",
+    "tom_yum_chicken_soup_1786610012394.jpg",
+    "tom_yum_veg_soup_1786865225455.jpg",
+    "triple_schezwan_combo_1786516611209.jpg",
+    "veg_hakka_fried_rice_1786613860757.jpg",
+    "veg_hakka_noodles_1786864935647.jpg",
+    "veg_manchurian_1786542694203.jpg",
+    "veg_spring_rolls_1786542679969.jpg"
+  ],
+  "img_consts": {
+    "IMG_SOUP": "/src/assets/images/bombay_manchow_soup_1786516536756.jpg",
+    "IMG_HOT_SOUR_SOUP": "/src/assets/images/hot_sour_soup_1786609347778.jpg",
+    "IMG_SWEET_SOUR_SOUP": "/src/assets/images/sweet_sour_soup_1786865648230.jpg",
+    "IMG_SWEET_CORN_SOUP": "/src/assets/images/sweet_corn_soup_1786609365927.jpg",
+    "IMG_TOM_YUM_CHICKEN": "/src/assets/images/tom_yum_chicken_soup_1786610012394.jpg",
+    "IMG_TOM_YUM_VEG": "/src/assets/images/tom_yum_veg_soup_1786865225455.jpg",
+    "IMG_MANCHOW_PRAWNS": "/src/assets/images/manchow_prawns_soup_1786615681191.jpg",
+    "IMG_HOT_SOUR_PRAWNS": "/src/assets/images/hot_sour_prawns_soup_1786615698187.jpg",
+    "IMG_SWEET_CORN_PRAWNS": "/src/assets/images/sweet_corn_prawns_soup_1786873008746.jpg",
+    "IMG_MOMO_STEAM": "/src/assets/images/steamed_dumplings_momo_1786520824895.jpg",
+    "IMG_MOMO_CHILLI": "/src/assets/images/chilli_wok_dumplings_1786520842041.jpg",
+    "IMG_MOMO_FRIED": "/src/assets/images/crispy_fried_momos_1786521404691.jpg",
+    "IMG_CHICKEN_MOMO_STEAM": "/src/assets/images/chicken_momos_steamed_1786610033977.jpg",
+    "IMG_CHICKEN_MOMO_CHILLI": "/src/assets/images/chicken_momos_chilli_1786610048331.jpg",
+    "IMG_CHICKEN_MOMO_FRIED": "/src/assets/images/chicken_momos_fried_1786610073286.jpg",
+    "IMG_SPRING_ROLLS": "/src/assets/images/veg_spring_rolls_1786542679969.jpg",
+    "IMG_VEG_MANCHURIAN": "/src/assets/images/veg_manchurian_1786542694203.jpg",
+    "IMG_GOBI_MANCHURIAN": "/src/assets/images/gobi_manchurian_1786865605343.jpg",
+    "IMG_TOFU_MANCHURIAN": "/src/assets/images/tofu_manchurian_1786865617999.jpg",
+    "IMG_PANEER_MANCHURIAN": "/src/assets/images/paneer_manchurian_1786542710989.jpg",
+    "IMG_CHILLI_PANEER": "/src/assets/images/chilli_paneer_1786542725460.jpg",
+    "IMG_CHILLI_GOBI": "/src/assets/images/chilli_gobi_1786542738688.jpg",
+    "IMG_CHILLI_TOFU": "/src/assets/images/chilli_tofu_dry_1786865242576.jpg",
+    "IMG_SZECHWAN_PANEER": "/src/assets/images/szechwan_paneer_1786542753122.jpg",
+    "IMG_PANEER_65": "/src/assets/images/paneer_65_1786542764483.jpg",
+    "IMG_GOBI_65": "/src/assets/images/gobi_sixty_five_1786864920541.jpg",
+    "IMG_CHICKEN_LOLLIPOP_DRY": "/src/assets/images/chicken_lollipop_dry_1786864878519.jpg",
+    "IMG_CHICKEN_LOLLIPOP_SAUTED": "/src/assets/images/chicken_lollipop_sauced_1786516573910.jpg",
+    "IMG_CHICKEN_ROLL": "/src/assets/images/chicken_roll_1786542779983.jpg",
+    "IMG_CHICKEN_MANCHURIAN": "/src/assets/images/chicken_manchurian_1786864894429.jpg",
+    "IMG_CHILLI_CHICKEN": "/src/assets/images/chilli_chicken_1786542793770.jpg",
+    "IMG_CHICKEN_65": "/src/assets/images/chicken_65_1786542806844.jpg",
+    "IMG_ANDHRA_65": "/src/assets/images/andhra_spicy_65_1786865322955.jpg",
+    "IMG_CHILLI_PRAWNS": "/src/assets/images/chilli_prawns_1786542836086.jpg",
+    "IMG_PRAWN_65": "/src/assets/images/prawn_65_classic_1786865689768.jpg",
+    "IMG_ANDHRA_PRAWN_65": "/src/assets/images/andhra_prawn_65_1786865574041.jpg",
+    "IMG_PRAWN_MANCHURIAN": "/src/assets/images/prawn_manchurian_1786865589831.jpg",
+    "IMG_HOT_GARLIC_PRAWNS": "/src/assets/images/hot_garlic_prawns_1786865700810.jpg",
+    "IMG_HOT_GARLIC_CHICKEN": "/src/assets/images/hot_garlic_chicken_1786872610686.jpg",
+    "IMG_HOT_GARLIC_VEG": "/src/assets/images/hot_garlic_veg_1786964808786.jpg",
+    "IMG_HOT_GARLIC_GOBI": "/src/assets/images/hot_garlic_gobi_1786964822117.jpg",
+    "IMG_HOT_GARLIC_MUSHROOM": "/src/assets/images/hot_garlic_mushroom_1786964837820.jpg",
+    "IMG_HOT_GARLIC_PANEER": "/src/assets/images/hot_garlic_paneer_1786964854908.jpg",
+    "IMG_HOT_GARLIC_TOFU": "/src/assets/images/hot_garlic_tofu_1786964867817.jpg",
+    "IMG_MUSHROOM_MANCHURIAN": "/src/assets/images/mushroom_manchurian_1786610712161.jpg",
+    "IMG_CHILLI_MUSHROOM": "/src/assets/images/chilli_mushroom_1786610730124.jpg",
+    "IMG_MUSHROOM_65": "/src/assets/images/mushroom_65_1786610746598.jpg",
+    "IMG_HOT_GARLIC_DISH": "/src/assets/images/hot_garlic_dish_1786613872546.jpg",
+    "IMG_PLAIN_CHIPS": "/src/assets/images/plain_chips_1786542849444.jpg",
+    "IMG_MASALA_CHIPS": "/src/assets/images/masala_chips_1786542864367.jpg",
+    "IMG_CHILLI_CHIPS": "/src/assets/images/chilli_chips_1786542878114.jpg",
+    "IMG_SZECHWAN_CHIPS": "/src/assets/images/szechwan_chips_1786542892121.jpg",
+    "IMG_BOMBAY_CHIPS": "/src/assets/images/bombay_chips_1786542907959.jpg",
+    "IMG_VEG_HAKKA_NOODLES": "/src/assets/images/veg_hakka_noodles_1786864935647.jpg",
+    "IMG_VEG_FRIED_RICE": "/src/assets/images/veg_hakka_fried_rice_1786613860757.jpg",
+    "IMG_EGG_FRIED_RICE": "/src/assets/images/egg_fried_rice_1786864861119.jpg",
+    "IMG_CHICKEN_FRIED_RICE": "/src/assets/images/chicken_fried_rice_1786865261779.jpg",
+    "IMG_CHICKEN_HAKKA_NOODLES": "/src/assets/images/chicken_hakka_noodles_1786609308917.jpg",
+    "IMG_SZECHWAN_FRIED_RICE": "/src/assets/images/szechwan_fried_rice_1786609327627.jpg",
+    "IMG_SZECHWAN_NOODLES": "/src/assets/images/szechwan_noodles_1786865275304.jpg",
+    "IMG_PANEER_FRIED_RICE": "/src/assets/images/paneer_fried_rice_1786865295220.jpg",
+    "IMG_BURNT_GARLIC_RICE": "/src/assets/images/burnt_garlic_rice_1786864831413.jpg",
+    "IMG_BURNT_GARLIC_NOODLES": "/src/assets/images/burnt_garlic_noodles_1786865309380.jpg",
+    "IMG_BURNT_GARLIC_MUSHROOM_RICE": "/src/assets/images/burnt_garlic_mushroom_rice_1786865904696.jpg",
+    "IMG_BURNT_GARLIC_PANEER_RICE": "/src/assets/images/burnt_garlic_paneer_rice_1786865926634.jpg",
+    "IMG_BURNT_GARLIC_TOFU_RICE": "/src/assets/images/burnt_garlic_tofu_rice_1786865942184.jpg",
+    "IMG_BURNT_GARLIC_MANCHURIAN_RICE": "/src/assets/images/burnt_garlic_manchurian_rice_1786865954823.jpg",
+    "IMG_BURNT_GARLIC_PRAWNS_RICE": "/src/assets/images/burnt_garlic_prawns_rice_1786865968949.jpg",
+    "IMG_SINGAPORE_NOODLES": "/src/assets/images/singapore_curry_noodles_1786864846091.jpg",
+    "IMG_SINGAPORE_FRIED_RICE": "/src/assets/images/singapore_fried_rice_1786865981318.jpg",
+    "IMG_PRAWN_FRIED_RICE": "/src/assets/images/prawn_fried_rice_1786864907958.jpg",
+    "IMG_PRAWN_HAKKA_NOODLES": "/src/assets/images/prawn_hakka_noodles_1786865634448.jpg",
+    "IMG_HYDERABAD_SPICY_RICE": "/src/assets/images/hyderabad_spicy_rice_1786865662834.jpg",
+    "IMG_HYDERABAD_EGG_RICE": "/src/assets/images/hyderabad_egg_rice_1786964773898.jpg",
+    "IMG_HYDERABAD_CHICKEN_RICE": "/src/assets/images/hyderabad_chicken_rice_1786964791860.jpg",
+    "IMG_TRIPLE_COMBO": "/src/assets/images/triple_schezwan_combo_1786516611209.jpg",
+    "IMG_KITCHEN_WOK": "/src/assets/images/fiery_wok_kitchen_1786965247008.jpg",
+    "IMG_AMBIENCE": "/src/assets/images/restaurant_ambience_1786965269878.jpg",
+    "IMG_CHEF_PLATING": "/src/assets/images/master_chef_plating_1786965291357.jpg"
+  }
+}

@@ -894,7 +894,7 @@ export const ServerTaskMonitor: React.FC<ServerTaskMonitorProps> = ({
             <div className="flex justify-between items-start border-b border-slate-200 pb-3">
               <div>
                 <h4 className="font-serif font-black text-lg text-slate-950">INDO CHINESE BOMBAY</h4>
-                <p className="text-xs text-slate-500">124 High Street, Hounslow TW3 1NA • 072777586916</p>
+                <p className="text-xs text-slate-500">124 High Street, Hounslow TW3 1NA • 07777586916</p>
                 <p className="text-xs text-slate-500 font-mono">Tax Invoice: {selectedHistoryReceipt.invoiceNumber}</p>
               </div>
               <button
@@ -1185,7 +1185,7 @@ export const ServerTaskMonitor: React.FC<ServerTaskMonitorProps> = ({
                         <Phone className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-2.5" />
                         <input
                           type="tel"
-                          placeholder="e.g. 072777586916"
+                          placeholder="e.g. 07777586916"
                           value={smsPhone}
                           onChange={(e) => setSmsPhone(e.target.value)}
                           className="w-full bg-slate-950 border border-slate-700 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500"

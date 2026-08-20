@@ -208,7 +208,7 @@ export const EventsSection: React.FC<EventsSectionProps> = ({
                 <span>Prefer to speak directly with our Event Coordinator?</span>
               </div>
               <div className="text-sm font-bold font-mono text-white">
-                Call: <a href={`tel:${(currentSettings?.phone || '').replace(/\s+/g, '')}`} className="underline hover:text-red-400">{currentSettings?.phone || '+44 20 8570 9888'}</a>
+                Call: <a href={`tel:${(currentSettings?.phone || '').replace(/\s+/g, '')}`} className="underline hover:text-red-400">{currentSettings?.phone || '07777586916'}</a>
               </div>
             </div>
           </div>

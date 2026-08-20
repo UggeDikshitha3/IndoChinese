@@ -307,7 +307,7 @@ def send_table_sms_invoice(table_id: str, payload: dict = Body(...), db: Session
         f"VAT (20%): £{order.tax:.2f}\n"
         f"TOTAL AMOUNT TO BE PAID: £{order.total_amount:.2f}\n"
         f"--------------------------------\n"
-        f"Thank you for dining with us! For feedback or inquiries: info@indochinesebombay.com / 072777586916"
+        f"Thank you for dining with us! For feedback or inquiries: info@indochinesebombay.com / 07777586916"
     )
 
     return {

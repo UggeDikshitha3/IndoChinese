@@ -386,7 +386,7 @@ export const ManageReservationModal: React.FC<ManageReservationModalProps> = ({
           <div className="bg-slate-50 p-4 rounded-2xl text-xs text-slate-600 flex items-center justify-between gap-3">
             <div>
               <span className="font-bold text-slate-900 block">Need urgent modifications?</span>
-              <span>Call our hospitality host directly at <strong className="text-red-600">{currentSettings?.phone || '+44 20 8570 9888'}</strong></span>
+              <span>Call our hospitality host directly at <strong className="text-red-600">{currentSettings?.phone || '07777586916'}</strong></span>
             </div>
             {onBookNewTable && (
               <button
