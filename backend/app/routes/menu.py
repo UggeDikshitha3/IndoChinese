@@ -1572,14 +1572,17 @@ def get_menu(category: str = None, db: Session = Depends(get_db)):
                 "category": item.category,
                 "price": float(item.price),
                 "image": item.image_url,
-                "description": item.description,
-                "isSpicy": item.is_spicy,
-                "spiceLevel": item.spice_level,
-                "isVeg": item.is_veg,
+                "description": item.description or "",
+                "isSpicy": bool(item.is_spicy),
+                "spiceLevel": int(item.spice_level) if item.spice_level is not None else 1,
+                "isVeg": bool(item.is_veg),
                 "badge": item.badge if item.badge else None,
+                "isChefSpecial": item.badge == "Chef Special",
+                "isPopular": item.badge == "Popular",
                 "allergens": safe_json_loads(item.allergens, []),
                 "options": safe_json_loads(item.options, []),
-                "isAvailable": item.is_available
+                "available": bool(item.is_available),
+                "isAvailable": bool(item.is_available)
             })
             
     return unique_items

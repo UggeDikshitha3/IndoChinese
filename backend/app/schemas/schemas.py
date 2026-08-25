@@ -135,19 +135,24 @@ class MenuItemUpdate(BaseModel):
 class MenuItemResponse(BaseModel):
     id: str
     name: str
-    description: Optional[str]
+    description: Optional[str] = ""
     price: float
     category: str
-    isVeg: bool
-    isSpicy: bool
-    spiceLevel: int
-    isChefSpecial: bool
-    isPopular: bool
-    image: Optional[str]
-    available: bool
+    isVeg: bool = True
+    isSpicy: bool = False
+    spiceLevel: int = 1
+    isChefSpecial: Optional[bool] = False
+    isPopular: Optional[bool] = False
+    badge: Optional[str] = None
+    allergens: Optional[List[str]] = []
+    options: Optional[List[dict]] = []
+    image: Optional[str] = None
+    available: Optional[bool] = True
+    isAvailable: Optional[bool] = True
 
     class Config:
         from_attributes = True
+        extra = "ignore"
 
 # Gallery Schemas
 class GalleryItemCreate(BaseModel):
