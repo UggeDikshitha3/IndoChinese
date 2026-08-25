@@ -801,12 +801,28 @@ export const AdminPage: React.FC<AdminPageProps> = ({
           });
 
           if (res.ok) {
-            updatedData = await res.json();
+            let parsedJson: any = null;
+            try {
+              const text = await res.text();
+              if (text && text.trim().length > 0) {
+                parsedJson = JSON.parse(text);
+              }
+            } catch (e) {
+              // Body was not JSON (e.g. empty 200 OK or 204 No Content), fallback to settingsForm
+            }
+            updatedData = parsedJson || { ...settingsForm };
             success = true;
             break;
           } else {
-            const errData = await res.json().catch(() => ({ error: `Server error (${res.status})` }));
-            lastError = errData.error || `Server responded with status ${res.status}`;
+            let errMsg = `Server responded with status ${res.status}`;
+            try {
+              const errText = await res.text();
+              if (errText && errText.trim().length > 0) {
+                const errJson = JSON.parse(errText);
+                errMsg = errJson.error || errJson.detail || errMsg;
+              }
+            } catch (e) {}
+            lastError = errMsg;
           }
         } catch (callErr: any) {
           lastError = callErr?.message || 'Network connection failed';
