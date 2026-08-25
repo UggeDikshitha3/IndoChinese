@@ -12,20 +12,20 @@ DEFAULT_25_REVIEWS = []
 
 def ensure_default_reviews(db: Session):
     try:
-        count = db.query(Review).count()
-        if False:
-            # Seed all 25 reviews
-            for r in DEFAULT_25_REVIEWS:
-                # Calculate fresh timestamp
-                created = datetime.utcnow() - timedelta(days=r.get("daysAgo", 1))
-                db.add(Review(
-                    name=r["name"],
-                    rating=r["rating"],
-                    comment=r["comment"],
-                    dish_recommended=r.get("dishRecommended", ""),
-                    verified_diner=r.get("verifiedDiner", True),
-                    created_at=created
-                ))
+        old_test_names = [
+            "Aarav Patel", "Priya Sharma", "Rohan Mehta", "Aisha Khan", "Marcus Davies",
+            "Sunita Verma", "Karan Joshi", "Fatima Al-Mansoor", "Vikram Malhotra", "Emily Watson",
+            "Ananya Deshmukh", "Tariq Hussain", "Zainab Qureshi", "George Cooper", "Meera Iyer",
+            "Sameer Sheikh", "Deepak Nair", "Chloe Bennett", "Harpreet Singh", "Layla Ahmed",
+            "Rajiv Sengupta", "Sophie Taylor", "Arjun Kapoor", "Zara Williams", "Nikhil Bansal",
+            "Hannah Davies", "Sneha Kulkarni", "David Sterling", "Zainab Begum", "Vikram Singhania",
+            "Elena Rostova", "Rahul Deshmukh", "Ananya Nair", "Thomas Wright", "Meera Joshi",
+            "Karan Mehra", "Deepak Patel"
+        ]
+        old_items = db.query(Review).filter(Review.name.in_(old_test_names)).all()
+        if old_items:
+            for item in old_items:
+                db.delete(item)
             db.commit()
     except Exception:
         db.rollback()
