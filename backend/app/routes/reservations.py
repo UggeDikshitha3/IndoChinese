@@ -80,12 +80,32 @@ def create_reservation(reservation_in: ReservationCreate, db: Session = Depends(
         "createdAt": new_resv.created_at
     }
 
+def ensure_clean_reservations(db: Session):
+    try:
+        test_names = [
+            "Arjun Das", "Kavita Reddy", "Fatima Al-Mansoor", "David Smith", "Priya Iyer",
+            "Vikram Malhotra", "Rohan Patel", "Ananya Sharma", "Simulated Customer",
+            "Ugge Dikshitha", "Farhan Akhtar", "Alexander Wright", "Ritu Kapoor",
+            "Neil Mukherjee", "Sunita Menon", "Zeeshan Malik", "Emma Watson",
+            "Pooja Chawla", "Siddharth Roy", "Amina Al-Qasimi", "Lord Henry Sterling",
+            "Karthik Varma", "Rajeshwari Iyer", "Meenakshi Sundaram", "Dr. Aarav Patel",
+            "Sameer Khan", "Sarah Jenkins", "QA Audit Customer", "John Doe", "Live Table Guest"
+        ]
+        old_items = db.query(Reservation).filter(Reservation.name.in_(test_names)).all()
+        if old_items:
+            for item in old_items:
+                db.delete(item)
+            db.commit()
+    except Exception:
+        db.rollback()
+
 @router.get("", response_model=List[ReservationResponse])
 def get_reservations(
     ref: Optional[str] = Query(None),
     phone: Optional[str] = Query(None),
     db: Session = Depends(get_db)
 ):
+    ensure_clean_reservations(db)
     query = db.query(Reservation)
     if ref:
         query = query.filter(Reservation.reservation_number.ilike(f"%{ref.strip()}%"))

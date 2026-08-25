@@ -125,30 +125,43 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
           <div>
             <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-xs font-bold tracking-wider uppercase mb-3">
               <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
-              <span>AUTHENTIC CUSTOMER TESTIMONIALS ({reviews.length}+ REVIEWS)</span>
+              <span>AUTHENTIC CUSTOMER TESTIMONIALS</span>
             </div>
             <h2 className="text-3xl sm:text-5xl font-extrabold text-slate-900 font-serif tracking-tight">
               CUSTOMER <span className="text-red-600">REVIEWS</span>
             </h2>
             <p className="text-xs sm:text-sm text-slate-500 mt-1">
-              Verified dining experiences & feedback refreshed annually ({currentYear} verified diners).
+              Real dining experiences & customer feedback for INDO CHINESE in London.
             </p>
           </div>
 
-          {/* Aggregate Rating Score Card */}
-          <div className="flex items-center space-x-4 bg-slate-50 p-4 rounded-2xl border border-slate-200 shadow-xs">
-            <div className="text-center border-r border-slate-200 pr-4">
-              <span className="text-3xl font-extrabold text-slate-900 font-serif">{avgRating}</span>
-              <span className="text-[10px] text-slate-500 block font-bold">OUT OF 5</span>
-            </div>
-            <div>
-              <div className="flex text-amber-500 mb-1">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 fill-amber-500 text-amber-500" />
-                ))}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            {/* Aggregate Rating Score Card */}
+            <div className="flex items-center space-x-4 bg-slate-50 p-3.5 rounded-2xl border border-slate-200 shadow-xs">
+              <div className="text-center border-r border-slate-200 pr-3.5">
+                <span className="text-2xl font-extrabold text-slate-900 font-serif">{reviews.length > 0 ? avgRating : '5.0'}</span>
+                <span className="text-[9px] text-slate-500 block font-bold">OUT OF 5</span>
               </div>
-              <span className="text-xs font-bold text-slate-700">Based on {reviews.length}+ Verified Ratings</span>
+              <div>
+                <div className="flex text-amber-500 mb-0.5">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+                  ))}
+                </div>
+                <span className="text-[11px] font-bold text-slate-700">
+                  {reviews.length > 0 ? `${reviews.length} Verified Reviews` : 'Verified Diner Rating'}
+                </span>
+              </div>
             </div>
+
+            {/* Quick Header Write Review Button */}
+            <button
+              onClick={() => setModalOpen(true)}
+              className="px-5 py-3 rounded-2xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-extrabold text-xs shadow-sm flex items-center justify-center gap-2 cursor-pointer transition-all hover:shadow-md"
+            >
+              <MessageSquarePlus className="w-4 h-4" />
+              <span>WRITE A REVIEW</span>
+            </button>
           </div>
         </div>
 
@@ -209,13 +222,20 @@ export const ReviewsSection: React.FC<ReviewsSectionProps> = ({
 
         {/* Review Cards Grid */}
         {filteredReviews.length === 0 ? (
-          <div className="py-12 text-center text-slate-500 bg-slate-50 rounded-3xl border border-slate-200">
-            <p className="text-sm font-bold">No reviews matching your search criteria.</p>
+          <div className="py-16 px-6 text-center bg-gradient-to-b from-amber-50/40 via-orange-50/20 to-transparent rounded-3xl border border-amber-200/80 max-w-2xl mx-auto my-6 shadow-xs">
+            <div className="w-14 h-14 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-xs">
+              <Star className="w-7 h-7 fill-amber-500 text-amber-500" />
+            </div>
+            <h3 className="text-lg font-bold text-slate-900 font-serif mb-1">Be the First to Review INDO CHINESE!</h3>
+            <p className="text-xs text-slate-600 mb-5 leading-relaxed max-w-lg mx-auto">
+              Share your dining or takeaway experience with us. Recommend your favorite Bombay street food specialties and help fellow foodies discover authentic wok flavors!
+            </p>
             <button
-              onClick={() => { setSearchQuery(''); setActiveFilter('all'); }}
-              className="mt-2 text-xs font-bold text-red-600 hover:underline cursor-pointer"
+              onClick={() => setModalOpen(true)}
+              className="px-6 py-3 rounded-2xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-extrabold text-xs shadow-md hover:shadow-lg transition-all inline-flex items-center gap-2 cursor-pointer"
             >
-              Clear filters and view all reviews
+              <MessageSquarePlus className="w-4 h-4" />
+              <span>WRITE A CUSTOMER REVIEW</span>
             </button>
           </div>
         ) : (
