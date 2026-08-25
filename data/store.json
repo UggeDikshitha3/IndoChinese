@@ -3051,7 +3051,10 @@
       "cleaningStartedAt": null,
       "assignedReservationId": null,
       "currentOrder": null,
-      "notes": ""
+      "notes": null,
+      "activeOrder": null,
+      "occupiedGuests": null,
+      "assignedServer": null
     },
     {
       "id": "tbl-2",
@@ -3071,7 +3074,10 @@
       "cleaningStartedAt": null,
       "assignedReservationId": null,
       "currentOrder": null,
-      "notes": ""
+      "notes": null,
+      "activeOrder": null,
+      "occupiedGuests": null,
+      "assignedServer": null
     },
     {
       "id": "tbl-3",
@@ -3091,7 +3097,10 @@
       "cleaningStartedAt": null,
       "assignedReservationId": null,
       "currentOrder": null,
-      "notes": ""
+      "notes": null,
+      "activeOrder": null,
+      "occupiedGuests": null,
+      "assignedServer": null
     },
     {
       "id": "tbl-4",
@@ -3111,7 +3120,10 @@
       "cleaningStartedAt": null,
       "assignedReservationId": null,
       "currentOrder": null,
-      "notes": ""
+      "notes": null,
+      "activeOrder": null,
+      "occupiedGuests": null,
+      "assignedServer": null
     },
     {
       "id": "tbl-5",
@@ -3131,7 +3143,10 @@
       "cleaningStartedAt": null,
       "assignedReservationId": null,
       "currentOrder": null,
-      "notes": ""
+      "notes": null,
+      "activeOrder": null,
+      "occupiedGuests": null,
+      "assignedServer": null
     },
     {
       "id": "tbl-6",
@@ -3151,7 +3166,10 @@
       "cleaningStartedAt": null,
       "assignedReservationId": null,
       "currentOrder": null,
-      "notes": ""
+      "notes": null,
+      "activeOrder": null,
+      "occupiedGuests": null,
+      "assignedServer": null
     },
     {
       "id": "tbl-7",
@@ -3171,7 +3189,10 @@
       "cleaningStartedAt": null,
       "assignedReservationId": null,
       "currentOrder": null,
-      "notes": ""
+      "notes": null,
+      "activeOrder": null,
+      "occupiedGuests": null,
+      "assignedServer": null
     },
     {
       "id": "tbl-8",
@@ -3191,7 +3212,10 @@
       "cleaningStartedAt": null,
       "assignedReservationId": null,
       "currentOrder": null,
-      "notes": ""
+      "notes": null,
+      "activeOrder": null,
+      "occupiedGuests": null,
+      "assignedServer": null
     },
     {
       "id": "tbl-9",
@@ -3211,7 +3235,10 @@
       "cleaningStartedAt": null,
       "assignedReservationId": null,
       "currentOrder": null,
-      "notes": ""
+      "notes": null,
+      "activeOrder": null,
+      "occupiedGuests": null,
+      "assignedServer": null
     },
     {
       "id": "tbl-10",
@@ -3231,7 +3258,10 @@
       "cleaningStartedAt": null,
       "assignedReservationId": null,
       "currentOrder": null,
-      "notes": ""
+      "notes": null,
+      "activeOrder": null,
+      "occupiedGuests": null,
+      "assignedServer": null
     },
     {
       "id": "tbl-11",
@@ -3251,7 +3281,10 @@
       "cleaningStartedAt": null,
       "assignedReservationId": null,
       "currentOrder": null,
-      "notes": ""
+      "notes": null,
+      "activeOrder": null,
+      "occupiedGuests": null,
+      "assignedServer": null
     },
     {
       "id": "tbl-12",
@@ -3271,7 +3304,10 @@
       "cleaningStartedAt": null,
       "assignedReservationId": null,
       "currentOrder": null,
-      "notes": ""
+      "notes": null,
+      "activeOrder": null,
+      "occupiedGuests": null,
+      "assignedServer": null
     },
     {
       "id": "tbl-13",
@@ -3291,7 +3327,10 @@
       "cleaningStartedAt": null,
       "assignedReservationId": null,
       "currentOrder": null,
-      "notes": ""
+      "notes": null,
+      "activeOrder": null,
+      "occupiedGuests": null,
+      "assignedServer": null
     },
     {
       "id": "tbl-14",
@@ -3311,7 +3350,10 @@
       "cleaningStartedAt": null,
       "assignedReservationId": null,
       "currentOrder": null,
-      "notes": ""
+      "notes": null,
+      "activeOrder": null,
+      "occupiedGuests": null,
+      "assignedServer": null
     },
     {
       "id": "tbl-15",
@@ -3331,7 +3373,10 @@
       "cleaningStartedAt": null,
       "assignedReservationId": null,
       "currentOrder": null,
-      "notes": ""
+      "notes": null,
+      "activeOrder": null,
+      "occupiedGuests": null,
+      "assignedServer": null
     },
     {
       "id": "tbl-16",
@@ -3351,7 +3396,10 @@
       "cleaningStartedAt": null,
       "assignedReservationId": null,
       "currentOrder": null,
-      "notes": ""
+      "notes": null,
+      "activeOrder": null,
+      "occupiedGuests": null,
+      "assignedServer": null
     },
     {
       "id": "tbl-17",
@@ -3371,7 +3419,10 @@
       "cleaningStartedAt": null,
       "assignedReservationId": null,
       "currentOrder": null,
-      "notes": ""
+      "notes": null,
+      "activeOrder": null,
+      "occupiedGuests": null,
+      "assignedServer": null
     },
     {
       "id": "tbl-18",
@@ -3391,7 +3442,10 @@
       "cleaningStartedAt": null,
       "assignedReservationId": null,
       "currentOrder": null,
-      "notes": ""
+      "notes": null,
+      "activeOrder": null,
+      "occupiedGuests": null,
+      "assignedServer": null
     },
     {
       "id": "tbl-19",
@@ -3411,7 +3465,10 @@
       "cleaningStartedAt": null,
       "assignedReservationId": null,
       "currentOrder": null,
-      "notes": ""
+      "notes": null,
+      "activeOrder": null,
+      "occupiedGuests": null,
+      "assignedServer": null
     },
     {
       "id": "tbl-20",
@@ -3431,7 +3488,10 @@
       "cleaningStartedAt": null,
       "assignedReservationId": null,
       "currentOrder": null,
-      "notes": ""
+      "notes": null,
+      "activeOrder": null,
+      "occupiedGuests": null,
+      "assignedServer": null
     }
   ],
   "eventInquiries": [],
@@ -3591,5 +3651,7 @@
     }
   ],
   "orders": [],
-  "auditLogs": []
+  "auditLogs": [],
+  "messages": [],
+  "events": []
 }
