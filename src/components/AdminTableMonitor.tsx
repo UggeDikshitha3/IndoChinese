@@ -796,13 +796,6 @@ export const AdminTableMonitor: React.FC<AdminTableMonitorProps> = ({
                   ) : table.status === 'occupied' ? (
                     <div className="w-full grid grid-cols-2 gap-1.5">
                       <button
-                        onClick={() => handleIssueBill(table.id)}
-                        className="py-1.5 px-2 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-[11px] font-bold flex items-center justify-center gap-1 transition-all cursor-pointer"
-                      >
-                        <DollarSign className="w-3 h-3 text-amber-600" />
-                        <span>Issue Bill</span>
-                      </button>
-                      <button
                         onClick={() => handleExtendStay(table.id, 15)}
                         className="py-1.5 px-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 text-[11px] font-bold flex items-center justify-center gap-1 transition-all cursor-pointer"
                       >
@@ -811,10 +804,10 @@ export const AdminTableMonitor: React.FC<AdminTableMonitorProps> = ({
                       </button>
                       <button
                         onClick={() => handleCompleteTable(table.id, 'cleaning')}
-                        className="col-span-2 py-1.5 rounded-lg bg-slate-900 hover:bg-black text-white text-xs font-bold flex items-center justify-center gap-1 transition-all cursor-pointer"
+                        className="py-1.5 px-2 rounded-lg bg-slate-900 hover:bg-black text-white text-[11px] font-bold flex items-center justify-center gap-1 transition-all cursor-pointer"
                       >
                         <Check className="w-3 h-3 text-emerald-400" />
-                        <span>Complete Dining (Start 5m Clean)</span>
+                        <span>Complete Dining</span>
                       </button>
                     </div>
                   ) : table.status === 'bill_issued' ? (
@@ -893,8 +886,8 @@ export const AdminTableMonitor: React.FC<AdminTableMonitorProps> = ({
             <div className="flex items-center gap-3 text-xs font-semibold flex-wrap">
               <span className="flex items-center gap-1 text-emerald-700"><span className="w-2.5 h-2.5 rounded bg-emerald-500" /> Available</span>
               <span className="flex items-center gap-1 text-red-700"><span className="w-2.5 h-2.5 rounded bg-red-500" /> Occupied</span>
-              <span className="flex items-center gap-1 text-amber-700"><span className="w-2.5 h-2.5 rounded bg-amber-500" /> Bill Issued</span>
               <span className="flex items-center gap-1 text-purple-700"><span className="w-2.5 h-2.5 rounded bg-purple-500" /> Reserved</span>
+              <span className="flex items-center gap-1 text-sky-700"><span className="w-2.5 h-2.5 rounded bg-sky-500" /> Cleaning</span>
             </div>
           </div>
 
