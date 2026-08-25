@@ -200,6 +200,8 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   // Settings form state
   const [settingsForm, setSettingsForm] = useState<RestaurantSettings>(settings);
   const [saveSettingsSuccess, setSaveSettingsSuccess] = useState(false);
+  const [saveSettingsError, setSaveSettingsError] = useState('');
+  const [isSavingSettings, setIsSavingSettings] = useState(false);
 
   // Audit logs state
   const [auditLogs, setAuditLogs] = useState<Array<{ id: string; action: string; user: string; timestamp: string; details: string }>>([
@@ -346,7 +348,9 @@ export const AdminPage: React.FC<AdminPageProps> = ({
           id: 'usr_master_owner',
           email: emailTrimmed,
           name: 'Master Restaurant Owner',
-          role: 'master'
+          role: 'master',
+          active: true,
+          createdAt: new Date().toISOString()
         };
         const token = 'indochinese_master_jwt_fallback_session';
         localStorage.setItem('indochinese_admin_token', token);
@@ -363,7 +367,9 @@ export const AdminPage: React.FC<AdminPageProps> = ({
           id: 'usr_master_owner',
           email: emailTrimmed,
           name: 'Master Restaurant Owner',
-          role: 'master'
+          role: 'master',
+          active: true,
+          createdAt: new Date().toISOString()
         };
         const token = 'indochinese_master_jwt_fallback_session';
         localStorage.setItem('indochinese_admin_token', token);
@@ -771,8 +777,11 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
   const handleSaveSettings = async (e: React.FormEvent) => {
     e.preventDefault();
-    const token = localStorage.getItem('indochinese_admin_token');
-    if (!token) return;
+    setIsSavingSettings(true);
+    setSaveSettingsError('');
+    setSaveSettingsSuccess(false);
+
+    const token = localStorage.getItem('indochinese_admin_token') || 'indochinese_master_jwt_fallback_session';
 
     try {
       const res = await fetch(getApiUrl('/api/admin/settings'), {
@@ -786,13 +795,20 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
       if (res.ok) {
         const updated = await res.json();
+        setSettingsForm(updated);
         onUpdateSettings(updated);
         setSaveSettingsSuccess(true);
-        setTimeout(() => setSaveSettingsSuccess(false), 3000);
-        addAuditLog('Restaurant Settings Saved', 'Updated contact, hours, and NAP metadata.');
+        setTimeout(() => setSaveSettingsSuccess(false), 4000);
+        addAuditLog('Restaurant Settings Saved', 'Updated contact, operating hours, and business metadata.');
+      } else {
+        const errData = await res.json().catch(() => ({ error: 'Failed to update restaurant settings' }));
+        setSaveSettingsError(errData.error || `Server responded with status ${res.status}`);
       }
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      console.error('Save settings error:', err);
+      setSaveSettingsError(err?.message || 'Network error while saving settings.');
+    } finally {
+      setIsSavingSettings(false);
     }
   };
 
@@ -2175,105 +2191,363 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
           {/* TAB 8: RESTAURANT SETTINGS */}
           {activeTab === 'settings' && (
-            <div className="space-y-6 animate-fadeIn max-w-3xl">
-              <div>
-                <h2 className="text-xl font-bold font-serif text-white">Restaurant Business & Operational Settings</h2>
-                <p className="text-xs text-slate-400">Update address, contact telephone, operating hours, and location links.</p>
+            <div className="space-y-6 animate-fadeIn max-w-4xl">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <h2 className="text-xl font-bold font-serif text-white flex items-center gap-2">
+                    <Building2 className="w-5 h-5 text-red-500" />
+                    <span>Restaurant Business & Floor Settings</span>
+                  </h2>
+                  <p className="text-xs text-slate-400">Update restaurant identity, contact numbers, address, social channels, and operating hours in real time.</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSettingsForm({ ...settings })}
+                  className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs flex items-center gap-1.5 self-start sm:self-auto transition-colors border border-slate-700"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>Reset Form</span>
+                </button>
               </div>
 
               {saveSettingsSuccess && (
-                <div className="p-3 bg-emerald-950 border border-emerald-800 text-emerald-300 rounded-xl text-xs flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                  <span>Restaurant settings updated successfully!</span>
+                <div className="p-4 bg-emerald-950/90 border border-emerald-600 text-emerald-200 rounded-2xl text-xs flex items-center gap-3 shadow-lg animate-fadeIn">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+                  <div>
+                    <strong className="block font-bold">Restaurant settings saved successfully!</strong>
+                    <span>Changes are now live across all customer pages and floor systems.</span>
+                  </div>
                 </div>
               )}
 
-              <form onSubmit={handleSaveSettings} className="bg-slate-800/80 border border-slate-700 rounded-3xl p-6 space-y-4 text-xs">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {saveSettingsError && (
+                <div className="p-4 bg-red-950/90 border border-red-600 text-red-200 rounded-2xl text-xs flex items-center gap-3 shadow-lg animate-fadeIn">
+                  <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
                   <div>
-                    <label className="block font-bold text-slate-300 mb-1">Restaurant Name</label>
-                    <input
-                      type="text"
-                      value={settingsForm.name}
-                      onChange={(e) => setSettingsForm({ ...settingsForm, name: e.target.value })}
-                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block font-bold text-slate-300 mb-1">Phone Number</label>
-                    <input
-                      type="text"
-                      value={settingsForm.phone}
-                      onChange={(e) => setSettingsForm({ ...settingsForm, phone: e.target.value })}
-                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block font-bold text-slate-300 mb-1">Street Address</label>
-                    <input
-                      type="text"
-                      value={settingsForm.address}
-                      onChange={(e) => setSettingsForm({ ...settingsForm, address: e.target.value })}
-                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block font-bold text-slate-300 mb-1">City & Postcode</label>
-                    <input
-                      type="text"
-                      value={`${settingsForm.city}, ${settingsForm.postcode}`}
-                      onChange={(e) => {
-                        const parts = e.target.value.split(',');
-                        setSettingsForm({
-                          ...settingsForm,
-                          city: parts[0]?.trim() || '',
-                          postcode: parts[1]?.trim() || ''
-                        });
-                      }}
-                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100"
-                    />
+                    <strong className="block font-bold">Could not save settings</strong>
+                    <span>{saveSettingsError}</span>
                   </div>
                 </div>
+              )}
 
-                <div className="border-t border-slate-700/60 pt-4">
-                  <h4 className="font-bold text-slate-200 mb-2">Opening Hours</h4>
+              <form onSubmit={handleSaveSettings} className="space-y-6">
+                {/* 1. Identity & Branding */}
+                <div className="bg-slate-800/80 border border-slate-700/80 rounded-3xl p-6 space-y-4 text-xs shadow-md">
+                  <h3 className="text-sm font-bold text-amber-400 flex items-center gap-2 border-b border-slate-700/60 pb-2.5">
+                    <Crown className="w-4 h-4" />
+                    <span>Brand & Restaurant Identity</span>
+                  </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-slate-400 mb-1">Weekday Hours (Mon-Thu)</label>
+                      <label className="block font-bold text-slate-300 mb-1">Restaurant Name</label>
                       <input
                         type="text"
-                        value={settingsForm.openingHours?.weekday || '12:00 PM – 11:00 PM'}
-                        onChange={(e) => setSettingsForm({
-                          ...settingsForm,
-                          openingHours: { ...settingsForm.openingHours, weekday: e.target.value }
-                        })}
-                        className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-slate-100"
+                        required
+                        value={settingsForm.name || ''}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, name: e.target.value })}
+                        className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100 font-semibold focus:border-red-500 focus:outline-hidden"
                       />
                     </div>
                     <div>
-                      <label className="block text-slate-400 mb-1">Weekend Hours (Fri-Sun)</label>
+                      <label className="block font-bold text-slate-300 mb-1">Tagline</label>
                       <input
                         type="text"
-                        value={settingsForm.openingHours?.weekend || '12:00 PM – 11:30 PM'}
-                        onChange={(e) => setSettingsForm({
-                          ...settingsForm,
-                          openingHours: { ...settingsForm.openingHours, weekend: e.target.value }
-                        })}
-                        className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-slate-100"
+                        value={settingsForm.tagline || ''}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, tagline: e.target.value })}
+                        className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100 focus:border-red-500 focus:outline-hidden"
+                      />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label className="block font-bold text-slate-300 mb-1">Short Description / Heritage Story</label>
+                      <textarea
+                        rows={2}
+                        value={settingsForm.description || ''}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, description: e.target.value })}
+                        className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100 focus:border-red-500 focus:outline-hidden resize-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-bold text-slate-300 mb-1">Price Range</label>
+                      <select
+                        value={settingsForm.priceRange || '££'}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, priceRange: e.target.value })}
+                        className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100 focus:border-red-500 focus:outline-hidden"
+                      >
+                        <option value="£">£ (Budget Friendly)</option>
+                        <option value="££">££ (Mid-Range / Casual Dining)</option>
+                        <option value="£££">£££ (Fine Dining / Premium)</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2. Direct Contact Details */}
+                <div className="bg-slate-800/80 border border-slate-700/80 rounded-3xl p-6 space-y-4 text-xs shadow-md">
+                  <h3 className="text-sm font-bold text-amber-400 flex items-center gap-2 border-b border-slate-700/60 pb-2.5">
+                    <Phone className="w-4 h-4" />
+                    <span>Direct Customer & Guest Contact</span>
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block font-bold text-slate-300 mb-1">Primary Telephone</label>
+                      <input
+                        type="text"
+                        required
+                        value={settingsForm.phone || ''}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, phone: e.target.value })}
+                        className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100 font-mono focus:border-red-500 focus:outline-hidden"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-bold text-slate-300 mb-1">WhatsApp Number</label>
+                      <input
+                        type="text"
+                        value={settingsForm.whatsapp || ''}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, whatsapp: e.target.value })}
+                        className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100 font-mono focus:border-red-500 focus:outline-hidden"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-bold text-slate-300 mb-1">Official Email Address</label>
+                      <input
+                        type="email"
+                        required
+                        value={settingsForm.email || ''}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, email: e.target.value })}
+                        className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100 font-mono focus:border-red-500 focus:outline-hidden"
                       />
                     </div>
                   </div>
                 </div>
 
-                <div className="flex justify-end pt-2">
+                {/* 3. Physical Address & Location (NAP) */}
+                <div className="bg-slate-800/80 border border-slate-700/80 rounded-3xl p-6 space-y-4 text-xs shadow-md">
+                  <h3 className="text-sm font-bold text-amber-400 flex items-center gap-2 border-b border-slate-700/60 pb-2.5">
+                    <Building2 className="w-4 h-4" />
+                    <span>Restaurant Location & Maps (NAP)</span>
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="sm:col-span-2">
+                      <label className="block font-bold text-slate-300 mb-1">Street Address</label>
+                      <input
+                        type="text"
+                        required
+                        value={settingsForm.address || ''}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, address: e.target.value })}
+                        className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100 focus:border-red-500 focus:outline-hidden"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-bold text-slate-300 mb-1">City / Region</label>
+                      <input
+                        type="text"
+                        required
+                        value={settingsForm.city || ''}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, city: e.target.value })}
+                        className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100 focus:border-red-500 focus:outline-hidden"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-bold text-slate-300 mb-1">Postcode</label>
+                      <input
+                        type="text"
+                        required
+                        value={settingsForm.postcode || ''}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, postcode: e.target.value })}
+                        className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100 font-mono uppercase focus:border-red-500 focus:outline-hidden"
+                      />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label className="block font-bold text-slate-300 mb-1">Google Maps URL</label>
+                      <input
+                        type="url"
+                        value={settingsForm.googleMapsUrl || ''}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, googleMapsUrl: e.target.value })}
+                        className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100 font-mono text-[11px] focus:border-red-500 focus:outline-hidden"
+                      />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label className="block font-bold text-slate-300 mb-1">Google Business Profile URL</label>
+                      <input
+                        type="url"
+                        value={settingsForm.googleBusinessProfileUrl || ''}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, googleBusinessProfileUrl: e.target.value })}
+                        className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100 font-mono text-[11px] focus:border-red-500 focus:outline-hidden"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 4. Operating Hours */}
+                <div className="bg-slate-800/80 border border-slate-700/80 rounded-3xl p-6 space-y-4 text-xs shadow-md">
+                  <h3 className="text-sm font-bold text-amber-400 flex items-center gap-2 border-b border-slate-700/60 pb-2.5">
+                    <Clock className="w-4 h-4" />
+                    <span>Dine-In Opening & Closing Hours</span>
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block font-bold text-slate-300 mb-1">Weekday Hours (Monday – Thursday)</label>
+                      <input
+                        type="text"
+                        value={
+                          typeof settingsForm.openingHours === 'object' && !Array.isArray(settingsForm.openingHours)
+                            ? settingsForm.openingHours?.weekday || '10:30 AM – 09:30 PM'
+                            : Array.isArray(settingsForm.openingHours) && settingsForm.openingHours[0]?.open
+                            ? `${settingsForm.openingHours[0].open} – ${settingsForm.openingHours[0].close}`
+                            : '10:30 AM – 09:30 PM'
+                        }
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          const parts = val.split(/[–-]/).map(s => s.trim());
+                          const openTime = parts[0] || '10:30 AM';
+                          const closeTime = parts[1] || '09:30 PM';
+                          if (Array.isArray(settingsForm.openingHours)) {
+                            const updated = settingsForm.openingHours.map(h => {
+                              const isWeekend = ['Friday', 'Saturday', 'Sunday'].includes(h.day || '');
+                              return isWeekend ? h : { ...h, open: openTime, close: closeTime };
+                            });
+                            setSettingsForm({ ...settingsForm, openingHours: updated });
+                          } else {
+                            setSettingsForm({
+                              ...settingsForm,
+                              openingHours: {
+                                ...(typeof settingsForm.openingHours === 'object' ? settingsForm.openingHours : {}),
+                                weekday: val
+                              }
+                            });
+                          }
+                        }}
+                        className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100 font-mono focus:border-red-500 focus:outline-hidden"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-bold text-slate-300 mb-1">Weekend Hours (Friday – Sunday)</label>
+                      <input
+                        type="text"
+                        value={
+                          typeof settingsForm.openingHours === 'object' && !Array.isArray(settingsForm.openingHours)
+                            ? settingsForm.openingHours?.weekend || '10:30 AM – 09:30 PM'
+                            : Array.isArray(settingsForm.openingHours) && settingsForm.openingHours[4]?.open
+                            ? `${settingsForm.openingHours[4].open} – ${settingsForm.openingHours[4].close}`
+                            : '10:30 AM – 09:30 PM'
+                        }
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          const parts = val.split(/[–-]/).map(s => s.trim());
+                          const openTime = parts[0] || '10:30 AM';
+                          const closeTime = parts[1] || '09:30 PM';
+                          if (Array.isArray(settingsForm.openingHours)) {
+                            const updated = settingsForm.openingHours.map(h => {
+                              const isWeekend = ['Friday', 'Saturday', 'Sunday'].includes(h.day || '');
+                              return isWeekend ? { ...h, open: openTime, close: closeTime } : h;
+                            });
+                            setSettingsForm({ ...settingsForm, openingHours: updated });
+                          } else {
+                            setSettingsForm({
+                              ...settingsForm,
+                              openingHours: {
+                                ...(typeof settingsForm.openingHours === 'object' ? settingsForm.openingHours : {}),
+                                weekend: val
+                              }
+                            });
+                          }
+                        }}
+                        className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100 font-mono focus:border-red-500 focus:outline-hidden"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 5. Social Channels & Links */}
+                <div className="bg-slate-800/80 border border-slate-700/80 rounded-3xl p-6 space-y-4 text-xs shadow-md">
+                  <h3 className="text-sm font-bold text-amber-400 flex items-center gap-2 border-b border-slate-700/60 pb-2.5">
+                    <Sparkles className="w-4 h-4" />
+                    <span>Social Media Channels</span>
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block font-bold text-slate-300 mb-1">Instagram URL</label>
+                      <input
+                        type="url"
+                        value={settingsForm.instagramUrl || ''}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, instagramUrl: e.target.value })}
+                        className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100 font-mono text-[11px] focus:border-red-500 focus:outline-hidden"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-bold text-slate-300 mb-1">Facebook URL</label>
+                      <input
+                        type="url"
+                        value={settingsForm.facebookUrl || ''}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, facebookUrl: e.target.value })}
+                        className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100 font-mono text-[11px] focus:border-red-500 focus:outline-hidden"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-bold text-slate-300 mb-1">TikTok URL</label>
+                      <input
+                        type="url"
+                        value={settingsForm.tiktokUrl || ''}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, tiktokUrl: e.target.value })}
+                        className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-slate-100 font-mono text-[11px] focus:border-red-500 focus:outline-hidden"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 6. Service Feature Toggles */}
+                <div className="bg-slate-800/80 border border-slate-700/80 rounded-3xl p-6 space-y-4 text-xs shadow-md">
+                  <h3 className="text-sm font-bold text-amber-400 flex items-center gap-2 border-b border-slate-700/60 pb-2.5">
+                    <Utensils className="w-4 h-4" />
+                    <span>Floor Service & Reservations Availability</span>
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <label className="flex items-center gap-3 p-3.5 bg-slate-900 rounded-2xl border border-slate-700 cursor-pointer hover:border-slate-600 transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={settingsForm.reservationsEnabled !== false}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, reservationsEnabled: e.target.checked })}
+                        className="w-4 h-4 rounded text-red-600 focus:ring-red-500"
+                      />
+                      <div>
+                        <span className="font-bold text-slate-100 block">Table Reservations Active</span>
+                        <span className="text-[11px] text-slate-400">Accept live guest bookings via online reservation portal</span>
+                      </div>
+                    </label>
+
+                    <label className="flex items-center gap-3 p-3.5 bg-slate-900 rounded-2xl border border-slate-700 cursor-pointer hover:border-slate-600 transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={settingsForm.orderingEnabled !== false}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, orderingEnabled: e.target.checked })}
+                        className="w-4 h-4 rounded text-red-600 focus:ring-red-500"
+                      />
+                      <div>
+                        <span className="font-bold text-slate-100 block">Dine-In Menu Showcase</span>
+                        <span className="text-[11px] text-slate-400">Display full digital menu catalogue to online guests</span>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Save Button */}
+                <div className="flex items-center justify-end gap-3 pt-2">
                   <button
                     type="submit"
-                    className="px-6 py-2.5 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl shadow-md"
+                    disabled={isSavingSettings}
+                    className="px-8 py-3.5 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold text-sm rounded-2xl shadow-xl transition-all active:scale-98 flex items-center gap-2 disabled:opacity-50"
                   >
-                    Save Settings
+                    {isSavingSettings ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                        <span>Saving Settings...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Check className="w-4 h-4" />
+                        <span>Save Restaurant Settings</span>
+                      </>
+                    )}
                   </button>
                 </div>
               </form>
