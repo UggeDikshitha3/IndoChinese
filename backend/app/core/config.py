@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
 
     # Database
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "postgresql://indochinese_user:indochinese_secure_password_2026@localhost:5432/indochinese_restaurant")
+    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./indochinese.db")
 
     # Admin
     ADMIN_EMAIL: str = os.getenv("ADMIN_EMAIL", "admin@indochinese.com")

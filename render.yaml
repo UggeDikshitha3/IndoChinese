@@ -15,7 +15,7 @@ services:
         value: https://indochinese.onrender.com
 
   # ----------------------------------------------------
-  # 2. Unified Fullstack Node Service (Alternative Option)
+  # 2. Unified Fullstack Node Service (Express + React)
   # ----------------------------------------------------
   - type: web
     name: indochinese-fullstack
@@ -26,6 +26,24 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ADMIN_EMAIL
+        value: master@indochinese.com
+      - key: ADMIN_PASSWORD
+        sync: false
+
+  # ----------------------------------------------------
+  # 3. Python FastAPI Backend Service (Alternative Option)
+  # ----------------------------------------------------
+  - type: web
+    name: indochinese-backend
+    runtime: python
+    plan: starter
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
       - key: JWT_SECRET
         generateValue: true
       - key: ADMIN_EMAIL
