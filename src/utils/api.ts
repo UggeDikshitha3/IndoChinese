@@ -6,10 +6,10 @@ export function getApiUrl(path: string): string {
   const metaEnv = (import.meta as any).env;
   let baseUrl = (metaEnv?.VITE_API_URL || '').replace(/\/$/, '');
 
-  // If running on a dedicated static frontend without built-in API (e.g. Vercel or static preview)
+  // If running on a static frontend on render.com or vercel without explicit VITE_API_URL, route to live backend API
   if (!baseUrl && typeof window !== 'undefined') {
     const host = window.location.hostname;
-    if (host.includes('indochinese-frontend.onrender.com') || host.includes('vercel.app')) {
+    if ((host.includes('onrender.com') && !host.startsWith('indochinese.onrender.com')) || host.includes('vercel.app')) {
       baseUrl = 'https://indochinese.onrender.com';
     }
   }

@@ -1,10 +1,25 @@
+import json
+from typing import List, Any
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import List
 from app.database.session import get_db
 from app.models.models import MenuItem as DBMenuItem
 from app.schemas.schemas import MenuItemCreate, MenuItemUpdate, MenuItemResponse
-import json
+
+def safe_json_loads(val: Any, default: Any = None):
+    if val is None:
+        return default if default is not None else []
+    if isinstance(val, (list, dict)):
+        return val
+    if isinstance(val, str):
+        val_clean = val.strip()
+        if not val_clean:
+            return default if default is not None else []
+        try:
+            return json.loads(val_clean)
+        except Exception:
+            return default if default is not None else []
+    return default if default is not None else []
 
 def ensure_default_menu(db: Session):
     try:
@@ -1562,8 +1577,8 @@ def get_menu(category: str = None, db: Session = Depends(get_db)):
                 "spiceLevel": item.spice_level,
                 "isVeg": item.is_veg,
                 "badge": item.badge if item.badge else None,
-                "allergens": json.loads(item.allergens) if item.allergens else [],
-                "options": json.loads(item.options) if item.options else [],
+                "allergens": safe_json_loads(item.allergens, []),
+                "options": safe_json_loads(item.options, []),
                 "isAvailable": item.is_available
             })
             
@@ -1600,8 +1615,8 @@ def create_menu_item(item_in: MenuItemCreate, db: Session = Depends(get_db)):
         "spiceLevel": new_item.spice_level,
         "isVeg": new_item.is_veg,
         "badge": new_item.badge if new_item.badge else None,
-        "allergens": json.loads(new_item.allergens) if new_item.allergens else [],
-        "options": json.loads(new_item.options) if new_item.options else [],
+        "allergens": safe_json_loads(new_item.allergens, []),
+        "options": safe_json_loads(new_item.options, []),
         "isAvailable": new_item.is_available
     }
 
@@ -1644,8 +1659,8 @@ def update_menu_item(id: str, item_in: MenuItemUpdate, db: Session = Depends(get
         "spiceLevel": item.spice_level,
         "isVeg": item.is_veg,
         "badge": item.badge if item.badge else None,
-        "allergens": json.loads(item.allergens) if item.allergens else [],
-        "options": json.loads(item.options) if item.options else [],
+        "allergens": safe_json_loads(item.allergens, []),
+        "options": safe_json_loads(item.options, []),
         "isAvailable": item.is_available
     }
 
