@@ -782,7 +782,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     setSaveSettingsSuccess(false);
 
     const token = localStorage.getItem('indochinese_admin_token') || 'indochinese_master_jwt_fallback_session';
-    const endpointsToTry = ['/api/admin/settings', '/api/settings', '/api/restaurant'];
+    const endpointsToTry = ['/api/restaurant', '/api/settings', '/api/admin/settings'];
 
     try {
       let success = false;
@@ -804,8 +804,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({
             updatedData = await res.json();
             success = true;
             break;
-          } else if (res.status === 404) {
-            continue;
           } else {
             const errData = await res.json().catch(() => ({ error: `Server error (${res.status})` }));
             lastError = errData.error || `Server responded with status ${res.status}`;
