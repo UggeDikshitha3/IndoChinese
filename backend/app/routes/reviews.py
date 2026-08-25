@@ -12,19 +12,9 @@ DEFAULT_25_REVIEWS = []
 
 def ensure_default_reviews(db: Session):
     try:
-        old_test_names = [
-            "Aarav Patel", "Priya Sharma", "Rohan Mehta", "Aisha Khan", "Marcus Davies",
-            "Sunita Verma", "Karan Joshi", "Fatima Al-Mansoor", "Vikram Malhotra", "Emily Watson",
-            "Ananya Deshmukh", "Tariq Hussain", "Zainab Qureshi", "George Cooper", "Meera Iyer",
-            "Sameer Sheikh", "Deepak Nair", "Chloe Bennett", "Harpreet Singh", "Layla Ahmed",
-            "Rajiv Sengupta", "Sophie Taylor", "Arjun Kapoor", "Zara Williams", "Nikhil Bansal",
-            "Hannah Davies", "Sneha Kulkarni", "David Sterling", "Zainab Begum", "Vikram Singhania",
-            "Elena Rostova", "Rahul Deshmukh", "Ananya Nair", "Thomas Wright", "Meera Joshi",
-            "Karan Mehra", "Deepak Patel"
-        ]
-        old_items = db.query(Review).filter(Review.name.in_(old_test_names)).all()
-        if old_items:
-            for item in old_items:
+        all_reviews = db.query(Review).all()
+        if all_reviews:
+            for item in all_reviews:
                 db.delete(item)
             db.commit()
     except Exception:
