@@ -21,12 +21,10 @@ def safe_json_loads(val: Any, default: Any = None):
             return default if default is not None else []
     return default if default is not None else []
 
-def ensure_default_menu(db: Session):
-    try:
-        raw_items = [
-            {
-                "id": "soup-manchow-veg",
-                "name": "Manchow Soup (Veg)",
+CANONICAL_MENU_ITEMS = [
+    {
+        "id": "soup-manchow-veg",
+        "name": "Manchow Soup (Veg)",
                 "category": "soups",
                 "price": 4.00,
                 "image_url": "/src/assets/images/bombay_manchow_soup_1786516536756.jpg",
@@ -1494,15 +1492,14 @@ def ensure_default_menu(db: Session):
                 "allergens": "[\"Gluten\", \"Dairy\"]",
                 "options": "[]"
             },
-        ]
-        
-        canonical_map = {item['name'].strip().lower(): item for item in raw_items}
-        
+def ensure_default_menu(db: Session):
+    try:
+        canonical_map = {item['name'].strip().lower(): item for item in CANONICAL_MENU_ITEMS}
         all_db_items = db.query(DBMenuItem).all()
         seen_names = set()
         
         for db_item in all_db_items:
-            norm_name = db_item.name.strip().lower()
+            norm_name = (db_item.name or '').strip().lower()
             if norm_name in seen_names:
                 db.delete(db_item)
             elif norm_name in canonical_map:
@@ -1586,32 +1583,35 @@ def get_menu(category: str = None, db: Session = Depends(get_db)):
                     "isAvailable": bool(item.is_available)
                 })
                 
-        if len(unique_items) > 0:
+        if len(unique_items) >= 50:
             return unique_items
     except Exception as e:
         print(f"Error fetching menu from DB: {e}")
     
-    # Fallback to in-memory menu items
-    return [
-        {
-            "id": "soup-manchow-veg",
-            "name": "Manchow Soup (Veg)",
-            "category": "soups",
-            "price": 4.00,
-            "image": "/src/assets/images/bombay_manchow_soup_1786516536756.jpg",
-            "description": "Authentic dark soya broth infused with garlic, coriander, ginger, seasonal vegetables and topped with crispy fried noodles.",
-            "isSpicy": True,
-            "spiceLevel": 1,
-            "isVeg": True,
-            "badge": "Popular",
-            "isChefSpecial": False,
-            "isPopular": True,
-            "allergens": ["Gluten", "Soya"],
-            "options": [],
+    # Complete authentic in-memory fallback list
+    fallback_items = []
+    for item in CANONICAL_MENU_ITEMS:
+        if category and item["category"] != category:
+            continue
+        fallback_items.append({
+            "id": item["id"],
+            "name": item["name"],
+            "category": item["category"],
+            "price": float(item["price"]),
+            "image": item["image_url"],
+            "description": item["description"] or "",
+            "isSpicy": bool(item.get("is_spicy", False)),
+            "spiceLevel": int(item.get("spice_level", 1)),
+            "isVeg": bool(item.get("is_veg", True)),
+            "badge": item.get("badge", None),
+            "isChefSpecial": item.get("badge") == "Chef Special",
+            "isPopular": item.get("badge") == "Popular",
+            "allergens": safe_json_loads(item.get("allergens"), []),
+            "options": safe_json_loads(item.get("options"), []),
             "available": True,
             "isAvailable": True
-        }
-    ]
+        })
+    return fallback_items
 
 @router.post("", response_model=MenuItemResponse)
 def create_menu_item(item_in: MenuItemCreate, db: Session = Depends(get_db)):
