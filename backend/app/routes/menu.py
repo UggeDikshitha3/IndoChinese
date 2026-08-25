@@ -1492,6 +1492,8 @@ CANONICAL_MENU_ITEMS = [
                 "allergens": "[\"Gluten\", \"Dairy\"]",
                 "options": "[]"
             },
+]
+
 def ensure_default_menu(db: Session):
     try:
         canonical_map = {item['name'].strip().lower(): item for item in CANONICAL_MENU_ITEMS}
