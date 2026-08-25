@@ -45,8 +45,15 @@ def health_check():
     return {"status": "healthy", "service": "indochinese-backend"}
 
 @app.get("/api/settings")
+@app.get("/api/admin/settings")
 def get_restaurant_settings_alias(db = Depends(restaurant.get_db)):
     return restaurant.get_restaurant_info(db)
+
+@app.put("/api/settings")
+@app.put("/api/admin/settings")
+@app.put("/api/admin/restaurant")
+def update_restaurant_settings_alias(data: dict = Body(...), db = Depends(restaurant.get_db)):
+    return restaurant.update_restaurant_info(data, db)
 
 # Static assets mount for menu pictures
 if os.path.exists("src/assets"):

@@ -782,27 +782,47 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     setSaveSettingsSuccess(false);
 
     const token = localStorage.getItem('indochinese_admin_token') || 'indochinese_master_jwt_fallback_session';
+    const endpointsToTry = ['/api/admin/settings', '/api/settings', '/api/restaurant'];
 
     try {
-      const res = await fetch(getApiUrl('/api/admin/settings'), {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify(settingsForm)
-      });
+      let success = false;
+      let lastError = '';
+      let updatedData: any = null;
 
-      if (res.ok) {
-        const updated = await res.json();
-        setSettingsForm(updated);
-        onUpdateSettings(updated);
+      for (const endpoint of endpointsToTry) {
+        try {
+          const res = await fetch(getApiUrl(endpoint), {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify(settingsForm)
+          });
+
+          if (res.ok) {
+            updatedData = await res.json();
+            success = true;
+            break;
+          } else if (res.status === 404) {
+            continue;
+          } else {
+            const errData = await res.json().catch(() => ({ error: `Server error (${res.status})` }));
+            lastError = errData.error || `Server responded with status ${res.status}`;
+          }
+        } catch (callErr: any) {
+          lastError = callErr?.message || 'Network connection failed';
+        }
+      }
+
+      if (success && updatedData) {
+        setSettingsForm(updatedData);
+        onUpdateSettings(updatedData);
         setSaveSettingsSuccess(true);
         setTimeout(() => setSaveSettingsSuccess(false), 4000);
         addAuditLog('Restaurant Settings Saved', 'Updated contact, operating hours, and business metadata.');
       } else {
-        const errData = await res.json().catch(() => ({ error: 'Failed to update restaurant settings' }));
-        setSaveSettingsError(errData.error || `Server responded with status ${res.status}`);
+        setSaveSettingsError(lastError || 'Could not reach server settings endpoint.');
       }
     } catch (err: any) {
       console.error('Save settings error:', err);
