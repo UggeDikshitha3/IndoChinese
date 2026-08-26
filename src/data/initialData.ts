@@ -88,6 +88,8 @@ const IMG_HYDERABAD_SPICY_RICE = '/src/assets/images/hyderabad_spicy_rice_178686
 const IMG_HYDERABAD_EGG_RICE = '/src/assets/images/hyderabad_egg_rice_1786964773898.jpg';
 const IMG_HYDERABAD_CHICKEN_RICE = '/src/assets/images/hyderabad_chicken_rice_1786964791860.jpg';
 const IMG_TRIPLE_COMBO = '/src/assets/images/triple_schezwan_combo_1786516611209.jpg';
+const IMG_COMBO_1 = '/src/assets/images/combo_1_manchurian_rice.jpg';
+const IMG_COMBO_2 = '/src/assets/images/combo_2_chilli_chicken_rice.jpg';
 
 // Restaurant & Ambience Imagery
 const IMG_KITCHEN_WOK = '/src/assets/images/fiery_wok_kitchen_1786965247008.jpg';
@@ -1669,7 +1671,7 @@ export const INITIAL_MENU_ITEMS: MenuItem[] = [
     isChefSpecial: false,
     isPopular: true,
     allergens: ["Gluten", "Soya", "Egg"],
-    image: '/src/assets/images/triple_schezwan_combo_1786516611209.jpg',
+    image: IMG_COMBO_1,
     available: true,
     options: [{"id": "c1-base-rice", "name": "Veg Fried Rice base", "priceModifier": 0}, {"id": "c1-base-noodles", "name": "Veg Noodles base", "priceModifier": 0}, {"id": "c1-base-chk-rice", "name": "Chicken Fried Rice base (+\u00a31.00)", "priceModifier": 1.0}, {"id": "c1-base-chk-noodles", "name": "Chicken Noodles base (+\u00a31.00)", "priceModifier": 1.0}]
   },
@@ -1685,7 +1687,7 @@ export const INITIAL_MENU_ITEMS: MenuItem[] = [
     isChefSpecial: false,
     isPopular: true,
     allergens: ["Gluten", "Soya", "Egg"],
-    image: '/src/assets/images/triple_schezwan_combo_1786516611209.jpg',
+    image: IMG_COMBO_2,
     available: true,
     options: [{"id": "c2-paneer-65", "name": "With Paneer 65 (Veg)", "priceModifier": 0}, {"id": "c2-chicken-65", "name": "With Chicken 65", "priceModifier": 0}]
   },
@@ -1807,7 +1809,7 @@ export const INITIAL_OFFERS: SpecialOffer[] = [
     discountBadge: 'ONLY £10.00',
     originalPrice: 12.50,
     offerPrice: 10.00,
-    image: IMG_TRIPLE_COMBO,
+    image: IMG_COMBO_2,
     validDays: 'Mon - Sun All Day',
     code: 'COMBO265',
     linkedMenuItemId: 'combo-2'
